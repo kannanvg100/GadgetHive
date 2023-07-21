@@ -1,0 +1,46 @@
+{{> navbar}}
+
+{{> categories categories = categories}}
+
+<div class="container">
+    <div class="mx-auto">
+        <a href="/shop/64b6ee0073d4eb0980010507"><img src="/images/hero (1).png" alt="" width="100%" class="border rounded mt-3"></a>
+    </div>
+
+    <div>
+        <p class="h6 mt-5 mb-3 fw-bold">Brands</p>
+        <div class="d-flex justify-content-start gap-5">
+        <a href="/search/p/1/?brand=samsung"><img src="/images/samsung.png" alt="" width="80px" height="80px"></a>
+        <a href="/search/p/1/?brand=apple"><img src="/images/apple.png" alt="" width="80px" height="80px"></a>
+        <a href="/search/p/1/?brand=vivo"><img src="/images/vivo.png" alt="" width="80px" height="80px"></a>
+        <a href="/search/p/1/?brand=oppo"><img src="/images/oppo.png" alt="" width="80px" height="80px"></a>
+        <a href="/search/p/1/?brand=google"><img src="/images/google.png" alt="" width="80px" height="80px"></a>
+        <a href="/search/p/1/?brand=nokia"><img src="/images/nokia.png" alt="" width="80px" height="80px"></a>
+        <a href="/search/p/1/?brand=mi"><img src="/images/mi.png" alt="" width="80px" height="80px"></a>
+        <a href="/search/p/1/?brand=realme"><img src="/images/realme.png" alt="" width="80px" height="80px"></a>
+        <a href="/search/p/1/?brand=moto"><img src="/images/moto.png" alt="" width="80px" height="80px"></a>
+        </div>
+    </div>
+        <div>
+        <p class="h6 mt-5 mb-3 fw-bold">Newly launched</p>
+        <div class="d-flex justify-content-start gap-3">
+            {{#each latestProducts}}
+                {{> product-list-item product = this}}
+            {{/each}}
+        </div>
+    </div>
+</div>
+
+{{> footer}}
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const wrapper = document.querySelectorAll(".wrapper")
+        wrapper.forEach(item =>{
+            item.addEventListener("click", (event)=>{
+                const idDiv = item.querySelector('#_id');
+                window.location.href = `/shop/${idDiv.innerHTML}`
+            })
+        })
+    })
+</script>

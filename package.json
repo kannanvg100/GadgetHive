@@ -1,0 +1,32 @@
+{
+	"name": "ghv2",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node server.js",
+		"dev": "nodemon server.js"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"bcrypt": "^5.1.0",
+		"body-parser": "^1.20.2",
+		"cookie-parser": "^1.4.6",
+		"express": "^4.18.2",
+		"express-handlebars": "^7.0.7",
+		"express-session": "^1.17.3",
+		"mongoose": "^7.3.1",
+		"morgan": "^1.10.0",
+		"multer": "^1.4.5-lts.1",
+		"nodemon": "^2.0.22",
+		"razorpay": "^2.9.1",
+		"twilio": "^4.13.0",
+		"validator": "^13.9.0"
+	},
+	"devDependencies": {
+		"dotenv": "^16.3.1"
+	}
+}

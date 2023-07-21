@@ -1,0 +1,438 @@
+{{> admin/navbar}}
+<div class="container-fluid">
+    <div class="row">
+        <div class="d-flex">
+
+            {{> admin/sidebar currTab = "products"}}
+
+            {{!-- Add a new product --}}
+
+            <div class="d-flex flex-column ms-2 mt-4 flex-grow-1">
+                <div class="mx-auto w-100" style="max-width: 550px;">
+
+                    {{#if editMode}}
+                    <form action="/products/edit" id="form">
+                        <span class="d-block fs-6 fw-bold">Update product details</span>
+                        {{else}}
+                        <form action="/products/add" id="form">
+                            <span class="d-block fs-6 fw-bold">Create a new product</span>
+                            {{/if}}
+
+                            <span class="d-block fw-bold mt-3">General Information</span>
+
+                            <input type="hidden" name="id" value="{{product._id}}">
+                            <div class="mt-3">
+                                <span class="d-block">Product Title</span>
+                                <input class="input-1 mt-1 w-100" type="text" name="title" value="{{product.title}}">
+                            </div>
+
+                            <div class="d-flex gap-3 mt-3">
+                                <div class="flex-grow-1">
+                                    <span class="d-block">Highlight</span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="highlight"
+                                        value="{{product.highlight}}">
+                                </div>
+                                <div class="flex-grow-1">
+                                    <span class="d-block">Brand</span>
+                                    <select class="w-100 input-1 mt-1" name="brand">
+                                        <option disabled selected>Choose a brand</option>
+                                        {{#each brands}}
+                                        <option value={{this._id}}>{{this.name}}</option>
+                                        {{/each}}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <span class="d-block">Description</span>
+                                <textarea class="input-1 h-auto mt-1 w-100" type="text" rows="5"
+                                    name="description">{{product.description}}</textarea>
+                            </div>
+
+                            <div class="mt-3">
+                                <span class="d-block mb-1">Category</span>
+                                <select class="w-50 input-1" name="category">
+                                    <option disabled selected>Choose a category</option>
+                                    {{#each categories}}
+                                    <option value={{this._id}}>{{capitalize this.name}}</option>
+                                    {{/each}}
+                                </select>
+                            </div>
+
+                            <span class="d-block fw-bold mt-3">Specifications</span>
+
+                            <div class="d-flex gap-3">
+                                <div class="mt-3 flex-grow-1">
+                                    <span class="d-block">Color</span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="color"
+                                        value="{{product.color}}">
+                                </div>
+                                <div class="mt-3 flex-grow-1">
+                                    <span class="d-block">Memory</span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="memory"
+                                        value="{{product.memory}}">
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-3">
+                                <div class="mt-3 flex-grow-1">
+                                    <span class="d-block">Storage</span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="storage"
+                                        value="{{product.storage}}">
+                                </div>
+                                <div class="mt-3 flex-grow-1">
+                                    <span class="d-block">Operationg system</span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="os" value="{{product.os}}">
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-3">
+                                <div class="mt-3 flex-grow-1">
+                                    <span class="d-block">Display</span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="display"
+                                        value="{{product.display}}">
+                                </div>
+                                <div class="mt-3 flex-grow-1">
+                                    <span class="d-block">Networks supported</span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="network"
+                                        value="{{product.network}}">
+                                </div>
+                            </div>
+
+                            <span class="d-block fw-bold mt-3">Pricing</span>
+
+                            <div class="d-flex gap-3">
+                                <div class="mt-3 flex-grow-1">
+                                    <span class="d-block">Selling Price</span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="price"
+                                        value="{{product.price}}">
+                                </div>
+                                <div class="mt-3 flex-grow-1">
+                                    <span class="d-block">MRP</span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="mrp" value="{{product.mrp}}">
+                                </div>
+                            </div>
+
+                            <span class="d-block fw-bold mt-3">Inventory</span>
+
+                            <div class="d-flex gap-3">
+                                <div class="mt-3 flex-grow-1">
+                                    <span class="d-block">Status</span>
+                                    <select class="w-100 input-1 mt-1" name="status">
+                                        <option disabled selected>Choose product status</option>
+                                        <option value="listed">Listed</option>
+                                        <option value="delisted">Delisted</option>
+                                        <option value="draft">Draft</option>
+                                    </select>
+                                </div>
+                                <div class="mt-3 flex-grow-1">
+                                    <span class="d-block">Stock</span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="stock"
+                                        value="{{product.stock}}">
+                                </div>
+                            </div>
+
+                            <span class="d-block fw-bold mt-3">Product images</span>
+
+                            <div class="dropOrChoose mt-1">
+                                <div id="dropzone">
+                                    <span>Drop images here, or</span>
+                                    <input type="file" id="fileInput" name="images" multiple hidden>
+                                    <a id="browseButton"><span class="text-primary cursor-pointer">click here to
+                                            browse</span></a>
+                                </div>
+                                <div class="" id="imageContainer"></div>
+                            </div>
+
+                            {{#if editMode}}
+                            <div class="text-end mt-3">
+                                {{!-- <button type="button" id="delist-btn" class="btn-1">Delist product</button> --}}
+                                <button type="button" id="delete-btn" class="btn-4">Delete product</button>
+                                <button type="button" id="submit-btn" class="btn-3">Update product</button>
+                            </div>
+                            {{else}}
+                            <div class="text-end mt-3">
+                                <button id="submit-btn" type="button" class="btn-3">Publish product</button>
+                            </div>
+                            {{/if}}
+
+                        </form>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div id="crop-container" hidden>
+    <div class="bg-transparent d-flex justify-content-center align-items-center h-75 w-75 mx-auto mt-5">
+        <img class="d-block" id="crop-image" alt="Failed to load image" style="max-width: 80% !important;">
+    </div>
+        <div class="w-75 mt-3 mx-auto">
+            <span class="btn-1 float-end ms-2" id="crop-button">Crop</span>
+            <span class="btn-2 float-end" id="crop-cancel-button">Cancel</span>
+            </div>
+</div>
+
+<br>
+<br>
+<br>
+{{> admin/footer}}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<style>
+    #crop-container {
+        position: fixed;
+        inset: 0px;
+        background-color: #000000ff;
+        z-index: 9990;
+    }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+{{!-- Drop files and create preiews --}}
+<script>
+    let dropzone = document.getElementById('dropzone');
+    let imageContainer = document.getElementById('imageContainer');
+    let fileInput = document.getElementById('fileInput');
+    let browseButton = document.getElementById('browseButton');
+    let cropConatainer = document.querySelector('#crop-container');
+    let changeOrderButton = document.createElement('button');
+    let lastImgNode = ""
+    const cropImage = document.querySelector('#crop-image');
+    const cropper = new Cropper(cropImage, {
+        aspectRatio: 1,
+        viewMode: 1,
+        zoomable: true,
+        guides: false,
+        background: false,
+        autoCrop: true,
+        autoCropArea: 1,
+    });
+
+    dropzone.addEventListener('dragover', function (event) {
+        event.preventDefault();
+        dropzone.style.background = 'lightblue';
+    });
+
+    dropzone.addEventListener('dragleave', function (event) {
+        event.preventDefault();
+        dropzone.style.background = '';
+    });
+
+    dropzone.addEventListener('drop', function (event) {
+        event.preventDefault();
+        dropzone.style.background = '';
+
+        let files = event.dataTransfer.files;
+        handleFiles(files);
+    });
+
+    browseButton.addEventListener('click', function () {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', function (event) {
+        let files = event.target.files;
+        handleFiles(files);
+    });
+
+    function handleFiles(files) {
+        for (let i = 0; i < files.length; i++) {
+            let file = files[i];
+            if (file.type.startsWith('image/')) {
+                let reader = new FileReader();
+
+                reader.onload = function (event) {
+                    let image = document.createElement('img');
+                    image.src = event.target.result;
+                    image.classList.add('droppedImage');
+
+                    let imageItem = document.createElement('div');
+
+                    imageItem.classList.add('item-container');
+                    imageItem.appendChild(image);
+
+                    let details = document.createElement('span');
+                    let fileSize = Math.ceil(file.size / 1024)
+                    fileSize = fileSize <= 1023 ? fileSize + " KB" : (fileSize / 1024).toFixed(1) + " MB"
+                    details.innerText = file.name + "\n" + fileSize;
+                    imageItem.appendChild(details);
+
+                    let resizeButton = document.createElement('div');
+                    resizeButton.classList.add('resizeButton');
+                    imageItem.appendChild(resizeButton);
+
+                    let removeButton = document.createElement('div');
+                    removeButton.classList.add('removeButton');
+                    imageItem.appendChild(removeButton);
+
+                    resizeButton.addEventListener('click', (e) => {
+                        cropConatainer.hidden = false
+                        lastImgNode = e.target.previousElementSibling.previousElementSibling
+                        cropper.replace(lastImgNode.src)
+
+                        const cropButton = document.getElementById('crop-button');
+                        cropButton.addEventListener('click', function () {
+                            const canvas = cropper.getCroppedCanvas();
+                            const croppedImage = document.createElement('img');
+                            lastImgNode.src = canvas.toDataURL()
+                            cropConatainer.hidden = true
+                        });
+
+                        const cropCancelButton = document.getElementById('crop-cancel-button');
+                        cropCancelButton.addEventListener('click', function () {
+                            cropConatainer.hidden = true
+                        });
+
+                    })
+
+                    removeButton.addEventListener('click', function () {
+                        imageContainer.removeChild(imageItem);
+                    })
+
+                    imageContainer.appendChild(imageItem);
+
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+    }
+</script>
+
+<script>
+
+    window.onload = function () {
+        const form = document.querySelector("#form")
+        const data = {{{ json product }}}
+    if (data) {
+        form.brand.value = data.brand
+        form.category.value = data.category
+        form.status.value = data.status
+
+        data.images.forEach(item => {
+            let image = document.createElement('img');
+            image.src = `/assets/${item}`
+            image.classList.add('droppedImage');
+
+            let imageItem = document.createElement('div');
+
+            let moveButton = document.createElement('div');
+            moveButton.classList.add('moveButton');
+            imageItem.appendChild(moveButton);
+
+            imageItem.classList.add('item-container');
+            imageItem.appendChild(image);
+
+            let details = document.createElement('span');
+            details.innerText = item
+            imageItem.appendChild(details);
+
+            let removeButton = document.createElement('div');
+            removeButton.classList.add('removeButton');
+            imageItem.appendChild(removeButton);
+
+            removeButton.addEventListener('click', function () {
+                fetch("/products/delete-image", {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        id: form.id.value,
+                        file: item
+                    }),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            //passwordError.innerHTML = data.message
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error)
+                    })
+                imageContainer.removeChild(imageItem);
+            })
+
+            imageContainer.appendChild(imageItem);
+        })
+
+
+        const deleteBtn = document.querySelector("#delete-btn")
+        deleteBtn.addEventListener("click", (e) => {
+            e.preventDefault()
+            fetch("/products/delete", {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id: form.id.value }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = "/products/all/p/1"
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error)
+                })
+        })
+    }
+    }
+
+    const submit = document.querySelector('#submit-btn')
+    submit.addEventListener('click', () => {
+        const formInputs = new FormData(form);
+        const productData = {};
+        for (let [name, value] of formInputs) {
+            productData[name] = value;
+        }
+        const imageElements = document.querySelectorAll('.droppedImage');
+        const formData = new FormData();
+        imageElements.forEach((image) => {
+            const imageUrl = image.src;
+            if(imageUrl.startsWith('data')){
+                const base64Data = imageUrl.split(',')[1];
+                const fileExtension = imageUrl.substring('data:image/'.length, imageUrl.indexOf(';base64'));
+                const blob = b64toBlob(base64Data, fileExtension);
+                formData.append('images', blob, `image.${fileExtension}`);
+            }
+        })
+        
+        delete productData['images'];
+        formData.append("productData", JSON.stringify(productData));
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = "/products/all/p/1"
+                }else showToast(data.message)
+            })
+            .catch(error => {
+                console.error("Error:", error)
+            })
+    })
+
+    // Helper function to convert base64 data to Blob
+    function b64toBlob(base64Data, fileExtension) {
+        const byteCharacters = atob(base64Data);
+        const byteArrays = [];
+
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteArrays.push(byteCharacters.charCodeAt(i));
+        }
+
+        const byteArray = new Uint8Array(byteArrays);
+        return new Blob([byteArray], { type: `image/${fileExtension}` });
+    }
+
+</script>

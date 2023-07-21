@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GadgetHive</title>
+    <link rel="shortcut icon" href="/images/favicon.svg" type="image/x-icon">
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+</head>
+
+<body>
+    <div id="modal-container">
+        <div id="modal-content" class="border rounded">
+            <div class="d-flex justify-content-between align-items-center">
+                <p class="fw-bold" id="title">Delete Confirmation</p>
+                <img src="/images/close.svg" alt="" width="16px" height="16px" id="close-btn" class="cursor-pointer">
+            </div>
+            <div class="clearfix"></div>
+            <p class="mt-1" id="text">Are you sure you want to delete this item?</p>
+            <span id="confirmButton" class="btn-1 mt-4 float-end">Delete</span>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+    {{{body}}}
+    <div id="toastContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js" integrity="sha512-jEnuDt6jfecCjthQAJ+ed0MTVA++5ZKmlUcmDGBv2vUI/REn6FuIdixLNnQT+vKusE2hhTk2is3cFvv5wA+Sgg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        var toastContainer = document.getElementById("toastContainer");
+        var isToastVisible = false;
+        function showToast(msg) {
+            if (isToastVisible) return;
+
+            var toast = document.createElement("div");
+            toast.classList.add("toast");
+            toast.textContent = msg;
+
+            toastContainer.appendChild(toast);
+            isToastVisible = true;
+
+            setTimeout(function () {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(function () {
+                toast.classList.remove("show");
+                setTimeout(function () {
+                    toastContainer.removeChild(toast);
+                    isToastVisible = false;
+                }, 2000);
+            })
+        }
+
+        const modal = document.querySelector('#modal-container');
+        const closeBtn = document.querySelector('#close-btn')
+        const confirmButton = document.querySelector('#confirmButton');
+
+        function openModal(title, text, buttonText) {
+            modal.style.display = 'block';
+            modal.querySelector('#title').textContent = title
+            modal.querySelector('#text').textContent = text
+            confirmButton.textContent = buttonText
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        closeBtn.addEventListener('click', closeModal);
+        {{!-- document.addEventListener('click', function (event) {
+            if (!modal.contains(event.target)) {
+                closeModal()
+            }
+        }); --}}
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+    </script>
+</body>
+
+</html>

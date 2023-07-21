@@ -1,0 +1,126 @@
+{{> admin/navbar}}
+<div class="container-fluid">
+    <div class="row vh-100">
+        <div class="d-flex">
+
+            {{> admin/sidebar currTab = "orders"}}
+            <div class="border-end ms-2"></div>
+            <div class="ms-3 mt-4 flex-grow-1">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fs-6 fw-bold">Orders</span>
+
+                    <div class="d-flex gap-3">
+                        <div class="search-wrapper position-relative" hidden>
+                            <img src="/images/Search.svg" alt="" width="16px" height="16px" class=" position-absolute">
+                            <input type="text" class="flex-grow-1 border border-1 rounded header-search"
+                                id="navbar-search-input" placeholder="Serach for products">
+                        </div>
+                        <a href="/products/add">
+                            <div class="btn-2" hidden>
+                                <img src="/images/add.svg" alt="" width="16px" height="16px">
+                                <span>New product</span>
+                            </div>
+                        </a>
+                    </div>
+
+                </div>
+                <div class="m-1 border rounded w-100 mt-4">
+                    <table class="table table-hover" id="tbl">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="border-top-left-radius: 0.375rem !important;">Order ID</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">User ID</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Total Amount</th>
+                                <th scope="col">Payment Mode</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            {{#each orders}}
+
+                            <tr>
+                                <td class="text-truncate" style="max-width: 60px;">{{this._id}}</td>
+                                <td>{{getDate this.createdAt}}</th>
+                                <td>{{this.user.email}}</td>
+                                <td>{{this.status}}</td>
+                                <td>{{count this.items}}</td>
+                                <td>{{formatPrice (sumAmount this.items)}}</td>
+                                <td>{{this.paymentMode}}</td>
+                            </tr>
+
+                            {{/each}}
+
+                        </tbody>
+                    </table>
+                    <div class="text-center my-4 ms-5">
+
+                        {{#loop totalPages}}
+                            <a href="/admin/orders/p/{{this}}">
+                                <span class="mx-1 {{#if (isActive ../page this)}}bg-off-white p-2 rounded fw-bold{{/if}}">{{this}}</span>
+                            </a>
+                        {{/loop}}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{> admin/footer}}
+
+<script>
+
+    addRowHandlers = () => {
+        const table = document.getElementById("tbl")
+        const rows = table.getElementsByTagName("tr")
+        for (i = 1; i < rows.length; i++) {
+            const currentRow = table.rows[i]
+            const createClickHandler = row => {
+                return () => {
+                    const cell = row.getElementsByTagName("td")[0]
+                    const id = cell.innerHTML
+                    window.location.href = `/admin/orders/?id=${id}`
+                }
+            }
+            currentRow.onclick = createClickHandler(currentRow)
+        }
+    }
+    window.onload = addRowHandlers()
+
+</script>
+
+
+<style>
+    #navbar-search-input {
+        min-width: 300px;
+        border: 1px solid #9CA3AF;
+        background-color: #F9FAFB;
+        border-radius: 8px;
+        height: 32px;
+        font-size: 12px;
+        text-indent: 30px;
+    }
+
+    .search-wrapper input::placeholder {
+        color: #9CA3AF;
+    }
+
+    #navbar-search-input:focus {
+        outline: 1px solid #4D4DFF;
+    }
+
+    .search-wrapper img {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translate(50%, -50%);
+    }
+
+    td {
+        vertical-align: middle;
+    }
+</style>

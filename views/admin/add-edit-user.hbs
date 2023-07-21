@@ -1,0 +1,154 @@
+{{> admin/navbar}}
+<div class="container-fluid">
+    <div class="row">
+        <div class="d-flex">
+            
+            {{> admin/sidebar currTab = "users"}}
+
+            {{!-- Add a new product --}}
+            
+                <div class="d-flex flex-column ms-2 mt-4 flex-grow-1">
+                    <div class="mx-auto w-100" style="max-width: 550px;">
+                        {{#if editMode}}
+                        <form id="form">
+                        {{else}}
+                        <form action="/users/add" method="POST" id="form">
+                        {{/if}}
+
+                        {{#if editMode}}
+                            <span class="d-block fs-6 fw-bold">Update user details</span>
+                        {{else}}
+                            <span class="d-block fs-6 fw-bold">Create a new user account</span>
+                        {{/if}}
+                        <span class="d-block fw-bold mt-3">General Information</span>
+
+                        <input type="hidden" name="id">
+
+                        <div class="d-flex gap-3 mt-3">
+                            <div class="flex-grow-1">
+                                <span class="d-block">Email Address</span>
+                                <input class="input-1 mt-1 w-100" type="text" name="email">
+                            </div>                
+                            <div class="flex-grow-1">
+                                <span class="d-block">Mobile number</span>
+                                <input class="input-1 mt-1 w-100" type="text" name="phone">
+                            </div>  
+                        </div>
+
+                        <div class="mt-3">
+                            <span class="d-block">Name</span>
+                            <input class="input-1 mt-1 w-100" type="text" name="name">
+                        </div>
+
+                        <div class="mt-3">
+                        {{#if editMode}}
+                            <span class="d-block">New Password</span>
+                        {{else}}
+                            <span class="d-block">Password</span>
+                        {{/if}}
+                            <input class="input-1 mt-1 w-100" type="text" name="password">
+                        </div>
+
+                        <div class="mt-3">
+                            <span class="d-block mb-1">Status</span>
+                            <select class="w-50 input-1" name="isActive">
+                                <option disabled selected>Choose a status</option>
+                                <option value=true>Active</option>
+                                <option value=false>Blocked</option>
+                            </select>
+                        </div>
+
+                        {{#if editMode}}
+                            <div class="text-end mt-3">
+                                <button id="delete-btn" class="btn-4">Delete user</button>
+                                {{!-- <button id="block-btn" class="btn-1">Block user</button> --}}
+                                <button id="update-btn" class="btn-3">Update user</button>
+                            </div>
+                        {{else}}
+                            <div class="text-end mt-3">
+                                <button type="submit" class="btn-3">Create user</button>
+                            </div>
+                        {{/if}}
+
+                        </form>
+                    </div>
+
+                </div>
+           
+        </div>
+    </div>
+</div>
+
+<br>
+<br>
+<br>
+<br>
+
+{{> admin/footer}}
+
+<script>
+    window.onload = function() {
+    const data = {{{user}}};
+    const form = document.querySelector("#form")
+    if(data){    
+        form.id.value = data._id
+        form.name.value = data.name
+        form.email.value = data.email
+        form.phone.value = data.phone
+        form.isActive.value = data.isActive
+        form.password.value = data.password
+    }
+    }
+
+    const deleteBtn = document.querySelector("#delete-btn")
+    deleteBtn.addEventListener("click", (e)=>{
+        e.preventDefault()
+        fetch("/users/delete", {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({id: form.id.value}),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = "/users/p/1"
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error)
+            })
+    })
+
+    const updateBtn = document.querySelector("#update-btn")
+    updateBtn.addEventListener("click", e => {
+        e.preventDefault()
+        const data = {
+                id: form.id.value,
+                name: form.name.value,
+                email: form.email.value,
+                phone: form.phone.value,
+                isActive: form.isActive.value
+            }
+        if(form.password.value !== "") data.password = form.password.value
+        fetch("/users/edit", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    
+                    window.location.href = "/users/p/1"
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error)
+            })
+})
+
+</script>

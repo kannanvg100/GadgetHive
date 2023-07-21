@@ -1,0 +1,38 @@
+<div class="d-flex flex-column mt-1 admin-navbar" style="min-width: 150px;">
+    <a href="/admin/">
+        <div class="ps-1 pe-5 py-1 border-0 rounded {{#if (isActive currTab 'dashboard')}}bg-off-white fw-semibold{{/if}}">
+            <img src="/images/dashboard.svg" alt="" width="20px" height="20px">
+            <span class="">Dashboard</span>
+        </div>
+    </a>
+    <a href="/products/all/p/1">
+        <div class="ps-1 pe-5 py-1 border-0 rounded {{#if (isActive currTab 'products')}}bg-off-white fw-semibold{{/if}}">
+            <img src="/images/products.svg" alt="" width="20px" height="20px">
+            <span class="">Products</span>
+        </div>
+    </a>
+    <a href="/admin/orders/p/1">
+        <div class="ps-1 pe-5 py-1 border-0 rounded {{#if (isActive currTab 'orders')}}bg-off-white fw-semibold{{/if}}">
+            <img src="/images/orders.svg" alt="" width="20px" height="20px">
+            <span class="">Orders</span>
+        </div>
+    </a>
+    <a href="/categories/">
+        <div class="ps-1 pe-5 py-1 border-0 rounded {{#if (isActive currTab 'categories')}}bg-off-white fw-semibold{{/if}}">
+            <img src="/images/folder_copy.svg" alt="cat" width="20px" height="20px">
+            <span class="">Categories</span>
+        </div>
+    </a>
+        <a href="/users/p/1">
+        <div class="ps-1 pe-5 py-1 border-0 rounded {{#if (isActive currTab 'users')}}bg-off-white fw-semibold{{/if}}">
+            <img src="/images/user_group.svg" alt="" width="20px" height="20px">
+            <span class="">Users</span>
+        </div>
+    </a>
+    <a href="/admin/logout">
+        <div class="ps-1 pe-5 py-1 border-0 rounded {{#if (isActive currTab 'logout')}}bg-off-white fw-semibold{{/if}}">
+            <img src="/images/sign_out.svg" alt="" width="20px" height="20px">
+            <span class="">Logout</span>
+        </div>
+    </a>
+</div>

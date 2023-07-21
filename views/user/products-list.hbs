@@ -1,0 +1,47 @@
+{{> navbar}}
+{{> categories categories = categories}}
+{{> breadcrumbs path = path}}
+
+<div class="container mt-2">
+    <div class="d-flex gap-4">
+
+        {{> filter-panel}}
+        <div class="d-flex gap-5 flex-grow-1 flex-wrap mx-auto">
+
+            {{#if (isNull products)}}
+            <h5>No products were found</h5>
+            {{/if}}
+
+            {{#each products}}
+                {{> product-list-item product = this}}
+            {{/each}}
+
+        </div>
+    </div>
+
+    <div class="text-center mt-5 ms-5">
+
+        {{#loop totalPages}}
+            <a href="/shop/phones/p/{{this}}">
+                <span class="fs-6 mx-1 {{#if (isActive ../page this)}}bg-off-white p-2 rounded fw-bold{{/if}}">
+                    {{this}}
+                </span>
+            </a>
+        {{/loop}}
+
+    </div>
+</div>
+
+{{> footer}}
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const wrapper = document.querySelectorAll(".wrapper")
+        wrapper.forEach(item =>{
+            item.addEventListener("click", (event)=>{
+                const idDiv = item.querySelector('#_id');
+                window.location.href = `/shop/${idDiv.innerHTML}`
+            })
+        })
+    })
+</script>

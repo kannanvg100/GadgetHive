@@ -1,0 +1,46 @@
+{{> navbar}}
+<br>
+<div class="container w-50 mx-auto">
+    <p class="h5">Orders
+        <span class=" text-muted cart-items-count">( {{size orders}} )</span>
+    </p>
+    {{#if (isNull orders)}}
+    <div class="text-center">
+        <a href="/">
+            <p class="mt-5 mb-3">No orders, your order will appear here.</p>
+        </a>
+        <a href="/home"><span class="btn-1">Go to Home</span></a>
+    </div>
+    {{else}}
+    <div class="row">
+        {{#each orders}}
+        <div class="d-flex bg-off-white rounded p-3 mt-3 gap-3 orders-item cursor-pointer" data-id="{{this._id}}">
+            <img class="" src="{{getImageUrl (getFirstProductImgUrl this)}}" alt="" width="100px">
+            <div class="d-flex flex-column gap-2">
+                <span class="p fw-bold">{{getFirstProductTitle this}}<span class="p fw-normal">{{getFirstProductTitleExt this}}</span></span>
+                <span class="fw-bold">{{getDate this.createdAt}}</span>
+                <span class="fw-bold">{{formatOrderStatus this.status}}</span>
+                <span class="">{{formatPrice this.totalAmount}}</span>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    {{/if}}
+</div>
+
+<div class="text-center mt-5 ms-5">
+
+</div>
+</div>
+
+{{> footer}}
+
+<script>
+    const orderItems = document.querySelectorAll(".orders-item")
+    orderItems.forEach(item => {
+        item.addEventListener('click', e => {
+            const id = e.target.closest('.orders-item').getAttribute('data-id');
+            window.location = `/orders/${id}`
+        })
+    })
+</script>

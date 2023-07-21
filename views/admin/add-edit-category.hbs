@@ -1,0 +1,152 @@
+{{> admin/navbar}}
+<div class="container-fluid">
+    <div class="row">
+        <div class="d-flex">
+
+            {{> admin/sidebar currTab = "categories"}}
+
+            {{!-- Add a new product --}}
+
+            <div class="d-flex flex-column ms-2 mt-4 flex-grow-1">
+                <div class="mx-auto w-100" style="max-width: 550px;">
+                    {{#if editMode}}
+                    <form id="form">
+                        {{else}}
+                        <form action="/category/add" method="POST" id="form">
+                            {{/if}}
+
+                            {{#if editMode}}
+                            <span class="d-block fs-6 fw-bold">Update category details</span>
+                            {{else}}
+                            <span class="d-block fs-6 fw-bold">Create a new category</span>
+                            {{/if}}
+                            <span class="d-block fw-bold mt-3">General Information</span>
+
+                            <input type="hidden" name="id" value={{category._id}} disabled hidden readonly>
+
+                            <div class="d-flex gap-3 mt-3">
+                                <div class="flex-grow-1">
+                                    <span class="d-block">Name</span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="name" value={{category.name}}>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <span class="d-block">Description</span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="description"
+                                        value={{category.description}}>
+                                </div>
+                            </div>
+
+                            {{#if editMode}}
+                            <div class="text-end mt-3">
+                                <button id="delete-btn" class="btn-4">Delete category</button>
+                                <button id="update-btn" class="btn-3">Update category</button>
+                            </div>
+                            {{else}}
+                            <div class="text-end mt-3">
+                                <button type="button" id="save-btn" class="btn-3">Create category</button>
+                            </div>
+                            {{/if}}
+
+                        </form>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<br>
+<br>
+<br>
+<br>
+
+{{> admin/footer}}
+
+<script>
+    window.onload = function () {
+        const form = document.querySelector("#form")
+    }
+
+    if ({{{editMode}}}) {
+        const deleteBtn = document.querySelector("#delete-btn")
+        deleteBtn.addEventListener("click", (e) => {
+            e.preventDefault()
+            fetch("/category/delete", {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id: form.id.value, qty: qty }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = "/categories"
+                    } else {
+                        showToast(data.message)
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error)
+                })
+        })
+
+        const updateBtn = document.querySelector("#update-btn")
+        updateBtn.addEventListener("click", e => {
+            e.preventDefault()
+            const data = {
+                id: form.id.value,
+                name: form.name.value,
+                description: form.description.value,
+            }
+            fetch("/category/edit", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = "/categories"
+                    } else {
+                        showToast(data.message)
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error)
+                })
+        })
+    }else {
+
+        const saveBtn = document.querySelector("#save-btn")
+        saveBtn.addEventListener("click", e => {
+            e.preventDefault()
+            const data = {
+                name: form.name.value,
+                description: form.description.value,
+            }
+            fetch("/category/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = "/categories"
+                    } else {
+                        showToast(data.message)
+                    }
+                })
+                .catch(error => {
+                    console.error("Something went wrong, Pls try again later")
+                })
+        })
+    }
+
+</script>

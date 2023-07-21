@@ -1,0 +1,46 @@
+<div class="cart-item-parent">
+    {{#if index}}
+    <hr class="m-0 mx-2">
+    {{/if}}
+    <div class="cart-item d-flex gap-4 p-3">
+        <div class="align-self-center">
+            <img src="assets/{{getFirstItem item.product.images}}" alt="product_image" width="75px">
+        </div>
+        <div class="align-self-center flex-grow-1">
+            <p class="fw-bold">{{item.product.title}}</p>
+            <p class="">{{item.product.memory}},&nbsp;{{item.product.storage}}</p>
+            <p class="">{{item.product.color}}</p>
+            <br>
+            <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold">Qty: </span>
+                <div data-id="{{item.product._id}}" data-qty={{item.quantity}} class="quantity-selector">
+                    <button class="dropdown-toggle">
+                        <span id="product-qty" class="selected-quantity me-1">{{item.quantity}}</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-item" value="1">1</li>
+                        <li class="dropdown-item" value="2">2</li>
+                        <li class="dropdown-item" value="3">3</li>
+                        <li class="dropdown-item" value="4">4</li>
+                        <li class="dropdown-item" value="5">5</li>
+                        <li class="dropdown-item" value="6">6</li>
+                        <li class="dropdown-item" value="7">7</li>
+                        <li class="dropdown-item" value="8">8</li>
+                        <li class="dropdown-item" value="9">9</li>
+                        <li class="dropdown-item" value="10">10</li>
+                    </ul>
+                </div>
+                {{!-- <span class="fw-bold" id="product-qty" data-qty={{item.quantity}}>Qty: {{item.quantity}}</span> --}}
+                <img class="delete-btn cursor-pointer" data-id="{{item._id}}" src="/images/trash.svg" alt="delete_button" width="20px"
+                    height="20px">
+                <img class="move-to-whishlist-btn ms-4 cursor-pointer" data-id="{{item._id}}" src="/images/favorite.svg"
+                    alt="move_to_wishlist_button" width="20px" height="20px">
+            </div>
+        </div>
+        <div class="align-self-end">
+            <p class="d-none" id="product-mrp" data-mrp={{item.product.mrp}}></p>
+            <p class="fw-bold" id="product-price" data-price={{item.product.price}}>{{formatPrice (product
+                item.product.price item.quantity)}}</p>
+        </div>
+    </div>
+</div>

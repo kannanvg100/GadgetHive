@@ -1,0 +1,36 @@
+{{> navbar}}
+
+<div class="container">
+    <div class="row">
+        <div class="d-flex flex-column justify-content-center align-items-center mt-5 gap-5">
+            <div id="animationContainer" class=""></div>
+            <a href="/home"><span class="btn-1 mt-5">Go to Home</span></a>
+        </div>
+    </div>
+</div>
+
+{{> footer}}
+
+<style>
+    #animationContainer{
+        width: 300px;
+        height: 300px;
+    }
+</style>
+
+<script>
+  // Wait for the page to load
+  document.addEventListener('DOMContentLoaded', function () {
+    // Select the container element
+    var container = document.getElementById('animationContainer');
+
+    // Load the animation JSON file
+    var animation = lottie.loadAnimation({
+      container: container, // Container to render the animation
+      renderer: 'svg', // Choose the renderer (svg, canvas, html)
+      loop: true, // Set whether the animation should loop
+      autoplay: true, // Set whether the animation should start automatically
+      path: '/images/animation_lk93ljwd.json' // Path to the animation JSON file
+    });
+  });
+</script>

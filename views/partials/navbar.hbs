@@ -1,0 +1,171 @@
+<header class="fixed-top" style="background-color: #f4f4f4;">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center gap-1" style="height: 60px;">
+            <div>
+                <a href="/home"><img src="/images/GadgetHive.svg" alt="logo" width="120px"></a>
+            </div>
+
+            <div class="d-flex align-items-center gap-4">
+
+                <div class="position-relative" style="width: 300px; height: 60px;">
+
+                    <div class="search-wrapper position-absolute t33">
+                        <div class="position-relative bg-white border rounded">
+                            <img src="/images/Search.svg" alt="" width="16px" height="16px" class=" position-absolute">
+                            <input type="text" class="border-0 bg-transparent" id="navbar-search-input"
+                                placeholder="Serach for Products">
+                            <div id="results-container">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex gap-4 align-items-center">
+
+                    <a href="/wishlist"><img src="/images/Favorite.svg" alt="" width="20px" height="20px"></a>
+                    <div class="user-container position-relative">
+                        <div class="px-1"><img src="/images/User.svg" alt="" width="20px" height="60px"></div>
+                        <div class="user-popup-menu">
+                            <ul>
+                                <li><span class="fw-bold" id="welcome-text">Welcome</span></li>
+                                <li id="login-span"><a href="/login"><span class="btn-2">LOGIN NOW</span></a></li>
+                                <li><a href="/account"><span>Account</span></a></li>
+                                <li><a href="/orders/p/1"><span>Orders</span></a></li>
+                                <li><a href="/wishlist"><span>Wishlist</span></a></li>
+                                <li id="logout-span" hidden><a href="/logout"><span>Logout</span></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <a class="{{hideDiv hideCartIcon}}" href="/cart"><img src="/images/Basket_alt_3.svg" alt=""
+                            width="20px" height="20px"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<div style="margin-top: 60px;"></div>
+
+<style>
+    .t33 {
+        left: 0;
+        right: 0;
+        top: 14px;
+        font-size: 12px;
+    }
+
+    .result-item {
+        font-size: 12px;
+        color: #444;
+        padding: 3px 1px 3px 30px;
+        border-top: 1px solid #f4f4f4;
+        border-bottom: 1px solid #f4f4f4;
+    }
+
+    .result-item:hover {
+        background-color: #f4f4f4;
+    }
+
+    #results-container {
+        height: 0px;
+        overflow: hidden;
+        transition: height 0.3s ease-in-out;
+    }
+
+    #navbar-search-input {
+        min-width: 100%;
+        border-radius: 8px;
+        height: 32px;
+        font-size: 12px;
+        text-indent: 30px;
+    }
+
+    .search-wrapper input::placeholder {
+        color: #9CA3AF;
+    }
+
+    #navbar-search-input:focus {
+        outline: none;
+    }
+
+    .search-wrapper img {
+        position: absolute;
+        left: 0;
+        top: 16px;
+        transform: translate(50%, -50%);
+    }
+</style>
+
+<script>
+    loginBtn = document.querySelector('#login-span')
+    logoutBtn = document.querySelector('#logout-span')
+    welcomeText = document.querySelector('#welcome-text')
+    fetch('/get-user', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                welcomeText.textContent = `Welcome, ${data.name}`
+                loginBtn.hidden = true
+                logoutBtn.hidden = false
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+
+
+    const input = document.querySelector('#navbar-search-input');
+    const searchResultsDiv = document.querySelector('#results-container');
+    const searchWrapper = document.querySelector('.search-wrapper');
+
+    input.addEventListener('input', () => {
+        searchResultsDiv.style.height = '135px';
+        let query = input.value.trim()
+
+        if (query.length > 0) {
+            fetch('/instant-search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    searchResultsDiv.innerHTML = '';
+
+                    data.results.forEach(result => {
+                        const resultDiv = document.createElement('p');
+                        resultDiv.classList.add('result-item');
+                        resultDiv.textContent = result.title;
+                        resultDiv.addEventListener('click', () => {
+                            window.location = `/shop/${result._id}`
+                        })
+                        searchResultsDiv.appendChild(resultDiv);
+
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+        }
+
+
+    })
+
+    document.addEventListener('click', (event) => {
+        if (!searchWrapper.contains(event.target)) {
+            searchResultsDiv.style.height = '0px'
+        }
+    })
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && searchResultsDiv.style.height != '0px') {
+            searchResultsDiv.style.height = '0px'
+        }
+    });
+
+</script>

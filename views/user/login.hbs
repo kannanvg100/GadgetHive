@@ -1,0 +1,242 @@
+<div class="container mt-5">
+    <div class="row">
+        <div class="mx-auto" style="max-width: 450px;">
+            <div class="myform form">
+                <div class="logo mb-3">
+                    <div class="text-center">
+                        <p class="h3 text-body-emphasis">
+                            Welcome&nbsp;to&nbsp;GadgetHive
+                        </p>
+                        <p class="h5 pt-2 text-dark">
+                            Login or Signup
+                        </p>
+                    </div>
+                </div>
+                <form action="/login" method="post" id="login-form">
+                    <div class="d-flex flex-column" id="section1">
+                        <label for="email">
+                            <span class="">
+                                Email address
+                            </span>
+                        </label>
+                        <input type="text" name="email" class="input-1 mt-1" id="email" autofocus value={{email}} />
+                        <span class="email-error text-danger"></span>
+                    </div>
+                    <div class="mt-3" id="section2" hidden>
+                        <div class="d-flex flex-column">
+                            <div class="w-100">
+                                <label for="password" id="password-label" class="span float-start">
+                                    Password
+                                </label>
+                                <span id="otp-login" class="float-end" style="color: blue !important; cursor: pointer;">
+                                    Login using OTP
+                                </span>
+                                <div class="clearfix"></div>
+                            </div>
+
+                            <input type="password" name="password" id="password" class="input-1 mt-1" />
+
+                            <div>
+                                <span class="password-error float-start text-danger">
+                                    {{wrongPassword}}
+                                </span>
+                                <span id="otp-counter" class="float-end">
+                                    &nbsp;
+                                </span>
+                                <a href="/" id="resend-btn" class="text-primary float-end" hidden>
+                                    Resend OTP
+                                </a>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button type="submit" class="btn-1 tx-tfm px-5">
+                            Continue
+                        </button>
+                    </div>
+                    <div class="form-group mt-3">
+                        <span class="text-center">
+                            By signing in you accept our
+                            <a class="text-primary" href="#">
+                                Terms Of Use
+                            </a>
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const form = document.querySelector("#login-form")
+
+    const emailError = document.querySelector(".email-error")
+    const passwordError = document.querySelector(".password-error")
+
+    const section1 = document.querySelector("#section1")
+    const section2 = document.querySelector("#section2")
+
+    const otpLogin = document.querySelector("#otp-login")
+    const passwordLabel = document.querySelector("#password-label")
+
+    let otpCounter = document.getElementById("otp-counter")
+    let resendBtn = document.getElementById("resend-btn")
+    let otpError = document.getElementById("otp-error")
+
+    let seconds = 60
+    let countdownTimer
+    let isPasswordPage = false
+    let isOtpLogin = false
+
+    form.addEventListener("submit", e => {
+        e.preventDefault()
+        form.email.value = form.email.value.trim().toLowerCase()
+        form.password.value = form.password.value.trim()
+
+        if (isPasswordPage) {
+            if (form.password.value == "") {
+                passwordError.innerHTML = "Password required"
+                form.password.focus()
+            } else {
+                if (isOtpLogin) {
+                    fetch("/otp-login", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            password: form.password.value,
+                        }),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const retUrl = data.ret || "/home"
+                                location.href = `${retUrl}`
+                            }
+                            else passwordError.innerHTML = data.message
+                        })
+                        .catch(error => {
+                            console.error("Error:", error)
+                        })
+                } else {
+                    fetch("/login", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            email: form.email.value,
+                            password: form.password.value,
+                        }),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const retUrl = new URLSearchParams(window.location.search).get('ret') || "/home"
+                                location.href = `${retUrl}`
+                            }
+                            else passwordError.innerHTML = data.message
+                        })
+                        .catch(error => {
+                            console.error("Error:", error)
+                        })
+                }
+            }
+        }
+
+        else if (form.email.value == "") {
+            emailError.innerText = "Email address required"
+            form.email.focus()
+        } else if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,4})+$/.test(form.email.value)) {
+            fetch("/check-email", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email: form.email.value }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        form.email.readOnly = true;
+                        section2.hidden = false
+                        isPasswordPage = true
+                        form.password.focus()
+                    } else {
+                        location.href = `/signup?email=${form.email.value}`
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error)
+                })
+        } else {
+            emailError.innerHTML = "Email address not valid"
+            form.email.focus()
+        }
+    })
+
+    form.email.addEventListener("input", () => {
+        passwordError.innerHTML = ""
+        emailError.innerHTML = ""
+    })
+
+    form.password.addEventListener("input", () => {
+        passwordError.innerHTML = ""
+    })
+
+    otpLogin.addEventListener("click", e => {
+        e.preventDefault()
+        if (!isOtpLogin) {
+            passwordLabel.innerText = "OTP"
+            otpLogin.innerText = "Use Password instead"
+            isOtpLogin = true
+            sendOtp()
+        } else {
+            passwordLabel.innerText = "Password"
+            otpLogin.innerText = "Login using OTP"
+            isOtpLogin = false
+
+        }
+    })
+
+    resendBtn.addEventListener("click", sendOtp)
+
+    function sendOtp() {
+
+        fetch("/send-otp", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email: form.email.value }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resendBtn.hidden = true
+                    otpCounter.hidden = false
+                    startCountdown()
+                } else otpCounter.innerHTML = "Error sending OTP, Try again later."
+            })
+            .catch(error => {
+                console.error("Error:", error)
+            })
+    }
+
+    function startCountdown() {
+        otpCounter.innerHTML = "Sending OTP"
+        seconds = 60
+        countdownTimer = setInterval(() => {
+            seconds--
+            otpCounter.innerHTML = "Resend OTP in: " + seconds + "s"
+            if (seconds <= 0) {
+                clearInterval(countdownTimer)
+                otpCounter.hidden = true
+                resendBtn.hidden = false
+            }
+        }, 1500)
+    }
+</script>

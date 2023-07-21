@@ -1,0 +1,25 @@
+<div>
+    <div class="container mt-2">
+        <div class="d-flex justify-content-start align-items-center gap-1" style="height: 28px;">
+            {{#each path}}
+                {{#if (checkArrow @index)}}
+                    <img src="/images/Expand_right.svg" alt="" width="12px" height="12px">
+                {{/if}}
+                {{#if (isNullString this.url)}}
+                    <p class="m-0 cat-text text-capitalize text-muted" style="pointer-events: none;">{{this.name}}</p>
+                {{else}}
+                    <a href={{this.url}}><p class="m-0 cat-text text-capitalize">{{this.name}}</p></a>
+                {{/if}}
+            {{/each}}
+        </div>
+    </div>
+</div>
+
+<style>
+    .cat-text{
+        color: #000;
+        font-size: 12px;
+        cursor: pointer;
+        font-weight: 500;
+    }
+</style>

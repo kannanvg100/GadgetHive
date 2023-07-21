@@ -1,0 +1,106 @@
+<div class="container">
+    <div class="row">
+        <div class="mx-auto" style="max-width: 450px;">
+        <div id="first">
+            <div class="myform form ">
+                    <div class="logo mb-3">
+                        <div class="col-md-12 text-center">
+                        <h3>Verify your account</h3>
+                        </div>
+                </div>
+                <form action="/verify-otp" method="post" id="signup-form">
+                        <div class="d-flex flex-column">
+                            <label for="phone"><span>Mobile number</span></label>
+                            <input type="text" name="phone"  class="input-1" id="phone" aria-describedby="phoneHelp" value={{phone}} readonly>
+                        </div>
+                        <div class="d-flex flex-column">
+                            <label for="otp"><span>OTP</span></label>
+                            <input type="text" name="otp"  class="input-1" id="otp" aria-describedby="otpHelp">
+                        </div>
+                        <span id="otp-error" class="float-left text-danger mb-0">{{otpError}}</span>
+                        <br>
+                        <p id="otp-counter" class="float-right mb-0">&nbsp;</p>
+                        <a class="text-primary" href="/" id="resend-btn" class="float-right" hidden>Resend OTP</a>
+                        <div class="clearfix"></div>
+                        <div class="col-md-12 text-center mt-3">
+                            <button type="submit" class=" btn-1 tx-tfm">Signup</button>
+                        </div>
+                        <div class="form-group mt-3">
+                            <span class="text-center">By signing up you accept our <a class="text-primary" href="#">Terms Of Use</a></span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>   
+
+<script>
+let seconds = 60
+let countdownTimer
+
+let form = document.getElementById("signup-form")
+let otpCounter = document.getElementById("otp-counter")
+let resendBtn = document.getElementById("resend-btn")
+let otpError = document.getElementById("otp-error")
+
+function startCountdown() {
+    otpCounter.innerHTML = "Resend OTP in: 60s"
+    seconds = 60
+	countdownTimer = setInterval(() => {
+		seconds--
+		otpCounter.innerHTML = "Resend OTP in: " + seconds + "s"
+		if (seconds <= 0) {
+			clearInterval(countdownTimer)
+			otpCounter.hidden = true
+			resendBtn.hidden = false
+		}
+	}, 1000)
+}
+
+startCountdown()
+
+resendBtn.addEventListener("click", e => {
+	e.preventDefault()
+	fetch("/resend-otp", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+	})
+		.then(response => response.json())
+		.then(data => {
+			if (data.success) {
+				resendBtn.hidden = true
+				startCountdown()
+				otpCounter.hidden = false
+			} else
+				otpError.innerHTML = data.message
+		})
+		.catch(error => {
+			console.error("Error:", error)
+		})
+})
+
+form.addEventListener("submit",(e)=>{
+    e.preventDefault()
+    fetch("/verify-otp", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+        otp: form.otp.value,
+    }),
+})
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) location.href = `/login/?${data.email}`
+        else otpError.innerHTML = data.message
+    })
+    .catch(error => {
+        console.error("Error:", error)
+    })
+})
+
+</script>
