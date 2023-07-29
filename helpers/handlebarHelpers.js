@@ -5,7 +5,21 @@ module.exports = {
 	sumAmount: function (items) {
 		let sum = 0
 		items.forEach((item) => {
-			sum += item.product.price
+			sum += item.price
+		})
+		return sum
+	},
+	sumOfPrices: function (items) {
+		let sum = 0
+		items.forEach((item) => {
+			sum += item.amount
+		})
+		return sum
+	},
+	sumOfCounts: function (items) {
+		let sum = 0
+		items.forEach((item) => {
+			sum += item.count
 		})
 		return sum
 	},
@@ -40,8 +54,8 @@ module.exports = {
 	isNull: function (data) {
 		return data.length < 1
 	},
-    isNullString: function (data) {
-		return data == ""
+	isNullString: function (data) {
+		return data == ''
 	},
 	isActive: function (tab, currentTab) {
 		return tab == currentTab
@@ -80,13 +94,30 @@ module.exports = {
 		return 0
 	},
 	getDate: function (date) {
-		return date.toLocaleString()
+		const options = {
+			month: 'short',
+			day: 'numeric',
+		}
+		return date.toLocaleString(undefined, options)
+	},
+    getDateWithYear: function (date) {
+		const options = {
+            year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+		}
+		return date.toLocaleString(undefined, options)
 	},
 	getTime: function (date) {
-		return date.toLocaleTimeString()
+        const options = {
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
+          };
+		return date.toLocaleString(undefined, options).toUpperCase()
 	},
-    getRandomRating: function () {
-        return (Math.floor(Math.random() * 50) + 10) / 10
+	getRandomRating: function () {
+		return (Math.floor(Math.random() * 50) + 10) / 10
 	},
 	getStarColor: function (rating) {
 		if (rating > 3.5) return 'green'
@@ -97,10 +128,10 @@ module.exports = {
 		return n1 * n2
 	},
 	getFirstProductImgUrl: function (data) {
-		return data.items[0].product._id.images[0]
+		return data.items[0].productId.images[0]
 	},
 	getFirstProductTitle: function (data) {
-		let str = data.items[0].product._id.title
+		let str = data.items[0].productId.title
 		return str
 	},
 	getFirstProductTitleExt: function (data) {
@@ -110,18 +141,24 @@ module.exports = {
 		return str
 	},
 	json: function (data) {
-		return JSON.stringify(data)
+		return JSON.stringify(data) || null
 	},
 	eq: function (status, check) {
 		return status == check
 	},
+	array: function (...args) {
+		return args
+	},
+	isIn: function (target, items) {
+		return items.includes(target)
+	},
 	formatOrderStatus: function (status) {
-		console.log('📄 > file: handlebarHelpers.js:114 > status:', status)
 		if (status == 'cancelled_by_user') return 'Order cancelled by you'
 		else if (status === 'cancelled_by_admin') return 'Order cancelled by seller'
 		else if (status === 'processing') return 'Your order is in processing by seller'
+		else return status
 	},
 	replaceUnderscore: function (text) {
-		return text.replace(/_/g, ' ')
+		return text == '' ? '' : text.replace(/_/g, ' ')
 	},
 }

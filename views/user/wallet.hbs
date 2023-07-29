@@ -1,0 +1,58 @@
+{{> navbar}}
+<div class="container-fluid">
+    <div class="row" style="min-height: 100vh;">
+        <div class="d-flex">
+
+            {{> sidebar currTab = "wallet"}}
+
+            {{!-- Wallet --}}
+
+            <div class="mt-4 mx-3 pb-4 flex-grow-1">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fs-6 fw-bold">Wallet</span>
+                </div>
+
+                <div class="border rounded p-3 mt-2">
+                    <span>Wallet Balance</span>
+                    <h4>{{formatPrice balance}}</h4>
+                    <p class="span mb-2">Quick and Convenient way to pay and refund</p>
+                    <span class="btn-2 d-inline">ADD MONEY</span>
+                </div>
+
+                <div class="mt-4">
+                    <p class="fw-bold">Transaction history</p>
+                    <div class="border rounded mt-2">
+                        <table class="table table-hover" id="tbl">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="border-top-left-radius: 0.375rem !important;"></th>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                {{#each transactions}}
+
+                                <tr>
+                                    <td></td>
+                                    <td>{{this._id}}</th>
+                                    <td>{{getDate this.date}}</td>
+                                    <td>{{this.title}}</td>
+                                    <td>{{this.amount}}</td>
+                                </tr>
+
+                                {{/each}}
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{> footer}}

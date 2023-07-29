@@ -1,11 +1,13 @@
 {{> admin/navbar}}
 <div class="container-fluid">
-    <div class="row vh-100">
+    <div class="row" style="min-height: 100vh;">
         <div class="d-flex">
-            
+
             {{> admin/sidebar currTab = "users"}}
-            <div class="border-end ms-2"></div>
-            <div class="ms-3 mt-4 flex-grow-1">
+
+            {{!-- List users --}}
+
+            <div class="mt-4 mx-3 pb-4 flex-grow-1">
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="fs-6 fw-bold">Users</span>
 

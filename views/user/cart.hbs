@@ -58,23 +58,25 @@
             </div>
             <div class="bg-off-white rounded mt-3 p-3">
                 <p class="h6">Payment Options:</p>
-                <div class="d-flex gap-2">
-                    <input type="radio" id="option1" name="payment-options" value="COD" checked>
-                    <label for="option1"><span>Cash on Delivery</span></label><br>
+
+                <div class="d-flex gap-2 mt-1">
+                    <input type="radio" id="option2" name="payment-options" value="RAZORPAY" checked>
+                    <label class="semi-bold" for="option2"><span>Razorpay</span></label><br>
+                </div>
+
+                <div class="d-flex gap-2"> 
+                    <input type="radio" id="option1" name="payment-options" value="COD">
+                    <label class="semi-bold" for="option1"><span>Cash on Delivery</span></label><br>
                 </div>
 
                 <div class="d-flex gap-2">
-                    <input type="radio" id="option2" name="payment-options" value="RAZORPAY">
-                    <label for="option2"><span>Razorpay</span></label><br>
+                    <input type="radio" id="option3" name="payment-options" value="WALLET">
+                    <label class="semi-bold" for="option3"><span>Wallet</span></label><br>
                 </div>
 
-                <div class="d-flex gap-2">
-                    <input type="radio" id="option3" name="payment-options" value="PAYPAL">
-                    <label for="option3"><span>Paypal</span></label><br>
-                </div>
             </div>
             <div class="mt-3 text-end">
-                <span class="btn-1 ms-2" id="checkout-now">PROCEED&nbsp;TO&nbsp;CHECKOUT</span>
+                <button class="btn-1 ms-2" id="checkout-now">PROCEED&nbsp;TO&nbsp;CHECKOUT</button>
             </div>
         </div>
     </div>
@@ -104,6 +106,7 @@
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({ id: currItemId }),
         })
@@ -156,19 +159,22 @@
 
     const buyBtn = document.querySelector("#checkout-now")
     buyBtn.addEventListener("click", () => {
+        buyBtn.textContent = "Processing..."
+        buyBtn.disabled = true
         const addressId = document.querySelector("#address-id").getAttribute('data-id');
-        const paymentType = document.querySelector('input[name="payment-options"]:checked').value
-        fetch(`/cart/checkout`, {
+        const paymentType = document.querySelector('input[name="payment-options"]:checked').value       
+        fetch(`/orders/checkout`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({ addressId , paymentType}),
         })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    window.location = "/orders/p/1"
+                    window.location = data.url
                 } else {
                     showToast(data.message)
                 }
@@ -212,6 +218,7 @@
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
+                        'X-Requested-With': 'XMLHttpRequest'
                     },
                     body: JSON.stringify({ productId: currItemId2, quantity: selectedValue }),
                 })

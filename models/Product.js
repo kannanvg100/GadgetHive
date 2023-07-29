@@ -18,7 +18,7 @@ const productSchema = new mongoose.Schema({
 	},
 	memory: {
 		type: String,
-		required: true,
+		required: [true, 'Please enter the Memory configuration'],
 	},
 	storage: {
 		type: String,
@@ -50,15 +50,22 @@ const productSchema = new mongoose.Schema({
 		ref: 'Category',
 		required: [true, 'Please enter the Product category'],
 	},
-	mrp: {
-		type: Number,
-		required: [true, 'Please enter the Product MRP'],
-		min: 0,
-	},
+    mrp: {
+        type: Number,
+        required: [true, 'Please enter the Product MRP'],
+        min: 0,
+    },
 	price: {
 		type: Number,
 		required: [true, 'Please enter the Product Price'],
 		min: 0,
+		validate: {
+			validator: function (value) {
+				if (value > this.mrp) return false
+				return true
+			},
+			message: 'Price must be lesser than the product MRP',
+		},
 	},
 	stock: {
 		type: Number,

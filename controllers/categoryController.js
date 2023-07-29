@@ -1,11 +1,11 @@
 const Category = require('../models/Category')
-const verificationHelpers = require('../config/twilio')
 const Product = require('../models/Product')
+const catchAsyncError = require('../middlewares/catchAsyncError')
 
 module.exports = {
 	getCategories: async (req, res) => {
 		try {
-			const categories = await Category.find({})
+			const categories = await Category.find({}).sort({ displayOrder: -1 })
 			const counts = await Product.aggregate([{ $group: { _id: '$category', count: { $sum: 1 } } }])
 			res.render('admin/category-list', { categories, counts })
 		} catch (error) {
@@ -14,22 +14,17 @@ module.exports = {
 	},
 
 	getAddCategoryForm: async (req, res) => {
-		res.render('admin/add-edit-category', {editMode: false})
+		res.render('admin/add-edit-category', { editMode: false })
 	},
 
-	addCategory: async (req, res) => {
-		const { name, description } = req.body
-
+	addCategory: async (req, res, next) => {
 		try {
-			await Category.create({ name, description })
+			const { name, description, displayOrder } = req.body
+			const category = new Category({ name, description, displayOrder })
+			await category.save()
+			res.status(200).json({ success: true })
 		} catch (error) {
-			if (error.name === 'ValidationError') {
-				console.error(error)
-				res.status(500).json({ success: false, message: error.errors.title.message })
-			} else {
-				console.error(error)
-				res.status(500).json({ success: false, message: 'Something went wrong, Pls try again later' })
-			}
+			next(error)
 		}
 	},
 
@@ -42,30 +37,28 @@ module.exports = {
 			console.error(error.message)
 		}
 	},
-	deleteCategory: async (req, res) => {
-		const id = req.body.id
+
+	deleteCategory: async (req, res, next) => {
 		try {
-			const category = await Category.findById(id)
-            category.isDeleted = true
-            category.save()
+			const id = req.body.id
+			await Category.findByIdAndDelete(id)
 			res.status(200).json({ success: true })
 		} catch (error) {
-			console.error(error.message)
-			res.status(500).json({ success: false, message: 'Something went wrong' })
+			next(error)
 		}
 	},
 
-	editCategory: async (req, res) => {
-		const data = req.body
+	editCategory: async (req, res, next) => {
 		try {
+			const data = req.body
 			const category = await Category.findById(data.id)
-            category.name = data.name
-            category.description = data.description
-            await category.save()
+			category.name = data.name
+			category.description = data.description
+			category.displayOrder = data.displayOrder
+			await category.save()
 			res.status(200).json({ success: true })
 		} catch (error) {
-			console.error(error.message)
-			res.status(500).json({ success: false, message: error.message })
+			next(error)
 		}
 	},
 }

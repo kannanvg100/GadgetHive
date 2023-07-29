@@ -5,11 +5,11 @@ const { preventCache } = require('../middlewares/preventCache')
 
 const router = express.Router()
 
+// Routes accessible to all users
 router.post('/instant-search', userController.instantSearch)
-
 router.get('/', preventCache, userController.getHomePage)
 router.get('/login', preventCache, userController.getLoginForm)
-router.get('/home', preventCache, userController.getHomePage)
+router.get('/home', preventCache, userController.goToHomePage)
 router.get('/signup', preventCache, userController.getSignupForm)
 router.post('/signup', preventCache, userController.registerUser)
 router.post('/login', preventCache, userController.loginUser)
@@ -25,14 +25,23 @@ router.get('/admin', userController.getAdminLoginForm)
 router.get('/admin/login', userController.getAdminLoginForm)
 router.post('/admin/login', userController.loginAdmin)
 router.get('/admin/logout', userController.logoutAdmin)
+// End of public routes
 
-router.get('/admin/dashboard', auth.isAdminAuthorized, userController.adminHome)        // admin
-router.get('/users/p/:page', auth.isAdminAuthorized, userController.getAllUsers)        // admin
-router.get('/users/add', auth.isAdminAuthorized, userController.getAddUserForm)         // admin
-router.post('/users/add', auth.isAdminAuthorized, userController.addUser)               // admin
-router.get('/users/edit', auth.isAdminAuthorized, userController.getEditUserForm)       // admin
+// Routes accessible to authenticated users only
+router.get('/account', preventCache, auth.isAuthenticatedUser, userController.account)
+router.get('/addresses', preventCache, auth.isAuthenticatedUser, userController.address)
+router.get('/wishlist', preventCache, auth.isAuthenticatedUser, userController.wishlist)
+router.get('/wallet', preventCache, auth.isAuthenticatedUser, userController.wallet)
+// End authenticated users routes
 
-router.post('/users/edit', auth.isAdminAuthorized, userController.editUser)             // admin
-router.delete('/users/delete', auth.isAdminAuthorized, userController.deleteUser)       // admin
+// Routes accessible to admin users only
+router.get('/admin/dashboard', preventCache, auth.isAdminAuthorized, userController.adminHome)
+router.get('/users/p/:page', preventCache, auth.isAdminAuthorized, userController.getAllUsers)
+router.get('/users/add', preventCache, auth.isAdminAuthorized, userController.getAddUserForm)
+router.post('/users/add', preventCache, auth.isAdminAuthorized, userController.addUser)
+router.get('/users/edit', preventCache, auth.isAdminAuthorized, userController.getEditUserForm)
+router.post('/users/edit', preventCache, auth.isAdminAuthorized, userController.editUser)
+router.delete('/users/delete', preventCache, auth.isAdminAuthorized, userController.deleteUser)
+// End of admin routes
 
 module.exports = router

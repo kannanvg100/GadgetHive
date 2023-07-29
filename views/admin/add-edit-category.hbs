@@ -1,13 +1,10 @@
 {{> admin/navbar}}
 <div class="container-fluid">
-    <div class="row">
+    <div class="row" style="min-height: 100vh;">
         <div class="d-flex">
 
             {{> admin/sidebar currTab = "categories"}}
-
-            {{!-- Add a new product --}}
-
-            <div class="d-flex flex-column ms-2 mt-4 flex-grow-1">
+            <div class="mt-4 mx-3 pb-4 flex-grow-1">
                 <div class="mx-auto w-100" style="max-width: 550px;">
                     {{#if editMode}}
                     <form id="form">
@@ -26,13 +23,22 @@
 
                             <div class="d-flex gap-3 mt-3">
                                 <div class="flex-grow-1">
-                                    <span class="d-block">Name</span>
+                                    <span class="d-block">Name<span class="text-danger">*</span></span>
                                     <input class="input-1 mt-1 w-100" type="text" name="name" value={{category.name}}>
                                 </div>
                                 <div class="flex-grow-1">
                                     <span class="d-block">Description</span>
                                     <input class="input-1 mt-1 w-100" type="text" name="description"
                                         value={{category.description}}>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-3 mt-3">
+                                <div class="flex-grow-1">
+                                <span class="d-block">Display Order<span class="text-danger">*</span></span>
+                                <input class="input-1 mt-1 w-100" type="number" name="displayOrder"
+                                    value={{category.displayOrder}}>
+                                </div>
+                                <div class="flex-grow-1">
                                 </div>
                             </div>
 
@@ -56,11 +62,6 @@
     </div>
 </div>
 
-<br>
-<br>
-<br>
-<br>
-
 {{> admin/footer}}
 
 <script>
@@ -68,7 +69,7 @@
         const form = document.querySelector("#form")
     }
 
-    if ({{{editMode}}}) {
+    if ({{{ editMode }}}) {
         const deleteBtn = document.querySelector("#delete-btn")
         deleteBtn.addEventListener("click", (e) => {
             e.preventDefault()
@@ -76,8 +77,9 @@
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: JSON.stringify({ id: form.id.value, qty: qty }),
+                body: JSON.stringify({ id: form.id.value }),
             })
                 .then(response => response.json())
                 .then(data => {
@@ -99,11 +101,13 @@
                 id: form.id.value,
                 name: form.name.value,
                 description: form.description.value,
+                displayOrder: form.displayOrder.value,
             }
             fetch("/category/edit", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: JSON.stringify(data),
             })
@@ -127,11 +131,13 @@
             const data = {
                 name: form.name.value,
                 description: form.description.value,
+                displayOrder: form.displayOrder.value,
             }
             fetch("/category/add", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: JSON.stringify(data),
             })

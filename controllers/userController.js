@@ -1,10 +1,12 @@
 const User = require('../models/User')
 const Category = require('../models/Category')
 const Brand = require('../models/Brand')
-const Order = require('../models/Order')
 const Product = require('../models/Product')
+const Order = require('../models/Order')
+const Banner = require('../models/Banner')
+const Wallet = require('../models/Wallet')
 const verificationHelpers = require('../config/twilio')
-const mongoose = require('mongoose')
+const { HostedNumberOrderListInstance } = require('twilio/lib/rest/preview/hosted_numbers/hostedNumberOrder')
 
 const RESULTS_PER_PAGE = 6
 
@@ -28,12 +30,23 @@ module.exports = {
 	getHomePage: async (req, res) => {
 		const categories = await Category.aggregate([
 			{ $match: { isDeleted: false } },
+			{ $sort: { displayOrder: -1 } },
 			{ $group: { _id: null, values: { $push: '$name' } } },
 		])
-		const brands = await Brand.aggregate([{ $group: { _id: null, values: { $push: '$name' } } }])
+
+        //get brand names in the order of display order
+        const brands = await Brand.find().sort({displayOrder: -1}).select('name image')
+
+
+		// const brands = await Brand.aggregate([{ $group: { _id: null, values: { $push: '$name' } } }])
 		const latestProducts = await Product.find().sort({ createdAt: -1 }).limit(5)
-		res.render('user/home', { categories: categories[0].values, latestProducts })
+		const banners = await Banner.find({isActive: true}).limit(5)
+		res.render('user/home', { categories: categories[0].values, banners, latestProducts })
 	},
+
+    goToHomePage: async (req, res) => {
+        res.redirect('/')
+    },
 
 	// Register User
 	registerUser: async (req, res) => {
@@ -227,9 +240,23 @@ module.exports = {
 		}
 	},
 
-	//Admin Home
+	//Admin Dashboard
 	adminHome: async (req, res, next) => {
-		res.render('admin/dashboard')
+		// const orders = await Order.aggregate([{$group: {_id: "$createdAt", total: {$sum: "$totalAmount"}}}])
+		const orders = await Order.aggregate([
+			{ $match: { orderStatus: 'delivered' } },
+			{
+				$group: {
+					_id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+					total: { $sum: '$totalAmount' },
+                    count: { $sum : 1 }
+				},
+			},
+            {$sort: {_id: 1}}
+		])
+
+		const data = orders.map(({ _id, total, count }) => ({ date: _id, amount: total, count}))
+		res.render('admin/dashboard', { data })
 	},
 
 	getAddUserForm: async (req, res, next) => {
@@ -318,6 +345,45 @@ module.exports = {
 				{ title: 1 }
 			).limit(5)
 			res.json({ results })
+		} catch (error) {
+			console.error('Error:', error.message)
+		}
+	},
+
+	account: async (req, res) => {
+		const user = req.session.user
+		try {
+			res.render('user/account', { user })
+		} catch (error) {
+			console.error('Error:', error.message)
+		}
+	},
+
+	address: async (req, res) => {
+		const user = req.session.user
+		try {
+			res.render('user/address', { user })
+		} catch (error) {
+			console.error('Error:', error.message)
+		}
+	},
+
+	wishlist: async (req, res) => {
+		const user = req.session.user
+		try {
+			res.render('user/wishlist', { user })
+		} catch (error) {
+			console.error('Error:', error.message)
+		}
+	},
+
+	wallet: async (req, res) => {
+		const userId = req.session.user._id
+		try {
+			let wallet
+			wallet = await Wallet.findOne({ user: userId })
+			if (wallet == null) wallet = await Wallet.create({ user: userId, balance: 0 })
+			res.render('user/wallet', { balance: wallet.balance, transactions: wallet.transactions.reverse() })
 		} catch (error) {
 			console.error('Error:', error.message)
 		}

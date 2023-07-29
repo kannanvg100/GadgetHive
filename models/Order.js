@@ -24,9 +24,9 @@ const orderSchema = new mongoose.Schema({
 			},
 		},
 	],
-	status: {
+	orderStatus: {
 		type: String,
-		default: 'processing',
+		default: 'pending',
 	},
 	totalAmount: {
 		type: Number,
@@ -37,6 +37,13 @@ const orderSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
+    isPaid: {
+		type: Boolean,
+		default: false,
+	},
+    paymentData:{
+        type: Object,
+    },
 	address: {
 		name: {
 			type: String,
@@ -68,7 +75,7 @@ const orderSchema = new mongoose.Schema({
 orderSchema.pre('save', async function (next) {
 	let total = 0
 	for (let item of this.items) {
-		total += item.product.price * item.quantity
+		total += item.price * item.quantity
 	}
 	this.totalAmount = total
 	next()

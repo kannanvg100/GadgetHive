@@ -1,0 +1,131 @@
+<div class="position-absolute d-flex flex-column justify-content-center align-items-center gap-3"
+    style="inset: 0;">
+    <div id="lottie-container" style="width: 200px; height: 200px;"></div>
+    <p class="pt-2 fw-bold" id="payment-status">Processing your payment...</p>
+    <span id="retry-btn" class="btn-2 mt-2" hidden>Retry Payment</span>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"
+    integrity="sha512-jEnuDt6jfecCjthQAJ+ed0MTVA++5ZKmlUcmDGBv2vUI/REn6FuIdixLNnQT+vKusE2hhTk2is3cFvv5wA+Sgg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const container = document.querySelector('#lottie-container');
+        const status = document.querySelector('#payment-status');
+        const retryBtn = document.querySelector('#retry-btn');
+
+        let inProgress = true
+
+        const animation = lottie.loadAnimation({
+            container: container,
+            renderer: 'svg',
+            loop: false,
+            autoplay: false,
+            path: '/images/animation_3.json',
+        });
+
+        animation.setSpeed(1000);
+        
+
+        function startAnimation() {
+            animation.playSegments([1, 118], false)
+            animation.addEventListener('complete', () => {
+                animation.setSpeed(0.8);
+                if (inProgress) animation.playSegments([1, 118], false)
+            })
+        }
+        startAnimation()
+
+        function showSuccess() {
+            animation.setSpeed(1.2)
+            if (inProgress) animation.playSegments([122, 239], false)
+            inProgress = false
+        }
+
+        function showFailure() {
+            animation.setSpeed(1.2)
+            if (inProgress) animation.playSegments([241, 360], false)
+            inProgress = false
+        }
+
+        const options = {
+            "key": '{{razorpay_key}}',
+            "amount": '{{product order.totalAmount 100}}',
+            "currency": "INR",
+            "name": "GadgetHive",
+            "order_id": '{{order.paymentData.id}}',
+            "handler": function (response) {
+
+                status.textContent = "Waiting for payment confirmation"
+                fetch("/orders/check-payment", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        razorpayOrderId: response.razorpay_order_id,
+                        razorpayPaymentId: response.razorpay_payment_id,
+                        secret: response.razorpay_signature
+                    }),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            retryBtn.hidden = true
+                            showSuccess()
+                            animation.addEventListener('complete', () => {
+                                status.textContent = "Your order has been placed successfully"
+                                setTimeout(() => {
+                                    window.location.href = "/orders/{{order._id}}"
+                                    }, 1000)
+                            })
+                        }else{
+                            showFailure()
+                            status.textContent = "Oops! Looks like there is a problem with your payment"
+                        }
+                    })
+                    .catch(error => {
+                        console.log("Error:", error)
+                        showFailure()
+                        status.textContent = "Oops! Looks like there is a problem with your payment"
+                    })
+            },
+            "prefill": {
+                "name": '{{order.address.name}}',
+                "contact": '{{order.address.phone}}'
+            },
+            "theme": {
+                "color": "#4D4DFF",
+            }
+        };
+
+        const rzp1 = new Razorpay(options);
+        rzp1.on('payment.failed', function (response) {
+            rzp1.close()
+            showFailure()
+            animation.addEventListener('complete', () => {
+                status.textContent = response.error.description
+                retryBtn.hidden = false
+            })
+        });
+        setTimeout(() => {
+            rzp1.open();
+            retryBtn.hidden = false
+        }, 1000)
+
+        retryBtn.addEventListener('click', () => {
+            startAnimation()
+            status.textContent = "Retrying your payment..."
+            setTimeout(() => {
+                rzp1.open();
+            }, 1000)
+
+        })
+
+    })
+
+
+</script>

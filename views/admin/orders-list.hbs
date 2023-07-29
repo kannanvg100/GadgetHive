@@ -4,7 +4,8 @@
         <div class="d-flex">
 
             {{> admin/sidebar currTab = "orders"}}
-            <div class="border-end ms-2"></div>
+
+            
             <div class="ms-3 mt-4 flex-grow-1">
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="fs-6 fw-bold">Orders</span>
@@ -28,7 +29,7 @@
                     <table class="table table-hover" id="tbl">
                         <thead>
                             <tr>
-                                <th scope="col" style="border-top-left-radius: 0.375rem !important;">Order ID</th>
+                                <th scope="col" style="border-top-left-radius: 0.375rem !important;"></th>
                                 <th scope="col">Date</th>
                                 <th scope="col">User ID</th>
                                 <th scope="col">Status</th>
@@ -42,12 +43,12 @@
                             {{#each orders}}
 
                             <tr>
-                                <td class="text-truncate" style="max-width: 60px;">{{this._id}}</td>
-                                <td>{{getDate this.createdAt}}</th>
+                                <td data-id="{{this._id}}"></td>
+                                <td>{{getDate this.createdAt}}, {{getTime this.createdAt}}</td>
                                 <td>{{this.user.email}}</td>
-                                <td>{{this.status}}</td>
+                                <td>{{this.orderStatus}}</td>
                                 <td>{{count this.items}}</td>
-                                <td>{{formatPrice (sumAmount this.items)}}</td>
+                                <td>{{formatPrice this.totalAmount}}</td>
                                 <td>{{this.paymentMode}}</td>
                             </tr>
 
@@ -82,7 +83,7 @@
             const createClickHandler = row => {
                 return () => {
                     const cell = row.getElementsByTagName("td")[0]
-                    const id = cell.innerHTML
+                    const id = cell.getAttribute('data-id')
                     window.location.href = `/admin/orders/?id=${id}`
                 }
             }

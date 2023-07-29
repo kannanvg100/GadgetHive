@@ -306,6 +306,13 @@ form .error {
     padding-left: 5px;
 }
 
+.input-2 {
+    border: 1px solid #9CA3AF;
+    background-color: #F9FAFB;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
 .input-1:focus {
     outline: 1px solid #4D4DFF;
 }
@@ -368,6 +375,13 @@ select {
     border-radius: 0.375rem;
 }
 
+.dropOrChoose .droppedImage-wide {
+    margin: 10px;
+    width: 200px;
+    border: 1px solid #eee;
+    border-radius: 0.375rem;
+}
+
 .dropOrChoose .imageItem {
     position: relative;
 }
@@ -392,8 +406,7 @@ select {
     background-image: url(/images/trash.svg);
     width: 24px;
     height: 24px;
-    margin-left: 16px
-    ;
+    margin-left: 16px;
 }
 
 .dropOrChoose .changeOrderButton {
@@ -401,7 +414,7 @@ select {
     bottom: 5px;
     left: 5px;
     background: #fff;
-    color: #00f;
+    color: #4D4DFF;
     border: none;
     cursor: pointer;
     padding: 5px;
@@ -548,4 +561,24 @@ select {
 
 .user-popup-menu ul li a span:hover {
     font-weight: bold;
+}
+
+.highcharts-credits {
+    visibility: hidden;
+}
+
+.green-dot {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    background-color: rgb(29, 237, 29);
+    border-radius: 50%;
+}
+
+.green-red {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    background-color: red;
+    border-radius: 50%;
 }

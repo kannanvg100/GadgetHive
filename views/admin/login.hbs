@@ -1,4 +1,4 @@
-<div class="container my-5">
+<div class="container my-5" style="min-height: calc(70vh);">
     <div class="row">
         <div class="mx-auto" style="max-width: 450px;">
             <div class="myform form">
@@ -65,6 +65,7 @@ form.addEventListener("submit", e => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({
                 email: form.email.value,
@@ -73,8 +74,11 @@ form.addEventListener("submit", e => {
         })
             .then(response => response.json())
             .then(data => {
-                if (data.success) location.href = "/admin/dashboard"
-                 else passwordError.innerHTML = data.message
+                if (data.success) {
+                    const retUrl = data.ret || "/admin/dashboard"
+                    location.href = `${retUrl}`
+                }
+                else passwordError.innerHTML = data.message
             })
             .catch(error => {
                 console.error("Error:", error)

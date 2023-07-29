@@ -29,6 +29,7 @@
                                 <li><span class="fw-bold" id="welcome-text">Welcome</span></li>
                                 <li id="login-span"><a href="/login"><span class="btn-2">LOGIN NOW</span></a></li>
                                 <li><a href="/account"><span>Account</span></a></li>
+                                <li><a href="/wallet"><span>Wallet</span></a></li>
                                 <li><a href="/orders/p/1"><span>Orders</span></a></li>
                                 <li><a href="/wishlist"><span>Wishlist</span></a></li>
                                 <li id="logout-span" hidden><a href="/logout"><span>Logout</span></a></li>
@@ -130,6 +131,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: JSON.stringify({ query }),
             })

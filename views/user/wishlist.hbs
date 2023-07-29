@@ -1,0 +1,20 @@
+{{> navbar}}
+<div class="container-fluid">
+    <div class="row" style="min-height: 100vh;">
+        <div class="d-flex">
+
+            {{> sidebar currTab = "wishlist"}}
+
+            {{!-- Wishlist --}}
+
+            <div class="mt-4 mx-3 pb-4 flex-grow-1">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fs-6 fw-bold">Wishlist</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{{> footer}}

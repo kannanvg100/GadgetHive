@@ -1,14 +1,17 @@
 const express = require('express')
 const categoryController = require('../controllers/categoryController')
 const auth = require('../middlewares/auth')
+const { preventCache } = require('../middlewares/preventCache')
 
 const router = express.Router()
 
-router.get('/categories', auth.isAdminAuthorized, categoryController.getCategories)             // admin
-router.get('/category/add', auth.isAdminAuthorized, categoryController.getAddCategoryForm)      // admin
-router.post('/category/add', auth.isAdminAuthorized, categoryController.addCategory)            // admin
-router.get('/category/edit', auth.isAdminAuthorized, categoryController.getEditCategoryForm)    // admin
-router.post('/category/edit', auth.isAdminAuthorized, categoryController.editCategory)          // admin
-router.delete('/category/delete', auth.isAdminAuthorized, categoryController.deleteCategory)    // admin
+// Routes accessible to admin users only
+router.get('/categories',preventCache, auth.isAdminAuthorized, categoryController.getCategories)         
+router.get('/category/add',preventCache, auth.isAdminAuthorized, categoryController.getAddCategoryForm)  
+router.post('/category/add',preventCache, auth.isAdminAuthorized, categoryController.addCategory)        
+router.get('/category/edit',preventCache, auth.isAdminAuthorized, categoryController.getEditCategoryForm)
+router.post('/category/edit',preventCache, auth.isAdminAuthorized, categoryController.editCategory)      
+router.delete('/category/delete',preventCache, auth.isAdminAuthorized, categoryController.deleteCategory)
+// End of admin routes
 
 module.exports = router

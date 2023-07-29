@@ -1,0 +1,327 @@
+{{> admin/navbar}}
+<div class="container-fluid">
+    <div class="row" style="min-height: 100vh;">
+        <div class="d-flex">
+
+            {{> admin/sidebar currTab = "brands"}}
+            <div class="mt-4 mx-3 pb-4 flex-grow-1">
+                <div class="mx-auto w-100" style="max-width: 550px;">
+                    {{#if editMode}}
+                    <form action="/brands/edit" id="form">
+                        {{else}}
+                        <form action="/brands/add" id="form">
+                            {{/if}}
+
+                            {{#if editMode}}
+                            <span class="d-block fs-6 fw-bold">Update brans details</span>
+                            {{else}}
+                            <span class="d-block fs-6 fw-bold">Create a new brand</span>
+                            {{/if}}
+                            <span class="d-block fw-bold mt-3">General Information</span>
+
+                            <input type="hidden" name="id" value={{brand._id}} disabled hidden readonly>
+
+                            <div class="d-flex gap-3 mt-3">
+                                <div class="flex-grow-1">
+                                    <span class="d-block">Name<span class="text-danger">*</span></span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="name" value={{brand.name}}>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <span class="d-block">Display name<span class="text-danger">*</span></span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="displayName"
+                                        value={{brand.displayName}}>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <span class="d-block">Description</span>
+                                <textarea class="input-1 h-auto mt-1 w-100" type="text" rows="5"
+                                    name="description">{{brand.description}}</textarea>
+                            </div>
+
+                            <div class="d-flex gap-3">
+                                <div class="mt-3 flex-grow-1">
+                                    <span class="d-block">Display order<span class="text-danger">*</span></span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="displayOrder"
+                                        value="{{brand.displayOrder}}">
+                                </div>
+                                <div class="mt-3 flex-grow-1">
+                                </div>
+                            </div>
+
+                            <span class="d-block mt-3">Brand image<span class="text-danger">*</span></span>
+
+                            <div class="dropOrChoose mt-1">
+                                <div id="dropzone">
+                                    <span>Drop image here, or</span>
+                                    <input type="file" id="fileInput" name="image" hidden>
+                                    <a id="browseButton"><span class="text-primary cursor-pointer">click here to
+                                            browse</span></a>
+                                </div>
+                                <div class="" id="imageContainer"></div>
+                            </div>
+
+                            {{#if editMode}}
+                            <div class="text-end mt-3">
+                                <button id="delete-btn" class="btn-4">Delete brand</button>
+                                <button type="button" id="save-btn" class="btn-3">Update brand</button>
+                            </div>
+                            {{else}}
+                            <div class="text-end mt-3">
+                                <button type="button" id="save-btn" class="btn-3">Create brand</button>
+                            </div>
+                            {{/if}}
+
+                        </form>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div id="crop-container" hidden>
+    <div class="bg-transparent d-flex justify-content-center align-items-center h-75 w-75 mx-auto mt-5">
+        <img class="d-block" id="crop-image" alt="Failed to load image" style="max-width: 80% !important;">
+    </div>
+    <div class="w-75 mt-3 mx-auto">
+        <span class="btn-1 float-end ms-2" id="crop-button">Crop</span>
+        <span class="btn-2 float-end" id="crop-cancel-button">Cancel</span>
+    </div>
+</div>
+
+{{> admin/footer}}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<style>
+    #crop-container {
+        position: fixed;
+        inset: 0px;
+        background-color: #000000ff;
+        z-index: 9990;
+    }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+{{!-- Drop files and create preiews --}}
+<script>
+    let dropzone = document.getElementById('dropzone');
+    let imageContainer = document.getElementById('imageContainer');
+    let fileInput = document.getElementById('fileInput');
+    let browseButton = document.getElementById('browseButton');
+    let cropConatainer = document.querySelector('#crop-container');
+    let changeOrderButton = document.createElement('button');
+    let lastImgNode = ""
+    const cropImage = document.querySelector('#crop-image');
+    const cropper = new Cropper(cropImage, {
+        aspectRatio: 200/60,
+        viewMode: 1,
+        zoomable: true,
+        guides: false,
+        background: false,
+        autoCrop: true,
+        autoCropArea: 1,
+    });
+
+    dropzone.addEventListener('dragover', function (event) {
+        event.preventDefault();
+        dropzone.style.background = 'lightblue';
+    });
+
+    dropzone.addEventListener('dragleave', function (event) {
+        event.preventDefault();
+        dropzone.style.background = '';
+    });
+
+    dropzone.addEventListener('drop', function (event) {
+        event.preventDefault();
+        dropzone.style.background = '';
+
+        let files = event.dataTransfer.files;
+        handleFiles(files[0]);
+    });
+
+    browseButton.addEventListener('click', function () {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', function (event) {
+        let files = event.target.files;
+        handleFiles(files[0]);
+    });
+
+    function handleFiles(file) {
+            if (file.type.startsWith('image/')) {
+                let reader = new FileReader();
+
+                reader.onload = function (event) {
+                    let image = document.createElement('img');
+                    image.src = event.target.result;
+                    image.classList.add('droppedImage');
+
+                    let imageItem = document.createElement('div');
+
+                    imageItem.classList.add('item-container');
+                    imageItem.appendChild(image);
+
+                    let details = document.createElement('span');
+                    let fileSize = Math.ceil(file.size / 1024)
+                    fileSize = fileSize <= 1023 ? fileSize + " KB" : (fileSize / 1024).toFixed(1) + " MB"
+                    details.innerText = file.name + "\n" + fileSize;
+                    imageItem.appendChild(details);
+
+                    let resizeButton = document.createElement('div');
+                    resizeButton.classList.add('resizeButton');
+                    imageItem.appendChild(resizeButton);
+
+                    let removeButton = document.createElement('div');
+                    removeButton.classList.add('removeButton');
+                    imageItem.appendChild(removeButton);
+
+                    resizeButton.addEventListener('click', (e) => {
+                        cropConatainer.hidden = false
+                        lastImgNode = e.target.previousElementSibling.previousElementSibling
+                        cropper.replace(lastImgNode.src)
+
+                        const cropButton = document.getElementById('crop-button');
+                        cropButton.addEventListener('click', function () {
+                            const canvas = cropper.getCroppedCanvas();
+                            const croppedImage = document.createElement('img');
+                            lastImgNode.src = canvas.toDataURL()
+                            cropConatainer.hidden = true
+                        });
+
+                        const cropCancelButton = document.getElementById('crop-cancel-button');
+                        cropCancelButton.addEventListener('click', function () {
+                            cropConatainer.hidden = true
+                        });
+
+                    })
+
+                    removeButton.addEventListener('click', function () {
+                        imageContainer.removeChild(imageItem);
+                    })
+                    
+                    imageContainer.innerHTML = "";
+                    imageContainer.appendChild(imageItem);
+
+                };
+
+                reader.readAsDataURL(file);
+            
+        }
+    }
+</script>
+
+<script>
+    const form = document.querySelector("#form")
+    {{#if editMode }}
+        const data = {{{ json brand }}}
+
+        if (data.image) {
+            let image = document.createElement('img');
+            image.src = `/assets/${data.image}`
+            image.classList.add('droppedImage');
+
+            let imageItem = document.createElement('div');
+
+            imageItem.classList.add('item-container');
+            imageItem.appendChild(image);
+
+            let details = document.createElement('span');
+            details.innerText = data.image
+            imageItem.appendChild(details);
+
+            imageContainer.appendChild(imageItem);
+        }
+
+        const deleteBtn = document.querySelector("#delete-btn")
+        deleteBtn.addEventListener("click", (e) => {
+            e.preventDefault()
+            fetch("/brand/delete", {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ id: form.id.value }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = "/brands"
+                    } else {
+                        showToast(data.message)
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error)
+                })
+        })
+
+    {{/if}}
+        const saveBtn = document.querySelector("#save-btn")
+        saveBtn.addEventListener("click", e => {
+            
+            e.preventDefault()
+            const data = {
+                name: form.name.value,
+                {{#if editMode}}
+                    id: form.id.value,
+                {{/if}}
+                displayName: form.displayName.value,
+                description: form.description.value,
+                displayOrder: form.displayOrder.value,
+            }
+            const imageElement = document.querySelector('.droppedImage');
+            if (!imageElement) {
+                showToast('Please select an image')
+                return
+            }
+            const formData = new FormData();
+            const imageUrl = imageElement.src;
+            if (imageUrl.startsWith('data')) {
+                const base64Data = imageUrl.split(',')[1];
+                const fileExtension = imageUrl.substring('data:image/'.length, imageUrl.indexOf(';base64'));
+                const blob = b64toBlob(base64Data, fileExtension);
+                formData.append('image', blob, `image.${fileExtension}`);
+            }
+            
+            formData.append("data", JSON.stringify(data));
+
+            fetch(form.action, {
+                method: "POST",
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = "/brands"
+                    } else {
+                        showToast(data.message)
+                    }
+                })
+                .catch(error => {
+                    showToast('Something went wrong, Pls try again later')
+                    console.error(error)
+                })
+        })
+
+        {{!-- Helper function to convert base64 data to Blob --}}
+        function b64toBlob(base64Data, fileExtension) {
+            const byteCharacters = atob(base64Data);
+            const byteArrays = [];
+
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteArrays.push(byteCharacters.charCodeAt(i));
+            }
+
+            const byteArray = new Uint8Array(byteArrays);
+            return new Blob([byteArray], { type: `image/${fileExtension}` });
+        }
+
+</script>

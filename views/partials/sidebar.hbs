@@ -1,0 +1,42 @@
+<div class="d-flex">
+    <div class="admin-navbar">
+        <a href="/account/">
+            <div class="p-1 mt-2 border-0 rounded {{#if (isActive currTab 'account')}}bg-off-white fw-semibold{{/if}}">
+                <img src="/images/user_alt.svg" alt="" width="20px" height="20px">
+                <span class="d-none d-md-inline-block" style="width: 130px;">Profile</span>
+            </div>
+        </a>
+        <a href="/addresses">
+            <div class="p-1 border-0 rounded {{#if (isActive currTab 'address')}}bg-off-white fw-semibold{{/if}}">
+                <img src="/images/address.svg" alt="" width="20px" height="20px">
+                <span class="d-none d-md-inline-block" style="width: 130px;">Addresses</span>
+            </div>
+        </a>
+        <a href="/wishlist/">
+            <div class="p-1 border-0 rounded {{#if (isActive currTab 'wishlist')}}bg-off-white fw-semibold{{/if}}">
+                <img src="/images/Favorite.svg" alt="cat" width="20px" height="20px">
+                <span class="d-none d-md-inline-block" style="width: 130px;">Wishlist</span>
+            </div>
+        </a>
+        <a href="/orders/p/1">
+            <div class="p-1 border-0 rounded {{#if (isActive currTab 'orders')}}bg-off-white fw-semibold{{/if}}">
+                <img src="/images/orders.svg" alt="" width="20px" height="20px">
+                <span class="d-none d-md-inline-block" style="width: 130px;">Orders</span>
+            </div>
+        </a>
+        <a href="/wallet/">
+            <div class="p-1 border-0 rounded {{#if (isActive currTab 'wallet')}}bg-off-white fw-semibold{{/if}}">
+                <img src="/images/wallet.svg" alt="cat" width="20px" height="20px">
+                <span class="d-none d-md-inline-block" style="width: 130px;">Wallet</span>
+            </div>
+        </a>
+        <hr class="m-1">
+        <a href="/logout">
+            <div class="p-1 border-0 rounded {{#if (isActive currTab 'logout')}}bg-off-white fw-semibold{{/if}}">
+                <img src="/images/sign_out.svg" alt="" width="20px" height="20px">
+                <span class="d-none d-md-inline-block" style="width: 130px;">Logout</span>
+            </div>
+        </a>
+    </div>
+    <div class="border-end ms-2"></div>
+</div>

@@ -6,7 +6,6 @@ db.init()
 // initialing MongoDB
 const razorpay = require('./config/razorpay');
 
-
 const app = require('./app')
 
 //Handling Uncaught Exception

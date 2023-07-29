@@ -66,6 +66,7 @@ resendBtn.addEventListener("click", e => {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
+            'X-Requested-With': 'XMLHttpRequest'
 		},
 	})
 		.then(response => response.json())
@@ -88,6 +89,7 @@ form.addEventListener("submit",(e)=>{
     method: "POST",
     headers: {
         "Content-Type": "application/json",
+        'X-Requested-With': 'XMLHttpRequest'
     },
     body: JSON.stringify({
         otp: form.otp.value,
@@ -99,6 +101,7 @@ form.addEventListener("submit",(e)=>{
         else otpError.innerHTML = data.message
     })
     .catch(error => {
+        showToaost(data.message)
         console.error("Error:", error)
     })
 })

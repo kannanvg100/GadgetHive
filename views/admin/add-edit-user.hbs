@@ -1,13 +1,13 @@
 {{> admin/navbar}}
 <div class="container-fluid">
-    <div class="row">
+    <div class="row" style="min-height: 100vh;">
         <div class="d-flex">
-            
+
             {{> admin/sidebar currTab = "users"}}
 
-            {{!-- Add a new product --}}
-            
-                <div class="d-flex flex-column ms-2 mt-4 flex-grow-1">
+            {{!-- Add/edit users --}}
+
+            <div class="mt-4 mx-3 pb-4 flex-grow-1">
                     <div class="mx-auto w-100" style="max-width: 550px;">
                         {{#if editMode}}
                         <form id="form">
@@ -107,6 +107,7 @@
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({id: form.id.value}),
         })
@@ -136,6 +137,7 @@
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify(data),
         })

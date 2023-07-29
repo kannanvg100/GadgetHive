@@ -4,16 +4,16 @@
     {{/if}}
     <div class="cart-item d-flex gap-4 p-3">
         <div class="align-self-center">
-            <img src="assets/{{getFirstItem item.product.images}}" alt="product_image" width="75px">
+            <img src="assets/{{getFirstItem item.productId.images}}" alt="product_image" width="75px">
         </div>
         <div class="align-self-center flex-grow-1">
-            <p class="fw-bold">{{item.product.title}}</p>
-            <p class="">{{item.product.memory}},&nbsp;{{item.product.storage}}</p>
-            <p class="">{{item.product.color}}</p>
+            <p class="fw-bold">{{item.productId.title}}</p>
+            <p class="">{{item.productId.memory}},&nbsp;{{item.productId.storage}}</p>
+            <p class="">{{item.productId.color}}</p>
             <br>
             <div class="d-flex align-items-center gap-2">
                 <span class="fw-bold">Qty: </span>
-                <div data-id="{{item.product._id}}" data-qty={{item.quantity}} class="quantity-selector">
+                <div data-id="{{item.productId._id}}" data-qty={{item.quantity}} class="quantity-selector">
                     <button class="dropdown-toggle">
                         <span id="product-qty" class="selected-quantity me-1">{{item.quantity}}</span>
                     </button>
@@ -38,9 +38,9 @@
             </div>
         </div>
         <div class="align-self-end">
-            <p class="d-none" id="product-mrp" data-mrp={{item.product.mrp}}></p>
-            <p class="fw-bold" id="product-price" data-price={{item.product.price}}>{{formatPrice (product
-                item.product.price item.quantity)}}</p>
+            <p class="d-none" id="product-mrp" data-mrp={{item.productId.mrp}}></p>
+            <p class="fw-bold" id="product-price" data-price={{item.productId.price}}>{{formatPrice (product
+                item.productId.price item.quantity)}}</p>
         </div>
     </div>
 </div>
