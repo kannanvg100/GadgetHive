@@ -1,3 +1,4 @@
+const os = require('os');
 /* eslint-disable no-undef */
 require('dotenv').config()
 
@@ -17,8 +18,22 @@ process.on('uncaughtException', err => {
 })
 
 const server = app.listen(process.env.PORT, () => {
-	console.log(`Server running on http://localhost:${process.env.PORT}`)
+	const address = server.address();
+    const ipAddress = getIpAddress();
+    console.log(`Server is running at http://${ipAddress}:${address.port}`);
 })
+
+function getIpAddress() {
+    const ifaces = os.networkInterfaces();
+    for (const iface in ifaces) {
+        for (const entry of ifaces[iface]) {
+            if (entry.family === 'IPv4' && !entry.internal) {
+                return entry.address;
+            }
+        }
+    }
+    return '127.0.0.1';
+}
 
 //Unhandled Promise Rejection
 process.on('unhandledRejection', err => {
