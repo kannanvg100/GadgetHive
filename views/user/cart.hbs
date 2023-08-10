@@ -24,7 +24,7 @@
         </div>
         <div class="col-12 col-lg-4 mt-3">
             <div class="bg-off-white rounded p-3">
-                <p class="h6">Deliver to:</p>
+                <p class="fw-bold">Deliver to</p>
                 <p class="span mt-1">{{address.name}}</p>
                 <p class="span">{{address.streetName}}</p>
                 <p class="span">{{address.town}}</p>
@@ -33,7 +33,20 @@
                 <div class="clearfix"></div>
             </div>
             <div class="bg-off-white rounded mt-3 p-3">
-                <p class="h6">Price Details:</p>
+                <p class="fw-bold">Coupons</p>
+                <div class="d-flex align-items-center justify-content-between gap-3 mt-1">
+                    <div>
+                        <img src="/images/tag.svg" alt="">
+                        <span>Apply Coupons</span>
+                    </div>
+                    <a class="span text-blue fw-bold cursor-pointer" data-toggle="modal"
+                        data-target="#couponsModal">VIEW</a>
+                </div>
+                <span id="coupon-text" class="text-success fw-semibold mt-1"></span>
+                <div class="clearfix"></div>
+            </div>
+            <div class="bg-off-white rounded mt-3 p-3">
+                <p class="fw-bold">Price Details</p>
                 <span id="address-id" data-id={{address._id}}></span>
                 <div class="mt-1">
                     <span class="float-start">Price</span>
@@ -46,7 +59,12 @@
                     <div class="clearfix"></div>
                 </div>
                 <div>
-                    <span class="float-start">Delivery Charges</span>
+                    <span class="float-start">Coupons</span>
+                    <span id="coupon-discount" class="float-end" data-discount="0">Not applied</span>
+                    <div class="clearfix"></div>
+                </div>
+                <div>
+                    <span class="float-start">Delivery Charge</span>
                     <span class="float-end">Free</span>
                     <div class="clearfix"></div>
                 </div>
@@ -57,14 +75,14 @@
                 </div>
             </div>
             <div class="bg-off-white rounded mt-3 p-3">
-                <p class="h6">Payment Options:</p>
+                <p class="fw-bold">Payment Options</p>
 
                 <div class="d-flex gap-2 mt-1">
                     <input type="radio" id="option2" name="payment-options" value="RAZORPAY" checked>
                     <label class="semi-bold" for="option2"><span>Razorpay</span></label><br>
                 </div>
 
-                <div class="d-flex gap-2"> 
+                <div class="d-flex gap-2">
                     <input type="radio" id="option1" name="payment-options" value="COD">
                     <label class="semi-bold" for="option1"><span>Cash on Delivery</span></label><br>
                 </div>
@@ -88,164 +106,267 @@
 </div>
 </div>
 
-{{> footer}}
+<!-- Coupons Modal -->
+<div class="modal fade" id="couponsModal" tabindex="-1" role="dialog" aria-labelledby="couponsModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h6 class="modal-title" id="couponsModalLabel">Apply Coupons</h6>
+                <button type="button" class="border-0 bg-transparent" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" id="closeCouponsModal" class="h4">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pt-0">
+                {{#each coupons}}
+                <div class="d-flex align-items-start border rounded p-3 mb-2 gap-3 coupon-item" data-id="{{this._id}}" data-code="{{this.code}}" data-discount="{{this.discount}}" data-min-amount="{{this.minAmount}}" data-max-discount="{{this.maxDiscount}}">
+                    <input type="checkbox" name="coupon-option">
+                    <div>
+                        <span class="fw-semibold rounded custom-dotted-border p-2">{{this.code}}</span>
+                        <p class="span mt-2">{{this.discount}}% off on minimum purchase of {{formatPrice this.minAmount}}</p>
+                        <p class="span text-blue">save upto {{formatPrice this.maxDiscount}}</p>
+                        <span class="error-text text-danger mt-1"></span>
+                    </div>
+                </div>
+                {{/each}}
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn-1" id="apply-coupon">Apply coupon</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-<script>
-    const deleteBtns = document.querySelectorAll(".delete-btn")
-    let currItemId = ""
-    let currTarget = ""
-    deleteBtns.forEach(item => {
-        item.addEventListener("click", (e) => {
-            currItemId = e.target.getAttribute('data-id')
-            currTarget = e.target
-            openModal("Remove Item?", "Are you sure to delete the item?", "Remove")
+    {{> footer}}
+
+    <script>
+        const deleteBtns = document.querySelectorAll(".delete-btn")
+        let currItemId = ""
+        let currTarget = ""
+        deleteBtns.forEach(item => {
+            item.addEventListener("click", (e) => {
+                currItemId = e.target.getAttribute('data-id')
+                currTarget = e.target
+                openModal("Remove Item?", "Are you sure to delete the item?", "Remove")
+            })
         })
-    })
-    confirmButton.addEventListener('click', (e) => {
-        fetch(`/cart/delete/`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({ id: currItemId }),
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const cartItemsCount = document.querySelector(".cart-items-count")
-                    const count = Number(cartItemsCount.innerHTML)
-                    cartItemsCount.innerHTML = count - 1
-                    currTarget.closest('.cart-item-parent').remove()
-                    showToast("product removed from Bag")
-                    updatePricePanel()
-                } else {
-                    showToast(data.message)
-                }
+        confirmButton.addEventListener('click', (e) => {
+            fetch(`/cart/delete/`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ id: currItemId }),
             })
-            .catch(error => {
-                showToast("Something went wrong")
-            })
-        closeModal()
-    })
-
-    const totalMrpSpan = document.querySelector("#total-mrp")
-    const totalDiscountSpan = document.querySelector("#total-discount")
-    const totalAmountSpan = document.querySelector("#total-amount")
-
-    function updatePricePanel() {
-        try {
-            const items = document.querySelectorAll(".cart-item")
-            let totalMrp = 0
-            let totalPrice = 0
-            items.forEach(item => {
-                const mrp = item.querySelector("#product-mrp").getAttribute('data-mrp');
-                const qty = item.querySelector(".quantity-selector").getAttribute('data-qty');
-                const price = item.querySelector("#product-price").getAttribute('data-price');
-
-                totalMrp += Number(mrp) * Number(qty);
-                totalPrice += Number(price) * Number(qty);
-            })
-            totalMrpSpan.innerHTML = '₹' + totalMrp.toLocaleString()
-            totalDiscountSpan.innerHTML = '₹' + (totalMrp - totalPrice).toLocaleString()
-            totalAmountSpan.innerHTML = '₹' + totalPrice.toLocaleString()
-            if (totalMrp === 0) window.location.reload()
-        }
-        catch (error) {
-
-        }
-    }
-    updatePricePanel()
-
-    const buyBtn = document.querySelector("#checkout-now")
-    buyBtn.addEventListener("click", () => {
-        buyBtn.textContent = "Processing..."
-        buyBtn.disabled = true
-        const addressId = document.querySelector("#address-id").getAttribute('data-id');
-        const paymentType = document.querySelector('input[name="payment-options"]:checked').value       
-        fetch(`/orders/checkout`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({ addressId , paymentType}),
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location = data.url
-                } else {
-                    showToast(data.message)
-                }
-            })
-            .catch(error => {
-                showToast("Something went wrong")
-            })
-
-    })
-
-</script>
-
-<script>
-
-    const dropdownToggle = document.querySelectorAll('.dropdown-toggle');
-
-    let currItemId2 = ""
-    let currTarget2 = ""
-    dropdownToggle.forEach(item => {
-        const parent = item.parentNode
-        const selectedQuantity = parent.querySelector('.selected-quantity');
-        const dropDownMenu = parent.querySelector('.dropdown-menu')
-        item.addEventListener('click', () => {
-            currItemId2 = parent.getAttribute('data-id');
-            currTarget2 = dropDownMenu
-            dropDownMenu.classList.toggle('show');
-        })
-        const dropdownItems = dropDownMenu.querySelectorAll('.dropdown-item');
-        dropdownItems.forEach(menuItem => {
-            menuItem.addEventListener('click', () => {
-                const selectedValue = menuItem.textContent;
-                currTarget2.parentNode.setAttribute('data-qty', selectedValue);
-                selectedQuantity.textContent = selectedValue;
-                currTarget2.classList.remove('show');
-                const grandParent = currTarget2.closest('.cart-item')
-                const priceSpan = grandParent.querySelector('#product-price')
-                const unitPrice = priceSpan.getAttribute('data-price')
-                priceSpan.textContent = "₹" + (unitPrice * selectedValue).toLocaleString()
-
-                fetch(`/cart/update-qty/`, {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({ productId: currItemId2, quantity: selectedValue }),
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const cartItemsCount = document.querySelector(".cart-items-count")
+                        const count = Number(cartItemsCount.innerHTML)
+                        cartItemsCount.innerHTML = count - 1
+                        currTarget.closest('.cart-item-parent').remove()
+                        showToast("product removed from Bag")
+                        updatePricePanel()
+                    } else {
+                        showToast(data.message)
+                    }
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            updatePricePanel()
-                        } else {
-                            showToast(data.message)
-                        }
+                .catch(error => {
+                    showToast("Something went wrong")
+                })
+            closeModal()
+        })
+
+        const totalMrpSpan = document.querySelector("#total-mrp")
+        const totalDiscountSpan = document.querySelector("#total-discount")
+        const totalAmountSpan = document.querySelector("#total-amount")
+
+        function updatePricePanel() {
+
+            try {
+                const items = document.querySelectorAll(".cart-item")
+                let totalMrp = 0
+                let totalPrice = 0
+
+                items.forEach(item => {
+                    const mrp = item.querySelector("#product-mrp").getAttribute('data-mrp');
+                    const qty = item.querySelector(".quantity-selector").getAttribute('data-qty');
+                    const price = item.querySelector("#product-price").getAttribute('data-price');
+                    totalMrp += Number(mrp) * Number(qty);
+                    totalPrice += Number(price) * Number(qty);
+                })
+
+                const discount = document.querySelector("#coupon-discount").getAttribute('data-discount') || 0
+                totalPrice -= Number(discount)
+
+                totalMrpSpan.innerHTML = '₹' + totalMrp.toLocaleString()
+                totalDiscountSpan.innerHTML = '₹' + (totalMrp - totalPrice).toLocaleString()
+                totalAmountSpan.setAttribute('data-amount', totalPrice)
+                totalAmountSpan.innerHTML = '₹' + totalPrice.toLocaleString()
+                if (totalMrp === 0) window.location.reload()
+            }
+            catch (error) {
+
+            }
+        }
+        updatePricePanel()
+
+        function resetCoupon() {
+            document.querySelector('#coupon-text').textContent = ""
+            document.querySelector("#coupon-discount").innerHTML = 'Not applied'
+            document.querySelector('#coupon-discount').setAttribute('data-discount', 0)
+            document.querySelector('#coupon-discount').setAttribute('data-id', "")
+        }
+
+        const buyBtn = document.querySelector("#checkout-now")
+        buyBtn.addEventListener("click", () => {
+            buyBtn.textContent = "Processing..."
+            buyBtn.disabled = true
+            const addressId = document.querySelector("#address-id").getAttribute('data-id');
+            const paymentType = document.querySelector('input[name="payment-options"]:checked').value
+            const couponId = document.querySelector('#coupon-discount').getAttribute('data-id')
+            fetch(`/orders/checkout`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ addressId, paymentType, couponId }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location = data.url
+                    } else {
+                        showToast(data.message)
+                        buyBtn.textContent = "PROCEED TO CHECKOUT"
+                        buyBtn.disabled = false
+                    }
+                })
+                .catch(error => {
+                    showToast("Something went wrong")
+                })
+
+        })
+
+    </script>
+
+    <script>
+
+        const dropdownToggle = document.querySelectorAll('.dropdown-toggle');
+
+        let currItemId2 = ""
+        let currTarget2 = ""
+        dropdownToggle.forEach(item => {
+            const parent = item.parentNode
+            const selectedQuantity = parent.querySelector('.selected-quantity');
+            const dropDownMenu = parent.querySelector('.dropdown-menu')
+            item.addEventListener('click', () => {
+                currItemId2 = parent.getAttribute('data-id');
+                currTarget2 = dropDownMenu
+                dropDownMenu.classList.toggle('show');
+            })
+            const dropdownItems = dropDownMenu.querySelectorAll('.dropdown-item');
+            dropdownItems.forEach(menuItem => {
+                menuItem.addEventListener('click', () => {
+                    const selectedValue = menuItem.textContent;
+                    currTarget2.parentNode.setAttribute('data-qty', selectedValue);
+                    selectedQuantity.textContent = selectedValue;
+                    currTarget2.classList.remove('show');
+                    const grandParent = currTarget2.closest('.cart-item')
+                    const priceSpan = grandParent.querySelector('#product-price')
+                    const unitPrice = priceSpan.getAttribute('data-price')
+                    priceSpan.textContent = "₹" + (unitPrice * selectedValue).toLocaleString()
+
+                    fetch(`/cart/update-qty/`, {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json",
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ productId: currItemId2, quantity: selectedValue }),
                     })
-                    .catch(error => {
-                        showToast("Something went wrong")
-                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                resetCoupon()
+                                updatePricePanel()
+                            } else {
+                                showToast(data.message)
+                            }
+                        })
+                        .catch(error => {
+                            showToast("Something went wrong")
+                        })
+                });
             });
         });
-    });
 
+        window.addEventListener('click', (event) => {
+            if (!event.target.matches('.dropdown-toggle')) {
+                dropdownToggle.forEach(item => {
+                    const parent = item.parentNode
+                    const dropDownMenu = parent.querySelector('.dropdown-menu')
+                    dropDownMenu.classList.remove('show');
+                })
+            }
+        });
 
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                dropdownToggle.forEach(item => {
+                    const parent = item.parentNode
+                    const dropDownMenu = parent.querySelector('.dropdown-menu')
+                    dropDownMenu.classList.remove('show');
+                })
+            }
+        });
 
-    {{!-- window.addEventListener('click', (event) => {
-        if (!dropdownToggle.contains(event.target) && !dropdownMenu.contains(event.target)) {
-            dropdownMenu.classList.remove('show');
-            dropdownToggle.setAttribute('aria-expanded', false);
-        }
-    }); --}}
+    </script>
 
+    <script>
+        const couponItems = document.querySelectorAll(".coupon-item")
+        couponItems.forEach(item => {
+            item.addEventListener("click", (e) => {
 
+                const chkedItem = document.querySelector('input[type="checkbox"]:checked')
+                if (chkedItem) chkedItem.checked = false
 
-</script>
+                const cartAmount = Number(document.querySelector("#total-amount").getAttribute('data-amount'))
+                const minAmount = Number(item.getAttribute('data-min-amount'))
+
+                if (cartAmount < minAmount) {
+                    item.querySelector('.error-text').textContent = `Shop for ₹${minAmount - cartAmount} more to apply this coupon`
+                    return
+                }
+
+                const checkbox = item.querySelector('input[type="checkbox"]')
+                checkbox.checked = true
+            })
+        })
+
+        const applyBtn = document.querySelector("#apply-coupon")
+        applyBtn.addEventListener('click',()=>{
+            const couponItem = document.querySelector('input[type="checkbox"]:checked').closest('.coupon-item')
+
+            const couponId = couponItem.getAttribute('data-id')
+            const couponCode = couponItem.getAttribute('data-code')
+            const discount = couponItem.getAttribute('data-discount')
+            const maxDiscount = couponItem.getAttribute('data-max-discount')
+            const cartAmount = Number(document.querySelector("#total-amount").getAttribute('data-amount'))
+
+            document.querySelector('#closeCouponsModal').click()
+
+            const discountAmount = (cartAmount * discount) / 100
+            const finalDiscount = discountAmount > maxDiscount ? maxDiscount : discountAmount
+            const finalAmount = cartAmount - finalDiscount
+
+            document.querySelector('#coupon-text').textContent = `${couponCode} applied!`
+            document.querySelector("#coupon-discount").innerHTML = '₹' + (finalDiscount - 0).toLocaleString()
+            document.querySelector('#coupon-discount').setAttribute('data-discount', finalDiscount)
+            document.querySelector('#coupon-discount').setAttribute('data-id', couponId)
+
+            updatePricePanel()
+        })
+    </script>

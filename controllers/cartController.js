@@ -1,20 +1,22 @@
 const Cart = require('../models/Cart')
+const Coupon = require('../models/Coupon')
 const mongoose = require('mongoose')
 
 module.exports = {
-	getCart: async (req, res) => {
+	getCart: async (req, res, next) => {
 		const userId = new mongoose.Types.ObjectId(req.session.user._id)
 		try {
 			const cart = await Cart.findOne({ user: userId }).populate({ path: 'items.productId' })
 			const items = cart.items
 			const address = req.session.user.address[0]
-			res.render('user/cart', { items, address, hideCartIcon: true })
+            const coupons = await Coupon.find({}).sort({ createdAt: -1 })
+			res.render('user/cart', { items, address, coupons, hideCartIcon: true , title: 'Shopping Bag'})
 		} catch (err) {
-			console.error(err)
+			next(err)
 		}
 	},
 
-	addToCart: async (req, res) => {
+	addToCart: async (req, res, next) => {
 		const { productId } = req.body
 		const quantity = Number(req.body.quantity)
 		const userId = req.session.user._id
@@ -53,12 +55,11 @@ module.exports = {
 				cart.save()
 			}
 		} catch (error) {
-			console.error(error)
-			res.status(500).json({ success: false, message: 'Something went wrong' })
+			next(error)
 		}
 	},
 
-	deleteCartItem: async (req, res) => {
+	deleteCartItem: async (req, res, next) => {
 		const itemId = req.body.id
 		const userId = req.session.user._id
 
@@ -66,12 +67,11 @@ module.exports = {
 			await Cart.findOneAndUpdate({ user: userId }, { $pull: { items: { _id: itemId } } }, { new: true })
 			res.status(200).json({ success: true })
 		} catch (error) {
-			console.error(error)
-			res.status(500).json({ success: false, message: 'Something went wrong' })
+			next(error)
 		}
 	},
 
-	updateCartQuantity: async (req, res) => {
+	updateCartQuantity: async (req, res, next) => {
 		try {
 			const { productId, quantity } = req.body
 			const { _id: userId } = req.session.user
@@ -87,8 +87,7 @@ module.exports = {
 			if (i === cart.items.length) res.status(500).json({ success: false, message: 'Something went wrong' })
 			else cart.save()
 		} catch (error) {
-			console.error(error)
-			res.status(500).json({ success: false, message: 'Something went wrong' })
+			next(error)
 		}
 	},
 }

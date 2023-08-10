@@ -77,8 +77,20 @@
                                 <tr>
                                     <td> </td>
                                     <td></td>
-                                    <td></td>
-                                    <td class="fw-bold">{{formatPrice order.totalAmount}}</td>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span>Total Price</span>
+                                            <span>Discount</span>
+                                            <span>Final Price</span>
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold">
+                                        <div class="d-flex flex-column">
+                                            <span>{{formatPrice order.totalAmount}}</span>
+                                            <span>{{formatPrice order.discount}}</span>
+                                            <span>{{formatPrice order.finalAmount}}</span>
+                                        </div>
+                                    </td>
                                 </tr>
 
                             </tbody>

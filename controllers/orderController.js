@@ -1,32 +1,39 @@
+/* eslint-disable no-undef */
 const Order = require('../models/Order')
 const Cart = require('../models/Cart')
 const Product = require('../models/Product')
 const Wallet = require('../models/Wallet')
+const Coupon = require('../models/Coupon')
 const razorpay = require('../config/razorpay')
-const catchAsyncError = require('../middlewares/catchAsyncError')
 const crypto = require('crypto')
+const excel = require('exceljs')
 
 const RESULTS_PER_PAGE = 12
 
 module.exports = {
-	getAllOrders: async (req, res) => {
-		const { page } = req.params
-		const id = req.session.user._id
-		const documentCount = await Order.countDocuments({ user: id })
-		const orders = await Order.find({ user: id })
-			.populate('items.productId')
-			.skip((page - 1) * RESULTS_PER_PAGE)
-			.limit(RESULTS_PER_PAGE)
-			.sort({ createdAt: -1 })
-		const totalPages = Math.ceil(documentCount / RESULTS_PER_PAGE)
-		res.render('user/orders', {
-			orders,
-			page,
-			totalPages,
-		})
+	getAllOrders: async (req, res, next) => {
+		try {
+			const { page } = req.params
+			const id = req.session.user._id
+			const documentCount = await Order.countDocuments({ user: id })
+			const orders = await Order.find({ user: id })
+				.populate('items.productId')
+				.skip((page - 1) * RESULTS_PER_PAGE)
+				.limit(RESULTS_PER_PAGE)
+				.sort({ createdAt: -1 })
+			const totalPages = Math.ceil(documentCount / RESULTS_PER_PAGE)
+			res.render('user/orders', {
+				orders,
+				page,
+				totalPages,
+				title: 'My Orders',
+			})
+		} catch (error) {
+			next(error)
+		}
 	},
 
-	getOrderById: async (req, res) => {
+	getOrderById: async (req, res, next) => {
 		const id = req.session.user._id
 		const orderId = req.params.id
 		try {
@@ -36,13 +43,14 @@ module.exports = {
 			})
 			res.render('user/order-details', {
 				order,
+				title: 'My Orders',
 			})
 		} catch (error) {
-			console.error(error)
+			next(error)
 		}
 	},
 
-	cancelOrder: async (req, res) => {
+	cancelOrder: async (req, res, next) => {
 		const userId = req.session.user._id
 		const orderId = req.query.id
 		try {
@@ -51,17 +59,16 @@ module.exports = {
 			const order = await Order.findById(orderId)
 			if (order.paymentMode !== 'COD') {
 				const wallet = await Wallet.findOne({ user: userId })
-				wallet.transactions.push({ title: `Refund for Order #${orderId}`, amount: order.totalAmount })
+				wallet.transactions.push({ title: `Refund for Order #${orderId}`, amount: order.finalAmount })
 				wallet.save()
 			}
 			res.status(200).json({ success: true, message: 'Order Cancelled' })
 		} catch (error) {
-			console.error(error)
-			res.status(500).json({ success: false, message: 'Something went wrong' })
+			next(error)
 		}
 	},
 
-	returnOrder: async (req, res) => {
+	returnOrder: async (req, res, next) => {
 		const userId = req.session.user._id
 		const orderId = req.query.id
 		try {
@@ -69,41 +76,39 @@ module.exports = {
 			const order = await Order.findById(orderId)
 			if (order.paymentMode !== 'COD') {
 				const wallet = await Wallet.findOne({ user: userId })
-				wallet.transactions.push({ title: `Refund for Order #${orderId}`, amount: order.totalAmount })
+				wallet.transactions.push({ title: `Refund for Order #${orderId}`, amount: order.finalAmount })
 				wallet.save()
 			}
 			res.status(200).json({ success: true, message: 'Return accepted' })
 		} catch (error) {
-			console.error(error)
-			res.status(500).json({ success: false, message: 'Something went wrong' })
+			next(error)
 		}
 	},
 
-	cancelOrderAdmin: async (req, res) => {
+	cancelOrderAdmin: async (req, res, next) => {
 		const orderId = req.query.id
 		try {
 			await Order.findOneAndUpdate({ _id: orderId }, { orderStatus: 'cancelled_by_admin' })
 			const order = await Order.findById(orderId)
 			if (order.paymentMode !== 'COD') {
 				const wallet = await Wallet.findOne({ user: order.user })
-				wallet.transactions.push({ title: `Refund for Order #${orderId}`, amount: order.totalAmount })
+				wallet.transactions.push({ title: `Refund for Order #${orderId}`, amount: order.finalAmount })
 				wallet.save()
 			}
 			res.status(200).json({ success: true, message: 'Order Cancelled' })
 		} catch (error) {
-			console.error(error)
-			res.status(500).json({ success: false, message: 'Something went wrong' })
+			next(error)
 		}
 	},
 
-	getAllOrdersAdmin: async (req, res) => {
+	getAllOrdersAdmin: async (req, res, next) => {
 		const { page } = req.params
 
 		try {
 			const documentCount = await Order.countDocuments({})
 			const orders = await Order.find({})
 				.populate('user')
-                .sort({createdAt: -1})
+				.sort({ createdAt: -1 })
 				.skip((page - 1) * RESULTS_PER_PAGE)
 				.limit(RESULTS_PER_PAGE)
 			const totalPages = Math.ceil(documentCount / RESULTS_PER_PAGE)
@@ -113,22 +118,22 @@ module.exports = {
 				totalPages,
 			})
 		} catch (error) {
-			console.error(error)
+			next(error)
 		}
 	},
 
-	getOrderByIdAdmin: catchAsyncError(async (req, res) => {
+	getOrderByIdAdmin: async (req, res, next) => {
 		const orderId = req.query.id
 		const order = await Order.findById(orderId).populate({
 			path: 'items.productId',
 			select: 'title images',
 		})
 		res.render('admin/order-details', { order })
-	}),
+	},
 
 	checkOut: async (req, res, next) => {
 		const userId = req.session.user._id
-		const { addressId, paymentType } = req.body
+		const { addressId, paymentType, couponId } = req.body
 		try {
 			const cart = await Cart.findOne({ user: userId })
 				.populate({
@@ -161,10 +166,19 @@ module.exports = {
 			}
 
 			const orderItems = []
+			let totalAmount = 0
 			cart.items.forEach((item) => {
 				const tmp = { productId: item.productId._id, quantity: item.quantity, price: item.productId.price }
+				totalAmount += item.productId.price * item.quantity
 				orderItems.push(tmp)
 			})
+
+			const coupon = await Coupon.findById(couponId)
+			let discount = 0
+			if (coupon && totalAmount >= coupon.minAmount) {
+				discount = (totalAmount * coupon.discount) / 100
+				discount = discount > coupon.maxDiscount ? coupon.maxDiscount : discount
+			}
 
 			// TODO
 			const address = req.session.user.address.find((addr) => addr._id.toString() === addressId)
@@ -174,6 +188,8 @@ module.exports = {
 				items: orderItems,
 				address,
 				totalAmount: 0,
+				finalAmount: 0,
+				discount,
 				paymentMode: paymentType,
 			}
 
@@ -185,7 +201,7 @@ module.exports = {
 			} else if (paymentType === 'RAZORPAY') {
 				const order = await Order.create(orderData)
 				const razorpayOrder = await razorpay.orders.create({
-					amount: order.totalAmount * 100,
+					amount: order.finalAmount * 100,
 					currency: 'INR',
 					receipt: order._id.toString(),
 				})
@@ -196,12 +212,13 @@ module.exports = {
 				const wallet = await Wallet.findOne({ user: userId })
 				let totalAmount = 0
 				for (const it of orderItems) totalAmount += it.price
+				totalAmount -= orderData.discount
 				if (wallet.balance < totalAmount)
 					res.status(500).json({ success: false, message: 'Not enough balance in the wallet' })
 				else {
 					const order = await Order.create(orderData)
-                    wallet.transactions.push({title:`Spend for order #${order._id}`, amount: -totalAmount})
-                    wallet.save()
+					wallet.transactions.push({ title: `Spend for order #${order._id}`, amount: -order.finalAmount })
+					wallet.save()
 					orderData.orderStatus = 'placed'
 					await Cart.findOneAndUpdate({ user: userId }, { items: [] })
 					res.status(200).json({ success: true, url: `/orders/${order._id}` })
@@ -209,37 +226,45 @@ module.exports = {
 			} else {
 				res.status(500).json({ success: false, message: 'Pls select a payment option' })
 			}
-		} catch (e) {
-			console.error(e)
+		} catch (error) {
+			next(error)
 		}
 	},
 
-	payment: async (req, res) => {
-		const { oid: orderId } = req.query
-		const order = await Order.findById(orderId)
-		if (order.orderStatus === 'pending') {
-			res.render('user/payment', { order, razorpay_key: process.env.RAZORPAY_KEY_ID })
+	payment: async (req, res, next) => {
+		try {
+			const { oid: orderId } = req.query
+			const order = await Order.findById(orderId)
+			if (order.orderStatus === 'pending') {
+				res.render('user/payment', { order, razorpay_key: process.env.RAZORPAY_KEY_ID })
+			}
+		} catch (error) {
+			next(error)
 		}
 	},
 
-	checkPayment: async (req, res) => {
-		const userId = req.session.user._id
+	checkPayment: async (req, res, next) => {
+		try {
+			const userId = req.session.user._id
 
-		const { razorpayOrderId, razorpayPaymentId, secret } = req.body
+			const { razorpayOrderId, razorpayPaymentId, secret } = req.body
 
-		const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+			const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
 
-		hmac.update(razorpayOrderId + '|' + razorpayPaymentId)
-		const generatedSignature = hmac.digest('hex')
+			hmac.update(razorpayOrderId + '|' + razorpayPaymentId)
+			const generatedSignature = hmac.digest('hex')
 
-		if (generatedSignature === secret) {
-			await Order.findOneAndUpdate({ 'paymentData.id': razorpayOrderId }, { orderStatus: 'placed' })
-			await Cart.findOneAndUpdate({ user: userId }, { items: [] })
-			res.status(200).json({ success: true })
-		} else res.status(400).json({ success: false })
+			if (generatedSignature === secret) {
+				await Order.findOneAndUpdate({ 'paymentData.id': razorpayOrderId }, { orderStatus: 'placed' })
+				await Cart.findOneAndUpdate({ user: userId }, { items: [] })
+				res.status(200).json({ success: true })
+			} else res.status(400).json({ success: false })
+		} catch (error) {
+			next(error)
+		}
 	},
 
-	updateStatusAdmin: async (req, res) => {
+	updateStatusAdmin: async (req, res, next) => {
 		const { id: orderId, status } = req.query
 		try {
 			await Order.findOneAndUpdate({ _id: orderId }, { orderStatus: status })
@@ -253,8 +278,40 @@ module.exports = {
 			}
 			res.status(200).json({ success: true, message: 'Order Cancelled' })
 		} catch (error) {
-			console.error(error)
-			res.status(500).json({ success: false, message: 'Something went wrong' })
+			next(error)
+		}
+	},
+
+	getReports: async (req, res, next) => {
+		let { from, to } = req.query
+		if (!from || !to) {
+			return res.render('admin/reports')
+		}
+		if (from > to) [from, to] = [to, from]
+		to += 'T23:59:59.999Z'
+		try {
+			const orders = await Order.find({ createdAt: { $gte: from, $lte: to }, orderStatus: 'delivered' }).populate(
+				'user'
+			)
+			const workbook = new excel.Workbook()
+			const worksheet = workbook.addWorksheet('Orders')
+
+			const data = orders.map((order) => [
+				order._id,
+				order.createdAt.toDateString(),
+				order.totalAmount,
+				order.paymentMode,
+			])
+
+			worksheet.addRows([['Order ID', 'Order Date', 'Total Amount', 'Payment Mode'], ...data])
+
+			await workbook.xlsx.writeFile('orders_last_month.xlsx')
+
+			from = from.split('T')[0]
+			to = to.split('T')[0]
+			res.render('admin/reports', { orders, from, to })
+		} catch (error) {
+			next(error)
 		}
 	},
 }

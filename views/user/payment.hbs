@@ -52,7 +52,7 @@
 
         const options = {
             "key": '{{razorpay_key}}',
-            "amount": '{{product order.totalAmount 100}}',
+            "amount": '{{product order.finalAmount 100}}',
             "currency": "INR",
             "name": "GadgetHive",
             "order_id": '{{order.paymentData.id}}',

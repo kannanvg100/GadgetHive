@@ -1,5 +1,5 @@
+/* eslint-disable no-unused-vars */
 const errorHandler = (err, req, res, next) => {
-	console.error(err)
 	let statusCode = err.statusCode || 500
 	let message = err.message || 'Internal Server Error'
 
@@ -12,11 +12,10 @@ const errorHandler = (err, req, res, next) => {
 	// Mongoose validation error
 	if (err.name === 'ValidationError') {
 		statusCode = 400
-
-        console.log(err.errors);
-
         message = Object.values(err.errors).map(value => value.message);
 	}
+
+    console.error(statusCode + ': ' + message)
 
 	const isFetch = req.headers['x-requested-with'] === 'XMLHttpRequest'
 	if (isFetch)

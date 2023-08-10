@@ -5,51 +5,79 @@ const Product = require('../models/Product')
 const Order = require('../models/Order')
 const Banner = require('../models/Banner')
 const Wallet = require('../models/Wallet')
+const Wishlist = require('../models/Wishlist')
 const verificationHelpers = require('../config/twilio')
-const { HostedNumberOrderListInstance } = require('twilio/lib/rest/preview/hosted_numbers/hostedNumberOrder')
 
 const RESULTS_PER_PAGE = 6
 
 module.exports = {
+	test: async (req, res, next) => {
+		try {
+			const { page } = req.params
+			const filter = { status: 'listed' }
+			const decodedURL = decodeURIComponent(req.query.f)
+			if (decodedURL !== 'undefined') {
+				decodedURL.split('&').forEach((item) => {
+					const [key, value] = item.split('=')
+					filter[key] = value.split(',')
+				})
+			}
+			const products = await Product.find(filter)
+				.skip((page - 1) * RESULTS_PER_PAGE)
+				.limit(RESULTS_PER_PAGE)
+			res.render('user/test', { products, filter })
+		} catch (error) {
+			next(error)
+		}
+	},
+
 	getLoginForm: (req, res) => {
-		if (req.session.user) res.redirect('/home')
-		else {
-			const email = req.query.email ?? 'kannanvg007@gmail.com'
-			res.render('user/login', { email })
+		try {
+			if (req.session.user) res.redirect('/home')
+			else {
+				const email = req.query.email ?? 'kannanvg007@gmail.com'
+				res.render('user/login', { email })
+			}
+		} catch (error) {
+			next(error)
 		}
 	},
 
 	getSignupForm: (req, res) => {
-		if (req.session.user) res.redirect('/home')
-		else {
-			const { email } = req.query
-			res.render('user/signup', { email })
+		try {
+			if (req.session.user) res.redirect('/home')
+			else {
+				const { email } = req.query
+				res.render('user/signup', { email })
+			}
+		} catch (error) {
+			next(error)
 		}
 	},
 
-	getHomePage: async (req, res) => {
-		const categories = await Category.aggregate([
-			{ $match: { isDeleted: false } },
-			{ $sort: { displayOrder: -1 } },
-			{ $group: { _id: null, values: { $push: '$name' } } },
-		])
+	getHomePage: async (req, res, next) => {
+		try {
+			const categories = await Category.aggregate([
+				{ $match: { isDeleted: false } },
+				{ $sort: { displayOrder: -1 } },
+				{ $group: { _id: null, values: { $push: '$name' } } },
+			])
 
-        //get brand names in the order of display order
-        const brands = await Brand.find().sort({displayOrder: -1}).select('name image')
-
-
-		// const brands = await Brand.aggregate([{ $group: { _id: null, values: { $push: '$name' } } }])
-		const latestProducts = await Product.find().sort({ createdAt: -1 }).limit(5)
-		const banners = await Banner.find({isActive: true}).limit(5)
-		res.render('user/home', { categories: categories[0].values, banners, latestProducts })
+			const brands = await Brand.find().sort({ displayOrder: -1 }).select('name image')
+			const latestProducts = await Product.find().sort({ createdAt: -1 }).limit(5)
+			const banners = await Banner.find({ isActive: true }).limit(5)
+			res.render('user/home', { categories: categories[0].values, brands, banners, latestProducts })
+		} catch (error) {
+			next(error)
+		}
 	},
 
-    goToHomePage: async (req, res) => {
-        res.redirect('/')
-    },
+	goToHomePage: async (req, res, next) => {
+		res.redirect('/')
+	},
 
 	// Register User
-	registerUser: async (req, res) => {
+	registerUser: async (req, res, next) => {
 		let { email, phone, password } = req.body
 
 		let result = {}
@@ -77,7 +105,7 @@ module.exports = {
 	},
 
 	// Register User
-	verifyUserOtp: async (req, res) => {
+	verifyUserOtp: async (req, res, next) => {
 		const { otp } = req.body
 		if (req.session.guest == null)
 			return res.status(500).json({ success: false, message: 'Something went wrong. Try again later' })
@@ -89,14 +117,13 @@ module.exports = {
 				req.session.guest = null
 				res.status(200).json({ success: true, message: 'signup Successful', email })
 			} else res.status(400).json({ success: false, message: 'OTP didnt match. Pls try again' })
-		} catch (e) {
-			console.error(e.message)
-			res.status(500).json({ success: false, message: 'Something went wrong. Try again later' })
+		} catch (error) {
+			next(error)
 		}
 	},
 
 	// Login User
-	loginUser: async (req, res) => {
+	loginUser: async (req, res, next) => {
 		const { email, password } = req.body
 
 		if (!email || !password) {
@@ -120,13 +147,12 @@ module.exports = {
 
 			req.session.user = user
 			return res.json({ success: true })
-		} catch (e) {
-			console.error(e)
-			return res.status(500).json({ success: false, message: 'Something went wrong' })
+		} catch (error) {
+			next(error)
 		}
 	},
 
-	checkEmail: async (req, res) => {
+	checkEmail: async (req, res, next) => {
 		let { email } = req.body
 		email = email.trim().toLowerCase()
 		try {
@@ -134,12 +160,12 @@ module.exports = {
 			if (user) res.json({ success: true })
 			else res.json({ success: false })
 		} catch (error) {
-			res.json({ success: true })
+			next(error)
 		}
 	},
 
 	// Send OTP to assosiated account with the mail
-	sendOtp: async (req, res) => {
+	sendOtp: async (req, res, next) => {
 		const { email } = req.body
 		try {
 			const user = await User.findOne({ email }).select('phone')
@@ -153,14 +179,13 @@ module.exports = {
 			} else {
 				return res.status(500).json({ success: false, message: 'Failed to send OTP' })
 			}
-		} catch (e) {
-			console.error(e.message)
-			return res.status(500).json({ success: false, message: 'Something went wrong' })
+		} catch (error) {
+			next(error)
 		}
 	},
 
 	//Login to the account with OTP
-	OtpLoginUser: async (req, res) => {
+	OtpLoginUser: async (req, res, next) => {
 		if (req.session.guest == null)
 			return res.status(500).json({ success: false, message: 'Something went wrong. Try again later' })
 		const { phone, email } = req.session.guest
@@ -179,9 +204,8 @@ module.exports = {
 				res.status(500).json({ success: false, message: 'OTP didnt match, Pls try again' })
 				console.error('Error:' + status)
 			}
-		} catch (e) {
-			console.error(e.message)
-			res.status(500).json({ success: false, message: 'Something went wrong' })
+		} catch (error) {
+			next(error)
 		}
 	},
 
@@ -193,15 +217,23 @@ module.exports = {
 
 	// Login Status
 	getUser: async (req, res, next) => {
-		const user = req.session.user
-		if (user) res.status(200).json({ success: true, name: user.name })
-		else res.status(401).json({ success: false })
+		try {
+			const user = req.session.user
+			if (user) res.status(200).json({ success: true, name: user.name })
+			else res.status(401).json({ success: false })
+		} catch (error) {
+			next(error)
+		}
 	},
 
 	//Admin login form
 	getAdminLoginForm: async (req, res, next) => {
-		if (req.session.admin) res.redirect('/admin/dashboard')
-		else res.render('admin/login')
+		try {
+			if (req.session.admin) res.redirect('/admin/dashboard')
+			else res.render('admin/login')
+		} catch (error) {
+			next(error)
+		}
 	},
 
 	//Admin login
@@ -224,9 +256,8 @@ module.exports = {
 
 			req.session.admin = user
 			return res.json({ success: true })
-		} catch (e) {
-			console.error(e)
-			return res.status(500).json({ success: false, message: 'Something went wrong' })
+		} catch (error) {
+			next(error)
 		}
 	},
 
@@ -236,31 +267,40 @@ module.exports = {
 			delete req.session.admin
 			res.redirect('/admin')
 		} catch (error) {
-			console.error(error)
+			next(error)
 		}
 	},
 
 	//Admin Dashboard
 	adminHome: async (req, res, next) => {
-		// const orders = await Order.aggregate([{$group: {_id: "$createdAt", total: {$sum: "$totalAmount"}}}])
-		const orders = await Order.aggregate([
-			{ $match: { orderStatus: 'delivered' } },
-			{
-				$group: {
-					_id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-					total: { $sum: '$totalAmount' },
-                    count: { $sum : 1 }
+		try {
+			const orders = await Order.aggregate([
+				{ $match: { orderStatus: 'delivered' } },
+				{
+					$group: {
+						_id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+						total: { $sum: '$finalAmount' },
+						count: { $sum: 1 },
+					},
 				},
-			},
-            {$sort: {_id: 1}}
-		])
+				{ $sort: { _id: 1 } },
+			])
 
-		const data = orders.map(({ _id, total, count }) => ({ date: _id, amount: total, count}))
-		res.render('admin/dashboard', { data })
+			const orderCounts = await Order.aggregate([{ $group: { _id: '$orderStatus', count: { $sum: 1 } } }])
+
+			const data = orders.map(({ _id, total, count }) => ({ date: _id, amount: total, count }))
+			res.render('admin/dashboard', { data, orderCounts })
+		} catch (error) {
+			next(error)
+		}
 	},
 
 	getAddUserForm: async (req, res, next) => {
-		res.render('admin/add-edit-user', { user: null })
+		try {
+			res.render('admin/add-edit-user', { user: null })
+		} catch (error) {
+			next(error)
+		}
 	},
 
 	addUser: async (req, res, next) => {
@@ -272,10 +312,10 @@ module.exports = {
 				password: user.password,
 				isActive: user.isActive,
 			})
+			res.redirect('/users/p/1')
 		} catch (error) {
-			console.error(error.message)
+			next(error)
 		}
-		res.redirect('/users/p/1')
 	},
 
 	getEditUserForm: async (req, res, next) => {
@@ -285,7 +325,7 @@ module.exports = {
 			user.password = ''
 			res.render('admin/add-edit-user', { user: JSON.stringify(user), editMode: true })
 		} catch (error) {
-			console.error(error.message)
+			next(error)
 		}
 	},
 
@@ -297,44 +337,46 @@ module.exports = {
 			const userData = await User.findById(id)
 			userData.name = user.name
 			userData.email = user.email
-			userData.phone = user.phone``
+			userData.phone = user.phone
 			userData.isActive = user.isActive
 
 			await userData.save()
 
 			return res.json({ success: true })
 		} catch (error) {
-			console.error(error.message)
-			return res.json({ success: failed })
+			next(error)
 		}
 	},
 
-	getAllUsers: async (req, res) => {
-		const { page } = req.params
-		const documentCount = await User.countDocuments({})
-		let users = await User.find({})
-			.skip((page - 1) * RESULTS_PER_PAGE)
-			.limit(RESULTS_PER_PAGE)
-		const totalPages = Math.ceil(documentCount / RESULTS_PER_PAGE)
-		res.render('admin/users-list', {
-			users,
-			page,
-			totalPages,
-		})
+	getAllUsers: async (req, res, next) => {
+		try {
+			const { page } = req.params
+			const documentCount = await User.countDocuments({})
+			let users = await User.find({})
+				.skip((page - 1) * RESULTS_PER_PAGE)
+				.limit(RESULTS_PER_PAGE)
+			const totalPages = Math.ceil(documentCount / RESULTS_PER_PAGE)
+			res.render('admin/users-list', {
+				users,
+				page,
+				totalPages,
+			})
+		} catch (error) {
+			next(error)
+		}
 	},
 
-	deleteUser: async (req, res) => {
+	deleteUser: async (req, res, next) => {
 		const { id } = req.body
 		try {
 			await User.findByIdAndDelete(id)
 			res.status(200).json({ success: true })
 		} catch (error) {
-			console.error(error.message)
-			res.status(500).json({ success: false, message: 'User deleting failed' })
+			next(error)
 		}
 	},
 
-	instantSearch: async (req, res) => {
+	instantSearch: async (req, res, next) => {
 		const query = req.body.query
 		const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 		try {
@@ -346,38 +388,99 @@ module.exports = {
 			).limit(5)
 			res.json({ results })
 		} catch (error) {
-			console.error('Error:', error.message)
+			next(error)
 		}
 	},
 
-	account: async (req, res) => {
+	account: async (req, res, next) => {
 		const user = req.session.user
 		try {
 			res.render('user/account', { user })
 		} catch (error) {
-			console.error('Error:', error.message)
+			next(error)
 		}
 	},
 
-	address: async (req, res) => {
-		const user = req.session.user
+	address: async (req, res, next) => {
+		const userId = req.session.user._id
+		const user = await User.findById(userId).select('address')
 		try {
-			res.render('user/address', { user })
+			res.render('user/address', { address: user.address })
 		} catch (error) {
-			console.error('Error:', error.message)
+			next(error)
 		}
 	},
 
-	wishlist: async (req, res) => {
-		const user = req.session.user
+	addAddress: async (req, res, next) => {
 		try {
-			res.render('user/wishlist', { user })
+			const userId = req.session.user._id
+			const user = await User.findById(userId)
+			user.address.push(req.body)
+			await user.save()
+			res.status(200).json({ success: true })
 		} catch (error) {
-			console.error('Error:', error.message)
+			next(error)
 		}
 	},
 
-	wallet: async (req, res) => {
+	editAddress: async (req, res, next) => {
+		try {
+			const userId = req.session.user._id
+			const addressId = req.body.id
+			const user = await User.findById(userId)
+			const address = user.address.id(addressId)
+			address.set(req.body)
+			await user.save()
+			res.status(200).json({ success: true })
+		} catch (error) {
+			next(error)
+		}
+	},
+
+	deleteAddress: async (req, res, next) => {
+		try {
+			const userId = req.session.user._id
+			const addressId = req.body.id
+			const user = await User.findById(userId)
+			user.address.pull(addressId)
+			await user.save()
+			res.status(200).json({ success: true })
+		} catch (error) {
+			next(error)
+		}
+	},
+
+	wishlist: async (req, res, next) => {
+		const user = req.session.user
+		const wishlist = await Wishlist.findOne({ user: user._id }).populate('items.product')
+		try {
+			res.render('user/wishlist', { wishlist: wishlist.items })
+		} catch (error) {
+			next(error)
+		}
+	},
+
+	updateWishlist: async (req, res, next) => {
+		try {
+			const user = req.session.user
+			const productId = req.query.id
+			const wishlist = await Wishlist.findOne({ user: user._id })
+			if (wishlist == null) await Wishlist.create({ user: user._id, items: [{ product: productId }] })
+			else {
+				if (wishlist.items.some((item) => item.product == productId)) {
+					wishlist.items.pull({ product: productId })
+				} else {
+					wishlist.items.push({ product: productId })
+				}
+				await wishlist.save()
+			}
+			res.status(200).json({ success: true })
+		} catch (error) {
+			next(error)
+		}
+	},
+
+	wallet: async (req, res, next) => {
 		const userId = req.session.user._id
 		try {
 			let wallet
@@ -385,7 +488,7 @@ module.exports = {
 			if (wallet == null) wallet = await Wallet.create({ user: userId, balance: 0 })
 			res.render('user/wallet', { balance: wallet.balance, transactions: wallet.transactions.reverse() })
 		} catch (error) {
-			console.error('Error:', error.message)
+			next(error)
 		}
 	},
 }

@@ -40,7 +40,7 @@ module.exports = {
 		return discount
 	},
 	formatPrice: function (price) {
-		return '₹' + Number(price).toLocaleString()
+		return '₹' + Number(price).toLocaleString('en-IN', { maximumFractionDigits: 2 })
 	},
 	getRandomNumber: function (n) {
 		return Math.floor(Math.random(n) * 100)
@@ -81,6 +81,10 @@ module.exports = {
 		if (status) return 'invisible'
 		return 'd-block'
 	},
+    isVisible: function (status) {
+        if (status) return ''
+        else return 'hidden'
+    },
 	getFirstItem: function (item) {
 		return item[0]
 	},
@@ -100,20 +104,20 @@ module.exports = {
 		}
 		return date.toLocaleString(undefined, options)
 	},
-    getDateWithYear: function (date) {
+	getDateWithYear: function (date) {
 		const options = {
-            year: 'numeric',
+			year: 'numeric',
 			month: 'short',
 			day: 'numeric',
 		}
 		return date.toLocaleString(undefined, options)
 	},
 	getTime: function (date) {
-        const options = {
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: true
-          };
+		const options = {
+			hour: 'numeric',
+			minute: 'numeric',
+			hour12: true,
+		}
 		return date.toLocaleString(undefined, options).toUpperCase()
 	},
 	getRandomRating: function () {
@@ -150,6 +154,7 @@ module.exports = {
 		return args
 	},
 	isIn: function (target, items) {
+		console.log("📄 > file: handlebarHelpers.js:153 > items:", items)
 		return items.includes(target)
 	},
 	formatOrderStatus: function (status) {
@@ -161,4 +166,19 @@ module.exports = {
 	replaceUnderscore: function (text) {
 		return text == '' ? '' : text.replace(/_/g, ' ')
 	},
+	checkTitle: function (text) {
+		return text ? `${text}` : 'GadgetHive'
+	},
+	avgOfPrices: function (items) {
+		let sum = 0, count = 0
+		items.forEach((item) => sum += item.amount )
+		items.forEach((item) => count += item.count )
+		return sum / count
+	},
+    getStatusCount: function (orders, status) {
+        for (const order of orders) {
+            if (order._id == status) return order.count
+        }
+        return 0
+    }
 }

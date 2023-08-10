@@ -5,6 +5,9 @@ const { preventCache } = require('../middlewares/preventCache')
 
 const router = express.Router()
 
+//test route
+router.get('/test/p/:page', userController.test)
+
 // Routes accessible to all users
 router.post('/instant-search', userController.instantSearch)
 router.get('/', preventCache, userController.getHomePage)
@@ -21,15 +24,20 @@ router.get('/logout', preventCache, userController.logoutUser)
 router.post('/verify-otp', preventCache, userController.verifyUserOtp)
 router.get('/get-user', preventCache, userController.getUser)
 
-router.get('/admin', userController.getAdminLoginForm)
-router.get('/admin/login', userController.getAdminLoginForm)
-router.post('/admin/login', userController.loginAdmin)
-router.get('/admin/logout', userController.logoutAdmin)
+router.get('/admin',preventCache, userController.getAdminLoginForm)
+router.get('/admin/login',preventCache, userController.getAdminLoginForm)
+router.post('/admin/login',preventCache, userController.loginAdmin)
+router.get('/admin/logout',preventCache, userController.logoutAdmin)
 // End of public routes
 
 // Routes accessible to authenticated users only
 router.get('/account', preventCache, auth.isAuthenticatedUser, userController.account)
 router.get('/addresses', preventCache, auth.isAuthenticatedUser, userController.address)
+router.post('/addresses/add', preventCache, auth.isAuthenticatedUser, userController.addAddress)
+router.post('/addresses/edit', preventCache, auth.isAuthenticatedUser, userController.editAddress)
+router.post('/addresses/delete', preventCache, auth.isAuthenticatedUser, userController.deleteAddress)
+router.get('/wishlist', preventCache, auth.isAuthenticatedUser, userController.wishlist)
+router.get('/wishlist/update', preventCache, auth.isAuthenticatedUser, userController.updateWishlist)
 router.get('/wishlist', preventCache, auth.isAuthenticatedUser, userController.wishlist)
 router.get('/wallet', preventCache, auth.isAuthenticatedUser, userController.wallet)
 // End authenticated users routes

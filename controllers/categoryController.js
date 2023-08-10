@@ -1,15 +1,14 @@
 const Category = require('../models/Category')
 const Product = require('../models/Product')
-const catchAsyncError = require('../middlewares/catchAsyncError')
 
 module.exports = {
-	getCategories: async (req, res) => {
+	getCategories: async (req, res, next) => {
 		try {
 			const categories = await Category.find({}).sort({ displayOrder: -1 })
 			const counts = await Product.aggregate([{ $group: { _id: '$category', count: { $sum: 1 } } }])
 			res.render('admin/category-list', { categories, counts })
 		} catch (error) {
-			console.error(error.message)
+            next(error)
 		}
 	},
 
@@ -24,17 +23,17 @@ module.exports = {
 			await category.save()
 			res.status(200).json({ success: true })
 		} catch (error) {
-			next(error)
+            next(error)
 		}
 	},
 
-	getEditCategoryForm: async (req, res) => {
+	getEditCategoryForm: async (req, res, next) => {
 		const id = req.query.id
 		try {
 			const category = await Category.findById(id)
 			res.render('admin/add-edit-category', { category, editMode: true })
 		} catch (error) {
-			console.error(error.message)
+            next(error)
 		}
 	},
 

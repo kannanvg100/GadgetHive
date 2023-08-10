@@ -51,7 +51,7 @@ const user = require('./routes/userRoute')
 const cart = require('./routes/cartRoute')
 const order = require('./routes/orderRoute')
 const category = require('./routes/categoryRoute')
-const banner = require('./routes/bannerRoute')
+const promotions = require('./routes/promotionsRoute')
 const brand = require('./routes/brandRoute')
 
 app.use(
@@ -62,25 +62,18 @@ app.use(
 	})
 )
 
-app.use((req, res, next) => {
-	res.setHeader('Cache-Control', 'no-store, no-cache')
-	next()
-})
-
 app.use('/', user)
 app.use('/', product)
 app.use('/', cart)
 app.use('/', order)
 app.use('/', category)
-app.use('/', banner)
+app.use('/', promotions)
 app.use('/', brand)
 
-// Middleware For Errors
-// app.use(errorMiddleware)
-
+// Middleware For Error Handling
 app.use(errorHandler)
 
-// Schedule the job to run every 5 minutes
+//Schedule the job to run every 5 minutes
 cron.schedule('*/5 * * * *', () => {
 	orderServices.processPendingOrders()
 })

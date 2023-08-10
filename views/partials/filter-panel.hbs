@@ -1,10 +1,115 @@
-<div class="border border-1 rounded py-3 ps-2 pe-5" style="min-width: 200px;">
-    <p class="filter-title fw-bold">Filters</p>
-    {{!-- <p class="filter-sub-title fw-bold">Brands</p>
-    <div class="d-flex align-items-center gap-1 mt-1">
-        <div class="d-flex justify-content-center align-items-center check-box">
-            <img src="/images/Done_round.svg" alt="" width="13px" height="13px">
+<div id="filter-container" class="border rounded p-3">
+    <h6 class="fw-semibold d-inline">Filters</h6>
+    <a class="span text-blue float-end mt-1 cursor-pointer" id="clearButton">Clear</a>
+    {{#each filters}}
+    <div id="{{@key}}">
+        <p class="fw-semibold text-capitalize mt-3">{{@key}}</p>
+        {{#each this as |item|}}
+        <div>
+            <label class="text-capitalize" for="{{item._id}}">
+                <input type="checkbox" id="{{item._id}}" data-name="{{item._id}}" name="{{item_id}}"
+                    onchange="filterProducts()" />
+                {{#if item.brandData}}
+                {{item.brandData.name}}
+                {{else}}
+                {{item._id}}
+                {{/if}}
+                <span class="text-muted">({{item.count}})</span>
+            </label>
         </div>
-        <p class="filter-item m-0">Samsung</p>
-    </div> --}}
+        {{/each}}
+    </div>
+    {{/each}}
+
+    <br>
+
 </div>
+
+<style>
+    li {
+        list-style: none;
+
+    }
+
+    label,
+    input {
+        display: inline-block;
+        vertical-align: middle;
+    }
+</style>
+
+<script>
+
+    function filterProducts() {
+        const filters = getAllSelectedFilters()
+        const urlEncodedFilters = encodeURIComponent(filters)
+        if (urlEncodedFilters === ''){
+            let url = `${window.location.pathname}`
+            url += `?sort=${getSortStatus()}`
+            location.href = url
+        }else{
+            let url = `${window.location.pathname}`
+            url += `?f=${urlEncodedFilters}`
+            url += `&sort=${getSortStatus()}`
+            location.href = url
+            }
+
+        function getAllSelectedFilters() {
+            let filterQuery = ""
+            const filterContainer = document.querySelector('#filter-container')
+            const filterCategories = filterContainer.children
+            for (let i = 0; i < filterCategories.length; i++) {
+                const filterCategory = filterCategories[i]
+                const filterCategoryName = filterCategory.id
+                const filterCategoryOptions = filterCategory.querySelectorAll(`input[type="checkbox"]:checked`)
+                const filterCategoryOptionsNames = Array.from(filterCategoryOptions).map(option => option.getAttribute('data-name'))
+                if (filterCategoryOptionsNames.length > 0)
+                    filterQuery += `${filterCategoryName}=${filterCategoryOptionsNames.join(',')}&`
+            }
+            if (filterQuery[filterQuery.length - 1] === '&')
+                filterQuery = filterQuery.substring(0, filterQuery.length - 1)
+            return filterQuery
+        }
+    }
+
+    function getSortStatus(){
+        const sortBy = document.querySelector('select[name="sort-by"]').value || 'relavance'
+        return sortBy
+    }
+
+</script>
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const queryParams = new URLSearchParams(window.location.search);
+        const decodedParams = decodeURIComponent(queryParams.get('f'));
+        
+        const sortParam = queryParams.get('sort') || 'relavance';
+        const sortSelect = document.querySelector('select[name="sort-by"]');
+        sortSelect.value = sortParam;
+        
+        const paramArray = decodedParams.split('&');
+
+        if (paramArray[0] !== 'null'){
+            paramArray.forEach((param) => {
+                const [key, value] = param.split('=');
+
+                const div = document.querySelector(`#${key}`);
+                const inputs = div.querySelectorAll('input');
+                const values = value.split(',');
+                values.forEach((value) => {
+                    inputs.forEach((input) => {
+                        if (input.getAttribute('data-name') === value) {
+                            input.checked = true;
+                        }
+                    });
+                });
+            });
+        }
+
+        document.querySelector("#clearButton").addEventListener("click", function () {
+            const currentURL = window.location.origin + window.location.pathname;
+            window.location.href = currentURL;
+        });
+    });
+</script>

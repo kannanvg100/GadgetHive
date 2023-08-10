@@ -22,23 +22,15 @@ const productSchema = new mongoose.Schema({
 	},
 	storage: {
 		type: String,
-		required: true,
+		required: [true, 'Please enter the Storage configuration'],
 	},
 	color: {
 		type: String,
-		required: true,
+		required: [true, 'Please enter the Product Color'],
 	},
 	os: {
 		type: String,
-		required: true,
-	},
-	display: {
-		type: String,
-		required: true,
-	},
-	network: {
-		type: String,
-		required: true,
+		required: [true, 'Please enter the OS'],
 	},
 	brand: {
 		type: mongoose.Schema.ObjectId,
@@ -108,7 +100,7 @@ const productSchema = new mongoose.Schema({
 	status: {
 		type: String,
 		enum: ['listed', 'delisted', 'draft'],
-		required: true,
+		required:[true, 'Please choose a Status for the Product'],
 	},
 	createdAt: {
 		type: Date,

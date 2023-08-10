@@ -1,17 +1,20 @@
 <header class="fixed-top" style="background-color: #f4f4f4;">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center gap-1" style="height: 60px;">
-            <div>
+        <div class="d-flex justify-content-between align-items-center gap-3" style="height: 60px;">
+            <div class="d-none d-sm-block">
+                <a href="/home"><img src="/images/GadgetHive.svg" alt="logo" width="120px"></a>
+            </div>
+            <div class="d-sm-none" style="width: 15px; overflow: hidden;">
                 <a href="/home"><img src="/images/GadgetHive.svg" alt="logo" width="120px"></a>
             </div>
 
-            <div class="d-flex align-items-center gap-4">
+            <div class="d-flex align-items-center gap-3">
 
                 <div class="position-relative" style="width: 300px; height: 60px;">
 
                     <div class="search-wrapper position-absolute t33">
                         <div class="position-relative bg-white border rounded">
-                            <img src="/images/Search.svg" alt="" width="16px" height="16px" class=" position-absolute">
+                            <img src="/images/Search_gray.svg" alt="" width="16px" height="16px" class=" position-absolute">
                             <input type="text" class="border-0 bg-transparent" id="navbar-search-input"
                                 placeholder="Serach for Products">
                             <div id="results-container">
@@ -19,9 +22,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="d-flex gap-4 align-items-center">
+                <div class="d-flex gap-3 align-items-center">
 
-                    <a href="/wishlist"><img src="/images/Favorite.svg" alt="" width="20px" height="20px"></a>
+                    <a class="d-none d-sm-block" href="/wishlist"><img src="/images/Favorite.svg" alt="" width="20px" height="20px"></a>
+                    {{!-- <a class="d-sm-none" href="#"><img src="/images/Search.svg" alt="" width="20px" height="20px"></a> --}}
                     <div class="user-container position-relative">
                         <div class="px-1"><img src="/images/User.svg" alt="" width="20px" height="60px"></div>
                         <div class="user-popup-menu">
@@ -36,7 +40,7 @@
                             </ul>
                         </div>
                     </div>
-                    <a class="{{hideDiv hideCartIcon}}" href="/cart"><img src="/images/Basket_alt_3.svg" alt=""
+                    <a class="{{hideDiv hideCartIcon}} d-none d-sm-block" href="/cart"><img src="/images/Basket_alt_3.svg" alt=""
                             width="20px" height="20px"></a>
                 </div>
             </div>

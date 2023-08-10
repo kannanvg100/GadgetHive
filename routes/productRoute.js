@@ -14,7 +14,7 @@ router.get('/search/p/:page',productController.getAllfilteredProducts)
 
 
 // Routes accessible to admin users only
-router.get('/products/:category/p/:page',preventCache, auth.isAdminAuthorized, productController.getAllProducts)              
+router.get('/products/:category/p/:page/',preventCache, auth.isAdminAuthorized, productController.getAllProducts)              
 router.get('/products/add', preventCache, auth.isAdminAuthorized, productController.getAddProductForm)                         
 router.get('/products/edit', preventCache, auth.isAdminAuthorized, productController.getEditProductForm)                       
 router.post('/products/add', preventCache, auth.isAdminAuthorized, upload.array('images', 10), productController.addProduct)   

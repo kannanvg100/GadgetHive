@@ -2,18 +2,22 @@ const Brand = require('../models/Brand')
 const Product = require('../models/Product')
 
 module.exports = {
-	getBrands: async (req, res) => {
+	getBrands: async (req, res, next) => {
 		try {
 			const brands = await Brand.find({}).sort({ displayOrder: -1 })
 			const counts = await Product.aggregate([{ $group: { _id: '$brand', count: { $sum: 1 } } }])
 			res.render('admin/brand-list', { brands, counts })
 		} catch (error) {
-			console.error(error.message)
+			next(error)
 		}
 	},
 
-	getAddBrandForm: async (req, res) => {
-		res.render('admin/add-edit-brand', { brand: null, editMode: false })
+	getAddBrandForm: async (req, res, next) => {
+		try {
+			res.render('admin/add-edit-brand', { brand: null, editMode: false })
+		} catch (error) {
+			next(error)
+		}
 	},
 
 	addBrand: async (req, res, next) => {
@@ -53,8 +57,7 @@ module.exports = {
 		try {
 			const data = JSON.parse(req.body.data)
 			const brand = await Brand.findById(data.id)
-			if (isNaN(data.displayOrder))
-				throw({ message: 'Display order must be a number', statusCode: 400 })
+			if (isNaN(data.displayOrder)) throw { message: 'Display order must be a number', statusCode: 400 }
 			Object.assign(brand, data)
 			const image = req.file
 			if (image) {

@@ -26,7 +26,8 @@ th,
 tr,
 li,
 span,
-.span {
+.span,
+label {
     font-size: 12px;
     color: #444;
 }
@@ -581,4 +582,68 @@ select {
     height: 5px;
     background-color: red;
     border-radius: 50%;
+}
+
+.brand-logo {
+    width: 160px;
+    height: 48px;
+    border-radius: 3px;
+}
+
+.border-off-white {
+    border: 1px solid #f4f4f4;
+}
+
+.banner-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+input[type="date"] {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    padding: 7px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #333;
+    font-size: 12px;
+}
+
+input[type='checkbox'] {
+    border-color: #4D4DFF;
+}
+
+input[type='checkbox']:checked {
+    background-color: #4D4DFF;
+    border-color: #4D4DFF;
+}
+
+label {
+    display: contents !important;
+}
+
+.custom-dotted-border {
+    border: 1px dotted #ccc;
+    border-width: 2px 2px;
+}
+
+.coupon-item:hover {
+    background-color: #f4f4f4;
+}
+
+.table tbody td {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.table tbody td:hover {
+    text-overflow: clip;
+    white-space: normal;
+    word-break: break-all;
 }

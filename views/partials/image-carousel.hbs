@@ -4,13 +4,20 @@
         <img src="{{getImageUrl this}}" alt="Image 1" class="thumbnail" />
         {{/each}}
     </div>
-    <div class="image-container">
+    <div class="image-container position-relative">
         <div class="image detail-view"></div>
+        <div id="favorite-button" data-status={{isWishlisted}}>
+            {{#if isWishlisted}}
+                <img class="fav-icon" src="/images/favorite_filled.svg" alt="">
+            {{else}}
+                <img class="fav-icon" src="/images/favorite_gray.svg" alt="">
+            {{/if}}
+        </div>
     </div>
 </div>
 
 <style>
-    .image-container .image{
+    .image-container .image {
         width: 380px;
         height: 380px;
         border-radius: 3x;
@@ -20,6 +27,15 @@
         background-size: contain;
         transition: background-image 0.05s linear;
     }
+
+    .fav-icon {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+    }
 </style>
 
 <script>
@@ -27,8 +43,8 @@
     const previewImage = document.querySelector(".detail-view")
     let lastItem = thumbnails[0]
     lastItem.classList.add('selected');
-    thumbnails.forEach(item =>{
-        item.addEventListener("click", e=>{
+    thumbnails.forEach(item => {
+        item.addEventListener("click", e => {
             previewImage.style.backgroundImage = `url('${item.src}')`;
             lastItem.classList.remove('selected');
             item.classList.add('selected');
@@ -38,45 +54,79 @@
 </script>
 
 <script>
-  const image = document.querySelector('.detail-view')
+    const image = document.querySelector('.detail-view')
 
     var imageCss = window.getComputedStyle(image, false),
-      imageUrl = imageCss.backgroundImage
-                         .slice(4, -1).replace(/['"]/g, '');
+        imageUrl = imageCss.backgroundImage
+            .slice(4, -1).replace(/['"]/g, '');
 
     var imageSrc = new Image();
-    imageSrc.onload = function() {
-      var imageWidth = imageSrc.naturalWidth,
-          imageHeight = imageSrc.naturalHeight,
-          ratio = imageHeight / imageWidth;
+    imageSrc.onload = function () {
+        var imageWidth = imageSrc.naturalWidth,
+            imageHeight = imageSrc.naturalHeight,
+            ratio = imageHeight / imageWidth;
 
-      image.onmousemove = function(e) {
-        var boxWidth = image.clientWidth,
-            x = e.pageX - this.offsetLeft,
-            y = e.pageY - this.offsetTop,
-            xPercent = x / (boxWidth / 100) + '%',
-            yPercent = y / (boxWidth * ratio / 100) + '%';
+        image.onmousemove = function (e) {
+            var boxWidth = image.clientWidth,
+                x = e.pageX - this.offsetLeft,
+                y = e.pageY - this.offsetTop,
+                xPercent = x / (boxWidth / 100) + '%',
+                yPercent = y / (boxWidth * ratio / 100) + '%';
 
-        // Update styles w/ actual size
-        Object.assign(image.style, {
-            width: 400 + 'px',
-            height: 400 + 'px',
-          backgroundPosition: xPercent + ' ' + yPercent,
-          backgroundSize: imageWidth * 1.8 + 'px'
-        });
-      };
+            // Update styles w/ actual size
+            Object.assign(image.style, {
+                width: 400 + 'px',
+                height: 400 + 'px',
+                backgroundPosition: xPercent + ' ' + yPercent,
+                backgroundSize: imageWidth * 1.8 + 'px'
+            });
+        };
 
-      // Reset when mouse leaves
-      image.onmouseleave = function(e) {
-        Object.assign(image.style, {
-            width: 380 + 'px',
-            height: 380 + 'px',
-          backgroundPosition: 'center',
-          backgroundSize: 'contain'
-        });
-      };
+        // Reset when mouse leaves
+        image.onmouseleave = function (e) {
+            Object.assign(image.style, {
+                width: 380 + 'px',
+                height: 380 + 'px',
+                backgroundPosition: 'center',
+                backgroundSize: 'contain'
+            });
+        };
     }
-    
+
     imageSrc.src = imageUrl;
-  
+
+</script>
+
+<script>
+    const wishlistBtn = document.querySelector("#favorite-button")
+    const favoriteSvg = document.querySelector(".fav-icon")
+    wishlistBtn.addEventListener("click", () => {
+        wishlistBtn.style.pointerEvents = "none"
+        const productId = "{{product._id}}"
+        const url = `/wishlist/update/?id=${productId}`
+        const status = wishlistBtn.getAttribute('data-status')
+        fetch(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    wishlistBtn.style.pointerEvents = "all"
+                    if (status == 'true') {
+                        wishlistBtn.setAttribute('data-status', 'false')
+                        favoriteSvg.src = "/images/favorite_gray.svg"
+                    } else {
+                        wishlistBtn.setAttribute('data-status', 'true')
+                        favoriteSvg.src = "/images/favorite_filled.svg"
+                    }
+                } else {
+                    wishlistBtn.style.pointerEvents = "all"
+                    showToast(data.message)
+                }
+            })
+    })
 </script>

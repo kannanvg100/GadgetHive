@@ -7,14 +7,71 @@
 
             {{!-- Wishlist --}}
 
-            <div class="mt-4 mx-3 pb-4 flex-grow-1">
+            <div class="mt-4 mx-3 pb-4 flex-grow-1 mx-auto" style="max-width: 600px;">
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="fs-6 fw-bold">Wishlist</span>
                 </div>
-
+                <div class="d-flex flex-column gap-2 mt-2">
+                    {{#each wishlist}}
+                        <div class="d-flex p-2 border rounded gap-2 wishlist-item" data-id="{{this.product._id}}">
+                            <img src="{{getFirstImageUrl this.product.images}}" alt="" width="60px">
+                            <div class="flex-grow-1 pe-2">
+                                <h6 class="fw-semibold span">{{this.product.title}}</h6>
+                                <span>{{formatPrice this.product.price}}</span>
+                                <p class="text-blue fw-semibold span float-end">ADD TO BAG</p>
+                                </div>
+                        </div>
+                    {{/each}}
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 {{> footer}}
+
+<style>
+    .wishlist-item {
+        cursor: pointer;
+    }
+    .wishlist-item:hover {
+        background-color: #f5f5f5;
+    }
+    .wishlist-item p{
+        visibility: hidden;
+    }
+    .wishlist-item:hover p{
+        visibility: visible;
+    }
+</style>
+
+<script>
+    const wishlistItems = document.querySelectorAll(".wishlist-item")
+    wishlistItems.forEach(item => {
+        item.addEventListener('click', e => {
+            const id = e.target.closest('.wishlist-item').getAttribute('data-id');
+            fetch("/cart/add", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                productId: id,
+                quantity: 1
+            }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast("Product added to bag")
+                } else {
+                    showToast(data.message)
+                }
+            })
+            .catch(error => {
+                showToast("Something went wrong")
+            })
+        })
+    })
+</script>

@@ -21,6 +21,9 @@ router.get('/admin/orders/cancel/', preventCache, auth.isAdminAuthorized, orderC
 router.get('/admin/orders/p/:page', preventCache, auth.isAdminAuthorized, orderController.getAllOrdersAdmin)
 router.get('/admin/orders/', preventCache, auth.isAdminAuthorized, orderController.getOrderByIdAdmin)
 router.get('/admin/orders/update-status', preventCache, auth.isAdminAuthorized, orderController.updateStatusAdmin)
+
+router.get('/reports/sales/', preventCache, auth.isAdminAuthorized, orderController.getReports)
+
 // End of admin routes
 
 module.exports = router

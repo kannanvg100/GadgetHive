@@ -33,6 +33,16 @@ const orderSchema = new mongoose.Schema({
 		required: true,
 		min: 0,
 	},
+    discount: {
+		type: Number,
+		default: 0,
+		min: 0,
+	},
+    finalAmount: {
+		type: Number,
+		required: true,
+		min: 0,
+	},
 	paymentMode: {
 		type: String,
 		required: true,
@@ -78,6 +88,7 @@ orderSchema.pre('save', async function (next) {
 		total += item.price * item.quantity
 	}
 	this.totalAmount = total
+    this.finalAmount = total - this.discount
 	next()
 })
 

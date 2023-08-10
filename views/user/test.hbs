@@ -1,92 +1,86 @@
+<div class="filter-container">
+    <div class="brands">
+        <h4>Brands</h4>
+        <div class="d-flex align-items-center gap-1">
+            <input type="checkbox" id="samsung" data-name="samsung" onchange="filterProducts()"/> 
+            <label for="samsung">Samsung</label>
+        </div>
 
+        <div>
+            <label for="apple">
+                <input type="checkbox" id="apple" data-name="apple" onchange="filterProducts()" /> Apple
+            </label>
+        </div>
 
-<style>
+        
+    </div>
+    <div class="color">
+        <h4>Colors</h4>
+        <div>
+            <label for="red">
+                <input type="checkbox" id="red" data-name="Black" onchange="filterProducts()" /> Black
+            </label>
+        </div>
+        <div>
+            <label for="blue">
+                <input type="checkbox" id="blue" data-name="Green" onchange="filterProducts()" /> Green
+            </label>
+        </div>
+    </div>
+    <div class="memory">
+        <h4>memory</h4>
+        <div>
+            <label for="8gb">
+                <input type="checkbox" id="8gb" data-name="8GB" onchange="filterProducts()" /> 8GB
+            </label>
+        </div>
+        <div>
+            <label for="12gb">
+                <input type="checkbox" id="12gb" data-name="12GB" onchange="filterProducts()" /> 12GB
+            </label>
+        </div>
+    </div>
+</div>
 
-    .slider {
-        width: 100%;
-        max-width: 800px;
-        height: 200px;
-        position: relative;
-        overflow: hidden;
-    }
+<button onclick="goto()">submit</button>
 
-    .slide {
-        width: 100%;
-        max-width: 800px;
-        height: 200px;
-        position: absolute;
-        transition: all 0.5s;
-    }
-
-    .slide img {
-        height: 200px;
-        width: 800px;
-    }
-
-    .btn {
-        position: absolute;
-        width: 40px;
-        height: 40px;
-        padding: 0px;
-        border: none;
-        border-radius: 50%;
-        z-index: 10px;
-        cursor: pointer;
-        font-size: 18px;
-    }
-    .btn img{
-        line-height: 40px;
-    }
-
-    .btn:hover{
-        background-color: #fff;
-    }
-
-    .btn:active {
-        transform: scale(1.1);
-    }
-
-    .btn-prev {
-        top: 45%;
-        left: 2%;
-    }
-
-    .btn-next {
-        top: 45%;
-        right: 2%;
-    }
-</style>
+<div>
+    <h4>Products</h4>
+    <ul>
+        {{#each products}}
+        <li>
+            <a href="/product/{{this._id}}">{{this.title}}</a>
+        </li>
+        {{/each}}
+    </ul>
+</div>
 
 <script>
 
-    const slides = document.querySelectorAll(".slide");
-    slides.forEach((slide, indx) => {
-        slide.style.transform = `translateX(${indx * 100}%)`;
-    });
+    let url
+    goto = () => location.href = url
 
-    const nextSlide = document.querySelector(".btn-next");
+    function filterProducts() {
+        const filters = getAllSelectedFilters()
+        const urlEncodedFilters = encodeURIComponent(filters)
+        url = `/test/p/1?f=${urlEncodedFilters}`
+    }
 
-    let curSlide = 0;
-    let maxSlide = slides.length - 1;
-
-    nextSlide.addEventListener("click", function () {
-        if (curSlide === maxSlide) curSlide = 0;
-        else curSlide++;
-
-        slides.forEach((slide, indx) => {
-            slide.style.transform = `translateX(${100 * (indx - curSlide)}%)`;
-        });
-    });
-
-
-    const prevSlide = document.querySelector(".btn-prev");
-    prevSlide.addEventListener("click", function () {
-        if (curSlide === 0) curSlide = maxSlide;
-        else curSlide--;
-
-        slides.forEach((slide, indx) => {
-            slide.style.transform = `translateX(${100 * (indx - curSlide)}%)`;
-        });
-    });
+    function getAllSelectedFilters() {
+        let filterQuery = ""
+        const filterContainer = document.querySelector('.filter-container')
+        const filterCategories = filterContainer.children
+        for (let i = 0; i < filterCategories.length; i++) {
+            const filterCategory = filterCategories[i]
+            const filterCategoryName = filterCategory.className
+            const filterCategoryOptions = filterCategory.querySelectorAll(`input[type="checkbox"]:checked`)
+            const filterCategoryOptionsNames = Array.from(filterCategoryOptions).map(option => option.getAttribute('data-name'))
+            if (filterCategoryOptionsNames.length > 0)
+                filterQuery += `${filterCategoryName}=${filterCategoryOptionsNames.join(',')}&`
+        }
+        if (filterQuery[filterQuery.length - 1] === '&')
+            filterQuery = filterQuery.substring(0, filterQuery.length - 1)
+        return filterQuery
+    }
 
 </script>

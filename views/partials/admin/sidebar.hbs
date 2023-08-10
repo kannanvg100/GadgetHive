@@ -2,7 +2,7 @@
     <div class="admin-navbar">
         <a href="/admin/">
             <div class="p-1 mt-2 border-0 rounded {{#if (isActive currTab 'dashboard')}}bg-off-white fw-semibold{{/if}}">
-                <img src="/images/chart.svg" alt="" width="20px" height="20px">
+                <img src="/images/dashboard.svg" alt="" width="20px" height="20px">
                 <span class="d-none d-md-inline-block" style="width: 130px;">Dashboard</span>
             </div>
         </a>
@@ -26,7 +26,7 @@
         </a>
         <a href="/brands/">
             <div class="p-1 border-0 rounded {{#if (isActive currTab 'brands')}}bg-off-white fw-semibold{{/if}}">
-                <img src="/images/turbine.svg" alt="cat" width="20px" height="20px">
+                <img src="/images/brand.svg" alt="cat" width="20px" height="20px">
                 <span class="d-none d-md-inline-block" style="width: 130px;">Brands</span>
             </div>
         </a>
@@ -36,13 +36,19 @@
                 <span class="d-none d-md-inline-block" style="width: 130px;">Banners</span>
             </div>
         </a>
-        <a href="/users/p/1">
+        <a href="/coupons/">
+            <div class="p-1 border-0 rounded {{#if (isActive currTab 'coupons')}}bg-off-white fw-semibold{{/if}}">
+                <img src="/images/coupon.svg" alt="cat" width="20px" height="20px">
+                <span class="d-none d-md-inline-block" style="width: 130px;">Coupons</span>
+            </div>
+        </a>
+        <a href="/users/p/1/">
             <div class="p-1 border-0 rounded {{#if (isActive currTab 'users')}}bg-off-white fw-semibold{{/if}}">
                 <img src="/images/user_group.svg" alt="" width="20px" height="20px">
                 <span class="d-none d-md-inline-block" style="width: 130px;">Users</span>
             </div>
         </a>
-        <a href="/reports/">
+        <a href="/reports/sales/">
             <div class="p-1 border-0 rounded {{#if (isActive currTab 'reports')}}bg-off-white fw-semibold{{/if}}">
                 <img src="/images/report.svg" alt="cat" width="20px" height="20px">
                 <span class="d-none d-md-inline-block" style="width: 130px;">Sales Report</span>

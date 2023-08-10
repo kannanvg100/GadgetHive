@@ -4,6 +4,7 @@
     <p class="h5">Orders
         <span class=" text-muted cart-items-count">( {{size orders}} )</span>
     </p>
+    
     {{#if (isNull orders)}}
     <div class="text-center">
         <a href="/">
@@ -14,14 +15,13 @@
     {{else}}
     <div class="row">
         {{#each orders}}
-        {{log this.items}}
         <div class="d-flex bg-off-white rounded p-3 mt-3 gap-3 orders-item cursor-pointer" data-id="{{this._id}}">
             <img class="" src="{{getImageUrl (getFirstProductImgUrl this)}}" alt="" width="100px">
             <div class="d-flex flex-column gap-2">
                 <span class="p fw-bold">{{getFirstProductTitle this}}<span class="p fw-normal">{{getFirstProductTitleExt this}}</span></span>
                 <span class="fw-bold">{{getDate this.createdAt}}</span>
-                <span class="fw-semibold">{{capitalize (formatOrderStatus this.orderStatus)}}</span>
-                <span class="">{{formatPrice this.totalAmount}}</span>
+                <span class="fw-semibold">{{capitalize (replaceUnderscore (formatOrderStatus this.orderStatus))}}</span>
+                <span class="">{{formatPrice this.finalAmount}}</span>
             </div>
         </div>
         {{/each}}

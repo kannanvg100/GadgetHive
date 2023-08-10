@@ -3,28 +3,29 @@
     <div class="row vh-100">
         <div class="d-flex">
 
-            {{> admin/sidebar currTab = "orders"}}
-
+            {{> admin/sidebar currTab = "reports"}}
             
             <div class="ms-3 mt-4 flex-grow-1">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="fs-6 fw-bold">Orders</span>
-
-                    <div class="d-flex gap-3">
-                        <div class="search-wrapper position-relative" hidden>
-                            <img src="/images/Search.svg" alt="" width="16px" height="16px" class=" position-absolute">
-                            <input type="text" class="flex-grow-1 border border-1 rounded header-search"
-                                id="navbar-search-input" placeholder="Serach for products">
-                        </div>
-                        <a href="/products/add">
-                            <div class="btn-2" hidden>
-                                <img src="/images/add.svg" alt="" width="16px" height="16px">
-                                <span>New product</span>
-                            </div>
-                        </a>
-                    </div>
-
+                    <span class="fs-6 fw-bold">Sales reports</span>
                 </div>
+
+                <div class="mt-3">
+                    <form action="/reports/sales" method="get">
+                    <div class="d-flex gap-3 ms-1">
+                        <div>
+                            <label class="span d-block" for="dateInput-from">From:</label>
+                            <input type="date" id="dateInput-from" name="from" value='{{from}}'>
+                        </div>
+                        <div>
+                            <label class="span d-block" for="dateInput-to">To:</label>
+                            <input type="date" id="dateInput-to" name="to" value='{{to}}'>
+                        </div>
+                        <button type="submit" class="btn-2 d-inline-block p-2 px-4 align-self-end" style="font-size: 11px;">Generate</button>
+                    </div>
+                    </form>
+                </div>
+
                 <div class="m-1 border rounded w-100 mt-4">
                     <table class="table table-hover" id="tbl">
                         <thead>
@@ -32,7 +33,6 @@
                                 <th scope="col" style="border-top-left-radius: 0.375rem !important;"></th>
                                 <th scope="col">Date</th>
                                 <th scope="col">User ID</th>
-                                <th scope="col">Status</th>
                                 <th scope="col">Quantity</th>
                                 <th scope="col">Total Amount</th>
                                 <th scope="col">Payment Mode</th>
@@ -46,9 +46,8 @@
                                 <td data-id="{{this._id}}"></td>
                                 <td>{{getDate this.createdAt}}, {{getTime this.createdAt}}</td>
                                 <td>{{this.user.email}}</td>
-                                <td>{{this.orderStatus}}</td>
                                 <td>{{count this.items}}</td>
-                                <td>{{formatPrice this.totalAmount}}</td>
+                                <td>{{formatPrice this.finalAmount}}</td>
                                 <td>{{this.paymentMode}}</td>
                             </tr>
 

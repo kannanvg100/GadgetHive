@@ -1,0 +1,171 @@
+{{> admin/navbar}}
+<div class="container-fluid">
+    <div class="row" style="min-height: 100vh;">
+        <div class="d-flex">
+
+            {{> admin/sidebar currTab = "coupons"}}
+            <div class="mt-4 mx-3 pb-4 flex-grow-1">
+                <div class="mx-auto w-100" style="max-width: 550px;">
+                    {{#if editMode}}
+                    <form id="form">
+                        {{else}}
+                        <form action="/coupons/add" method="POST" id="form">
+                            {{/if}}
+
+                            {{#if editMode}}
+                            <span class="d-block fs-6 fw-bold">Update coupon details</span>
+                            {{else}}
+                            <span class="d-block fs-6 fw-bold">Create a new coupon</span>
+                            {{/if}}
+                            <span class="d-block fw-bold mt-3">General Information</span>
+
+                            <input type="hidden" name="id" value={{coupon._id}} hidden>
+
+                            <div class="d-flex gap-3 mt-3">
+                                <div class="flex-grow-1">
+                                    <span class="d-block">Code<span class="text-danger">*</span></span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="code" value={{coupon.code}}>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <span class="d-block">Discount<span class="text-danger">*</span></span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="discount"
+                                        value={{coupon.discount}}>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-3 mt-3">
+                                <div class="flex-grow-1">
+                                    <span class="d-block">Min purchase amount<span class="text-danger">*</span></span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="minAmount"
+                                        value={{coupon.minAmount}}>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <span class="d-block">Max discount<span class="text-danger">*</span></span>
+                                    <input class="input-1 mt-1 w-100" type="text" name="maxDiscount"
+                                        value={{coupon.maxDiscount}}>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-3 mt-3">
+                                <div class="flex-grow-1">
+                                    <span class="d-block">Display Order<span class="text-danger">*</span></span>
+                                    <input class="input-1 mt-1 w-100" type="number" name="displayOrder"
+                                        value={{coupon.displayOrder}}>
+                                </div>
+                                <div class="flex-grow-1">
+                                </div>
+                            </div>
+
+                            {{#if editMode}}
+                            <div class="text-end mt-3">
+                                <button id="delete-btn" class="btn-4">Delete coupon</button>
+                                <button id="update-btn" class="btn-3">Update coupon</button>
+                            </div>
+                            {{else}}
+                            <div class="text-end mt-3">
+                                <button type="button" id="save-btn" class="btn-3">Create coupon</button>
+                            </div>
+                            {{/if}}
+
+                        </form>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{{> admin/footer}}
+
+<script>
+    window.onload = function () {
+        const form = document.querySelector("#form")
+    }
+
+    if ({{{ editMode }}}) {
+        const deleteBtn = document.querySelector("#delete-btn")
+        deleteBtn.addEventListener("click", (e) => {
+            e.preventDefault()
+            fetch("/coupons/delete", {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ id: form.id.value }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = "/coupons"
+                    } else {
+                        showToast(data.message)
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error)
+                })
+        })
+
+        const updateBtn = document.querySelector("#update-btn")
+        updateBtn.addEventListener("click", e => {
+            e.preventDefault()
+            const formInputs = new FormData(form);
+            const data = {};
+            for (let [name, value] of formInputs) {
+                data[name] = value;
+            }
+            fetch("/coupons/edit", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = "/coupons"
+                    } else {
+                        showToast(data.message)
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error)
+                })
+        })
+    }else {
+
+        const saveBtn = document.querySelector("#save-btn")
+        saveBtn.addEventListener("click", e => {
+            e.preventDefault()
+            const formInputs = new FormData(form);
+            const data = {};
+            for (let [name, value] of formInputs) {
+                data[name] = value;
+            }
+            delete data.id
+            
+            fetch("/coupons/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = "/coupons"
+                    } else {
+                        showToast(data.message)
+                    }
+                })
+                .catch(error => {
+                    console.error("Something went wrong, Pls try again later")
+                })
+        })
+    }
+
+</script>
