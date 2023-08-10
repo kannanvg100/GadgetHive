@@ -23,6 +23,7 @@ router.get('/admin/orders/', preventCache, auth.isAdminAuthorized, orderControll
 router.get('/admin/orders/update-status', preventCache, auth.isAdminAuthorized, orderController.updateStatusAdmin)
 
 router.get('/reports/sales/', preventCache, auth.isAdminAuthorized, orderController.getReports)
+router.get('/reports/sales/download/:type', preventCache, auth.isAdminAuthorized, orderController.downloadReports)
 
 // End of admin routes
 

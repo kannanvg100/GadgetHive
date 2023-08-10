@@ -1,47 +1,109 @@
 {{> navbar}}
-<br>
-<div class="container w-50 mx-auto">
-    <p class="h5">Orders
-        <span class=" text-muted cart-items-count">( {{size orders}} )</span>
-    </p>
-    
-    {{#if (isNull orders)}}
-    <div class="text-center">
-        <a href="/">
-            <p class="mt-5 mb-3">No orders, your order will appear here.</p>
-        </a>
-        <a href="/home"><span class="btn-1">Go to Home</span></a>
-    </div>
-    {{else}}
-    <div class="row">
-        {{#each orders}}
-        <div class="d-flex bg-off-white rounded p-3 mt-3 gap-3 orders-item cursor-pointer" data-id="{{this._id}}">
-            <img class="" src="{{getImageUrl (getFirstProductImgUrl this)}}" alt="" width="100px">
-            <div class="d-flex flex-column gap-2">
-                <span class="p fw-bold">{{getFirstProductTitle this}}<span class="p fw-normal">{{getFirstProductTitleExt this}}</span></span>
-                <span class="fw-bold">{{getDate this.createdAt}}</span>
-                <span class="fw-semibold">{{capitalize (replaceUnderscore (formatOrderStatus this.orderStatus))}}</span>
-                <span class="">{{formatPrice this.finalAmount}}</span>
+<div class="container-fluid">
+    <div class="row" style="min-height: 100vh;">
+        <div class="d-flex gap-2">
+
+            {{> sidebar currTab = "orders"}}
+
+            {{!-- Address --}}
+
+            <div class="flex-grow-1 p-4 mx-auto" style="max-width: 600px;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fs-6 fw-bold">Orders</span>
+                </div>
+                
+                {{#if (isNull orders)}}
+                <div class="text-center">
+                    <a href="/">
+                        <p class="mt-5 mb-3">No orders, your order will appear here.</p>
+                    </a>
+                    <a href="/home"><span class="btn-1">Go to Home</span></a>
+                </div>
+                {{else}}
+                <div class="row">
+                    {{#each orders}}
+                    <div class="d-flex bg-off-white rounded p-3 mt-3 gap-3 orders-item cursor-pointer" data-id="{{this._id}}">
+                        <img class="" src="/assets/{{this.items.[0].productId.images.[0]}}" alt="" width="100px">
+                        <div class="d-flex flex-column gap-2">
+                            <span class="p fw-bold">{{getFirstProductTitle this}}<span class="p fw-normal">{{getFirstProductTitleExt this}}</span></span>
+                            <span class="fw-bold">{{getDate this.createdAt}}</span>
+                            <span class="fw-semibold">{{capitalize (replaceUnderscore (formatOrderStatus this.orderStatus))}}</span>
+                            <span class="">{{formatPrice this.finalAmount}}</span>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+                {{/if}}
             </div>
         </div>
-        {{/each}}
     </div>
-    {{/if}}
 </div>
 
-<div class="text-center mt-5 ms-5">
-
-</div>
+<!-- Address Modal -->
+<div class="modal fade" id="addressModal" tabindex="-1" role="dialog" aria-labelledby="addressModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h6 class="modal-title" id="couponsModalLabel">Add a new Address</h6>
+                <button type="button" class="border-0 bg-transparent" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" id="closeCouponsModal" class="h4"
+                        onclick="closeAddressModal()">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pt-0">
+                <div>
+                    <div class="flex-grow-1 mt-3">
+                        <span class="d-block">Name<span class="text-danger">*</span></span>
+                        <input class="input-1 mt-1 w-100" type="text" id="name">
+                    </div>
+                    <div class="flex-grow-1 mt-3">
+                        <span class="d-block">Street Name<span class="text-danger">*</span></span>
+                        <input class="input-1 mt-1 w-100" type="text" id="streetName">
+                    </div>
+                    <div class="flex-grow-1 mt-3">
+                        <span class="d-block">Town<span class="text-danger">*</span></span>
+                        <input class="input-1 mt-1 w-100" type="text" id="town">
+                    </div>
+                    <div class="flex-grow-1 mt-3">
+                        <span class="d-block">Pincode<span class="text-danger">*</span></span>
+                        <input class="input-1 mt-1 w-100" type="text" id="pincode">
+                    </div>
+                    <div class="flex-grow-1 mt-3">
+                        <span class="d-block">Phone<span class="text-danger">*</span></span>
+                        <input class="input-1 mt-1 w-100" type="text" id="phone">
+                    </div>
+                    <div class="flex-grow-1 mt-3" hidden>
+                        <span class="d-block">ID<span class="text-danger">*</span></span>
+                        <input class="input-1 mt-1 w-100" type="text" id="_id">
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn-1" id="save-address">Save</button>
+                    <button type="button" class="btn-4" id="delete-address">Delete</button>
+                    <button type="button" class="btn-1" id="update-address">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 {{> footer}}
 
+<style>
+    .orders-item:hover {
+        box-shadow: 0px 0px 5px 0px #cccccc;
+    }
+</style>
+
 <script>
-    const orderItems = document.querySelectorAll(".orders-item")
-    orderItems.forEach(item => {
-        item.addEventListener('click', e => {
-            const id = e.target.closest('.orders-item').getAttribute('data-id');
-            window.location = `/orders/${id}`
+    document.addEventListener("DOMContentLoaded", () => {
+        const ordersItem = document.querySelectorAll(".orders-item");
+        ordersItem.forEach(item => {
+            item.addEventListener("click", (event) => {
+                const id = item.getAttribute("data-id");
+                window.location.href = `/orders/${id}`
+            })
         })
     })
 </script>

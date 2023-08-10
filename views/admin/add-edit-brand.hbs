@@ -41,7 +41,7 @@
                             <div class="d-flex gap-3">
                                 <div class="mt-3 flex-grow-1">
                                     <span class="d-block">Display order<span class="text-danger">*</span></span>
-                                    <input class="input-1 mt-1 w-100" type="text" name="displayOrder"
+                                    <input class="input-1 mt-1 w-100" type="number" name="displayOrder"
                                         value="{{brand.displayOrder}}">
                                 </div>
                                 <div class="mt-3 flex-grow-1">
@@ -252,7 +252,7 @@
                     if (data.success) {
                         window.location.href = "/brands"
                     } else {
-                        showToast(data.message)
+                        Toastify({ text: data.message }).showToast();
                     }
                 })
                 .catch(error => {
@@ -276,7 +276,7 @@
             }
             const imageElement = document.querySelector('.droppedImage');
             if (!imageElement) {
-                showToast('Please select an image')
+                Toastify({ text: "Please select an image" }).showToast();
                 return
             }
             const formData = new FormData();
@@ -302,11 +302,11 @@
                     if (data.success) {
                         window.location.href = "/brands"
                     } else {
-                        showToast(data.message)
+                        Toastify({ text: data.message }).showToast();
                     }
                 })
                 .catch(error => {
-                    showToast('Something went wrong, Pls try again later')
+                    Toastify({ text: 'Something went wrong, Pls try again later' }).showToast();
                     console.error(error)
                 })
         })

@@ -1,4 +1,6 @@
 /* eslint-disable no-unused-vars */
+const mongoose = require('mongoose')
+
 const errorHandler = (err, req, res, next) => {
 	let statusCode = err.statusCode || 500
 	let message = err.message || 'Internal Server Error'
@@ -12,10 +14,13 @@ const errorHandler = (err, req, res, next) => {
 	// Mongoose validation error
 	if (err.name === 'ValidationError') {
 		statusCode = 400
-        message = Object.values(err.errors).map(value => value.message);
+        message = Object.values(err.errors).map(value => {
+            if(value.kind === 'Number') return `${value.path} should be a number`
+            return value.message
+        }).join('\n');
 	}
 
-    console.error(statusCode + ': ' + message)
+    console.error(err)
 
 	const isFetch = req.headers['x-requested-with'] === 'XMLHttpRequest'
 	if (isFetch)
@@ -23,7 +28,7 @@ const errorHandler = (err, req, res, next) => {
 			success: false,
 			message: message,
 		})
-	else res.status(statusCode).render('error-404')
+	else res.status(statusCode).render('error-404', { message: message })
 }
 
 module.exports = errorHandler

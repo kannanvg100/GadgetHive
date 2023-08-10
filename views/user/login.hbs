@@ -223,6 +223,12 @@
                     resendBtn.hidden = true
                     otpCounter.hidden = false
                     startCountdown()
+                    Toastify({
+                        text: `OTP sent to your Mobile number ending ${data.phoneDigits}`,
+                        style: {
+                            background: "#468B97",
+                        },
+                    }).showToast()
                 } else otpCounter.innerHTML = "Error sending OTP, Try again later."
             })
             .catch(error => {

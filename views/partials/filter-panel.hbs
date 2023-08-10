@@ -1,9 +1,9 @@
-<div id="filter-container" class="border rounded p-3">
-    <h6 class="fw-semibold d-inline">Filters</h6>
+<div id="filter-container" class="border rounded p-3 brd" style="min-width: 180px;">
+    <p class="fw-semibold d-inline">FILTERS</p>
     <a class="span text-blue float-end mt-1 cursor-pointer" id="clearButton">Clear</a>
     {{#each filters}}
     <div id="{{@key}}">
-        <p class="fw-semibold text-capitalize mt-3">{{@key}}</p>
+        <p class="span fw-semibold text-uppercase mt-3 mb-1">{{@key}}</p>
         {{#each this as |item|}}
         <div>
             <label class="text-capitalize" for="{{item._id}}">
@@ -40,17 +40,29 @@
 
 <script>
 
-    function filterProducts() {
+    function filterProducts(event) {
+    
         const filters = getAllSelectedFilters()
         const urlEncodedFilters = encodeURIComponent(filters)
+
+        let query = ""
+        const searchInput = document.querySelector('#navbar-search-input')
+        if(searchInput) query = searchInput.value
+
+        const page = event ? event.getAttribute('data-no') : 1
+
         if (urlEncodedFilters === ''){
             let url = `${window.location.pathname}`
             url += `?sort=${getSortStatus()}`
+            if(query) url += `&q=${query}`
+            url += `&page=${page}`
             location.href = url
         }else{
             let url = `${window.location.pathname}`
             url += `?f=${urlEncodedFilters}`
             url += `&sort=${getSortStatus()}`
+            if(query) url += `&q=${query}`
+            url += `&page=${page}`
             location.href = url
             }
 
@@ -82,13 +94,13 @@
 <script>
     window.addEventListener('DOMContentLoaded', () => {
         const queryParams = new URLSearchParams(window.location.search);
-        const decodedParams = decodeURIComponent(queryParams.get('f'));
+        const filterParams = decodeURIComponent(queryParams.get('f'));
         
         const sortParam = queryParams.get('sort') || 'relavance';
         const sortSelect = document.querySelector('select[name="sort-by"]');
         sortSelect.value = sortParam;
         
-        const paramArray = decodedParams.split('&');
+        const paramArray = filterParams.split('&');
 
         if (paramArray[0] !== 'null'){
             paramArray.forEach((param) => {

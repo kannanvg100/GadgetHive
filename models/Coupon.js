@@ -26,24 +26,16 @@ const couponSchema = new mongoose.Schema({
         required: [true, 'Please Enter the coupon max discount'],
         min: 0,
     },
-    startDate: {
-        type: Date,
-        // required: [true, 'Please Enter the coupon start date'],
-    },
-    endDate: {
-        type: Date,
-        // required: [true, 'Please Enter the coupon end date'],
-    },
-    displayOrder: {
-		type: Number,
-		required: [true, 'Please Enter Brand display order'],
-        validate: {
-            validator: function (value) {
-                return typeof value === 'number';
-            },
-            message: 'Display order must be a number.',
-        },
-	},
+    // displayOrder: {
+	// 	type: Number,
+	// 	required: [true, 'Please Enter Brand display order'],
+    //     validate: {
+    //         validator: function (value) {
+    //             return typeof value === 'number';
+    //         },
+    //         message: 'Display order must be a number.',
+    //     },
+	// },
     isDeleted: {
         type: Boolean,
         default: false,

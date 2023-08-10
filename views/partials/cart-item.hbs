@@ -1,19 +1,25 @@
-<div class="cart-item-parent">
+<div class="cart-item-wrapper">
     {{#if index}}
     <hr class="m-0 mx-2">
     {{/if}}
-    <div class="cart-item d-flex gap-4 p-3">
+    <div class="cart-item d-flex gap-4 p-3" data-id="{{item._id}}"
+        data-price="{{item.productId.price}}" data-qty="{{item.quantity}}" data-mrp={{item.productId.mrp}}>
         <div class="align-self-center">
-            <img src="assets/{{getFirstItem item.productId.images}}" alt="product_image" width="75px">
+            <img src="assets/{{item.productId.images.[0]}}" alt="product_image" width="75px">
         </div>
         <div class="align-self-center flex-grow-1">
             <p class="fw-semibold">{{item.productId.title}}</p>
-            <p class="">{{item.productId.memory}},&nbsp;{{item.productId.storage}}</p>
-            <p class="">{{item.productId.color}}</p>
+            <p class="span">
+                {{#unless (eq item.productId.memory 'Not Specified')}}
+                {{item.productId.memory}},&nbsp;
+                {{/unless}}
+                {{item.productId.storage}}
+            </p>
+            <p class="span">{{item.productId.color}}</p>
             <br>
             <div class="d-flex align-items-center gap-2">
                 <span class="fw-bold">Qty: </span>
-                <div data-id="{{item.productId._id}}" data-qty={{item.quantity}} class="quantity-selector">
+                <div class="quantity-selector">
                     <button class="dropdown-toggle">
                         <span id="product-qty" class="selected-quantity me-1">{{item.quantity}}</span>
                     </button>
@@ -30,17 +36,12 @@
                         <li class="dropdown-item" value="10">10</li>
                     </ul>
                 </div>
-                {{!-- <span class="fw-bold" id="product-qty" data-qty={{item.quantity}}>Qty: {{item.quantity}}</span> --}}
-                <img class="delete-btn cursor-pointer" data-id="{{item._id}}" src="/images/trash.svg" alt="delete_button" width="20px"
-                    height="20px">
-                <img class="move-to-whishlist-btn ms-4 cursor-pointer" data-id="{{item._id}}" src="/images/favorite.svg"
-                    alt="move_to_wishlist_button" width="20px" height="20px">
+                <img class="delete-btn cursor-pointer" src="/images/trash.svg" onclick="openDeleteModal(this)"
+                    alt="delete_button" width="20px" height="20px" >
             </div>
         </div>
         <div class="align-self-end">
-            <p class="d-none" id="product-mrp" data-mrp={{item.productId.mrp}}></p>
-            <p class="fw-bold" id="product-price" data-price={{item.productId.price}}>{{formatPrice (product
-                item.productId.price item.quantity)}}</p>
+            <p class="fw-bold" id="product-price">{{formatPrice (product item.productId.price item.quantity)}}</p>
         </div>
     </div>
 </div>

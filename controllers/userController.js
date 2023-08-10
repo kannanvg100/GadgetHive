@@ -44,11 +44,12 @@ module.exports = {
 	},
 
 	getSignupForm: (req, res) => {
+		const refId = req.query.ref
 		try {
 			if (req.session.user) res.redirect('/home')
 			else {
 				const { email } = req.query
-				res.render('user/signup', { email })
+				res.render('user/signup', { email, refId })
 			}
 		} catch (error) {
 			next(error)
@@ -65,8 +66,15 @@ module.exports = {
 
 			const brands = await Brand.find().sort({ displayOrder: -1 }).select('name image')
 			const latestProducts = await Product.find().sort({ createdAt: -1 }).limit(5)
+			const premiumProducts = await Product.find().sort({ price: -1 }).limit(5)
 			const banners = await Banner.find({ isActive: true }).limit(5)
-			res.render('user/home', { categories: categories[0].values, brands, banners, latestProducts })
+			res.render('user/home', {
+				categories: categories[0].values,
+				brands,
+				banners,
+				latestProducts,
+				premiumProducts,
+			})
 		} catch (error) {
 			next(error)
 		}
@@ -78,7 +86,7 @@ module.exports = {
 
 	// Register User
 	registerUser: async (req, res, next) => {
-		let { email, phone, password } = req.body
+		let { email, phone, password, refId } = req.body
 
 		let result = {}
 		if (!email) result.emailError = 'Email required'
@@ -89,10 +97,10 @@ module.exports = {
 		try {
 			const user = await User.findOne({ email })
 			if (user) return res.render('user/signup', { phone, emailError: 'Email already registered' })
-			const mobile = await User.findOne({ phone: `91${phone}` })
+			const mobile = await User.findOne({ phone: `91${phone}` }).ex
 			if (mobile) return res.render('user/signup', { email, phoneError: 'Mobile number already registered' })
 
-			req.session.guest = { email, phone, password }
+			req.session.guest = { email, phone, password, refId }
 
 			await verificationHelpers.sendOtp(`+91${phone}`)
 			res.render('user/verify-otp', { phone })
@@ -113,7 +121,27 @@ module.exports = {
 		try {
 			const status = await verificationHelpers.verifyOtp(`+91${phone}`, otp)
 			if (status === 'approved') {
-				await User.create({ email, phone: `91${phone}`, password })
+				const user = await User.create({ email, phone: `91${phone}`, password })
+				const refId = req.session.guest.refId
+				if (refId) {
+					const refWallet = await Wallet.findOne({ user: refId })
+					if (refWallet) {
+						refWallet.transactions.push({ amount: 1000, title: 'Referral Bonus' })
+						refWallet.balance += 1000
+						refWallet.save()
+					} else {
+						await Wallet.create({
+							user: refId,
+							balance: 1000,
+							transactions: [{ amount: 1000, title: 'Referral Bonus' }],
+						})
+					}
+					await Wallet.create({
+						user: user._id,
+						balance: 1000,
+						transactions: [{ amount: 1000, title: 'Signup Bonus' }],
+					})
+				}
 				req.session.guest = null
 				res.status(200).json({ success: true, message: 'signup Successful', email })
 			} else res.status(400).json({ success: false, message: 'OTP didnt match. Pls try again' })
@@ -175,7 +203,7 @@ module.exports = {
 			req.session.guest = { email, phone: user.phone }
 			const status = await verificationHelpers.sendOtp(`+${user.phone}`)
 			if (status === 'pending') {
-				return res.status(200).json({ success: true, message: 'OTP sent' })
+				return res.status(200).json({ success: true, phoneDigits: user.phone.toString().slice(-4) })
 			} else {
 				return res.status(500).json({ success: false, message: 'Failed to send OTP' })
 			}
@@ -212,14 +240,14 @@ module.exports = {
 	// Logout User
 	logoutUser: async (req, res, next) => {
 		delete req.session.user
-		res.redirect('/home')
+		res.redirect('/')
 	},
 
 	// Login Status
 	getUser: async (req, res, next) => {
 		try {
 			const user = req.session.user
-			if (user) res.status(200).json({ success: true, name: user.name })
+			if (user) res.status(200).json({ success: true, name: user.name, id: user._id })
 			else res.status(401).json({ success: false })
 		} catch (error) {
 			next(error)
@@ -271,6 +299,7 @@ module.exports = {
 		}
 	},
 
+    
 	//Admin Dashboard
 	adminHome: async (req, res, next) => {
 		try {
@@ -342,7 +371,7 @@ module.exports = {
 
 			await userData.save()
 
-			return res.json({ success: true })
+			return res.status(200).json({ success: true })
 		} catch (error) {
 			next(error)
 		}
@@ -356,6 +385,13 @@ module.exports = {
 				.skip((page - 1) * RESULTS_PER_PAGE)
 				.limit(RESULTS_PER_PAGE)
 			const totalPages = Math.ceil(documentCount / RESULTS_PER_PAGE)
+
+			for (let i = 0; i < users.length; i++) {
+				const wallet = await Wallet.findOne({ user: users[i]._id }).select('balance')
+				users[i].balance = wallet?.balance ?? 0
+				users[i].orderCount = await Order.countDocuments({ user: users[i]._id })
+			}
+
 			res.render('admin/users-list', {
 				users,
 				page,
@@ -393,19 +429,10 @@ module.exports = {
 	},
 
 	account: async (req, res, next) => {
-		const user = req.session.user
-		try {
-			res.render('user/account', { user })
-		} catch (error) {
-			next(error)
-		}
-	},
-
-	address: async (req, res, next) => {
 		const userId = req.session.user._id
 		const user = await User.findById(userId).select('address')
 		try {
-			res.render('user/address', { address: user.address })
+			res.render('user/account', { address: user.address })
 		} catch (error) {
 			next(error)
 		}

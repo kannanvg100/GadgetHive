@@ -107,14 +107,14 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showToast("Order cancelled")
+                        Toastify({ text: "Order cancelled", style: { background: "#468B97" }, }).showToast();
                         window.location.reload()
                     }
                     else
-                        showToast(data.message)
+                        Toastify({ text: data.message }).showToast();
                 })
                 .catch(error => {
-                    showToast("Something went wrong")
+                    Toastify({ text: "Sorry, something went wrong" }).showToast();
                 })
             closeModal()
         })
@@ -136,14 +136,14 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showToast("Return accepted")
+                        Toastify({ text: "Return accepted", style: { background: "#468B97" }, }).showToast();
                         window.location.reload()
                     }
                     else
-                        showToast(data.message)
+                        Toastify({ text: data.message }).showToast();
                 })
                 .catch(error => {
-                    showToast("Something went wrong")
+                    Toastify({ text: "Sorry, something went wrong" }).showToast();
                 })
             closeModal()
         })

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const slugify = require('slugify')
 
 const productSchema = new mongoose.Schema({
 	title: {
@@ -6,19 +7,26 @@ const productSchema = new mongoose.Schema({
 		required: [true, 'Please enter the Product name'],
 		trim: true,
 	},
+	slug: {
+		type: String,
+	},
 	highlight: {
 		type: String,
 		default: function () {
-			return `${this.memory}, ${this.storage}`
+			console.log('this.released', this.released)
+			if (this.released) {
+				return Date.now()
+			}
+			return null
 		},
 	},
 	description: {
 		type: String,
-		required: [true, 'Please enter the Product description'],
+		trim: true,
 	},
 	memory: {
 		type: String,
-		required: [true, 'Please enter the Memory configuration'],
+		default: 'Not Specified',
 	},
 	storage: {
 		type: String,
@@ -42,11 +50,11 @@ const productSchema = new mongoose.Schema({
 		ref: 'Category',
 		required: [true, 'Please enter the Product category'],
 	},
-    mrp: {
-        type: Number,
-        required: [true, 'Please enter the Product MRP'],
-        min: 0,
-    },
+	mrp: {
+		type: Number,
+		required: [true, 'Please enter the Product MRP'],
+		min: 0,
+	},
 	price: {
 		type: Number,
 		required: [true, 'Please enter the Product Price'],
@@ -67,40 +75,10 @@ const productSchema = new mongoose.Schema({
 		min: 0,
 	},
 	images: [{ type: String, required: true }],
-	avgRating: {
-		type: Number,
-		default: 4.3,
-	},
-	numOfReviews: {
-		type: Number,
-		default: 12,
-	},
-	reviews: [
-		{
-			user: {
-				type: mongoose.Schema.ObjectId,
-				ref: 'User',
-				required: true,
-			},
-			name: {
-				type: String,
-				required: true,
-			},
-			rating: {
-				type: Number,
-				min: 1,
-				max: 5,
-				required: true,
-			},
-			comment: {
-				type: String,
-			},
-		},
-	],
 	status: {
 		type: String,
-		enum: ['listed', 'delisted', 'draft'],
-		required:[true, 'Please choose a Status for the Product'],
+		enum: ['listed', 'delisted'],
+		required: [true, 'Please choose a Status for the Product'],
 	},
 	createdAt: {
 		type: Date,
@@ -113,7 +91,34 @@ const productSchema = new mongoose.Schema({
 })
 
 productSchema.pre('save', async function (next) {
+	console.log('date', new Date())
 	this.updatedAt = new Date()
+	next()
+})
+
+productSchema.pre('save', function (next) {
+	if (this.memory == '') this.memory = 'Not Specified'
+	next()
+})
+
+productSchema.pre('save', function (next) {
+	if (this.memory == 'Not Specified') this.highlight = `${this.color}, ${this.storage}`
+	else this.highlight = `${this.memory}, ${this.storage}`
+	next()
+})
+
+productSchema.post('save', async function (doc, next) {
+	try {
+		if (!doc.slug) {
+			const baseSlug = slugify(doc.title, { lower: true })
+			const uniqueSlug = `${baseSlug}-${doc._id}`
+			doc.slug = uniqueSlug
+			await doc.save()
+			next()
+		} else next()
+	} catch (err) {
+		next(err)
+	}
 })
 
 module.exports = mongoose.model('Product', productSchema, 'products')

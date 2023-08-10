@@ -81,12 +81,9 @@ module.exports = {
 		if (status) return 'invisible'
 		return 'd-block'
 	},
-    isVisible: function (status) {
-        if (status) return ''
-        else return 'hidden'
-    },
-	getFirstItem: function (item) {
-		return item[0]
+	isVisible: function (status) {
+		if (status) return ''
+		else return 'hidden'
 	},
 	size: function (item) {
 		return item.length
@@ -154,7 +151,6 @@ module.exports = {
 		return args
 	},
 	isIn: function (target, items) {
-		console.log("📄 > file: handlebarHelpers.js:153 > items:", items)
 		return items.includes(target)
 	},
 	formatOrderStatus: function (status) {
@@ -166,19 +162,20 @@ module.exports = {
 	replaceUnderscore: function (text) {
 		return text == '' ? '' : text.replace(/_/g, ' ')
 	},
-	checkTitle: function (text) {
-		return text ? `${text}` : 'GadgetHive'
+	checkText: function (text, defaultText) {
+		return text ? `${text}` : defaultText
 	},
 	avgOfPrices: function (items) {
-		let sum = 0, count = 0
-		items.forEach((item) => sum += item.amount )
-		items.forEach((item) => count += item.count )
+		let sum = 0,
+			count = 0
+		items.forEach((item) => (sum += item.amount))
+		items.forEach((item) => (count += item.count))
 		return sum / count
 	},
-    getStatusCount: function (orders, status) {
-        for (const order of orders) {
-            if (order._id == status) return order.count
-        }
-        return 0
-    }
+	getStatusCount: function (orders, status) {
+		for (const order of orders) {
+			if (order._id == status) return order.count
+		}
+		return 0
+	},
 }

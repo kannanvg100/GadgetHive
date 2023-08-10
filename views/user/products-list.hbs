@@ -1,47 +1,51 @@
-{{> navbar}}
-{{> categories categories = categories}}
-{{> breadcrumbs path = path}}
+{{> navbar }}
+{{> categories }}
+{{> breadcrumbs }}
 
 <div class="container mt-2">
     <div class="row">
-        <div class="col-3 pe-5">
+        <div class="d-flex gap-5">
             {{> filter-panel}}
-        </div>
-        <div class="col-8">
-            <div class="d-flex align-items-end justify-content-end gap-1">
-                <span class="d-block mb-1">Sort by: </span>
-                <select class="input-1" name="sort-by" onchange="filterProducts()">
-                    <option value='relavance'>Relavance</option>
-                    <option value='new'>Newly arrived</option>
-                    <option value='price-asc'>Price: Low to High</option>
-                    <option value='price-dec'>Price: High to Low</option>
-                </select>
+            <div class="flex-grow-1">
+                <div class="d-flex align-items-end justify-content-end gap-1">
+                    <span class="d-block mb-1">Sort by: </span>
+                    <select class="input-1" name="sort-by" onchange="filterProducts()">
+                        <option value='relavance'>Relavance</option>
+                        <option value='new'>Newly arrived</option>
+                        <option value='price-asc'>Price: Low to High</option>
+                        <option value='price-dec'>Price: High to Low</option>
+                    </select>
+                </div>
+
+                <br>
+
+                <div class="d-inline-flex gap-5 flex-wrap mt-3">
+
+                    {{#if products.length}}
+                        {{#each products}}
+                            {{> product-list-item product = this}}
+                        {{/each}}
+                    {{else}}
+                        <h5>No products were found</h5>
+                    {{/if}}
+
+                </div>
+
+                <br>
+
+                <div class="text-center mt-5">
+
+                    {{#loop totalPages}}
+                    <span
+                        class="fs-6 mx-1 cursor-pointer {{#if (isActive ../page this)}}bg-off-white p-2 rounded fw-bold{{/if}}"
+                        data-no="{{this}}" onclick="filterProducts(this)">
+                        {{this}}
+                    </span>
+                    {{/loop}}
+
+                </div>
             </div>
-            <div class="d-flex gap-5 flex-wrap mx-auto mt-3">
-
-                {{#if (isNull products)}}
-                <h5>No products were found</h5>
-                {{/if}}
-
-                {{#each products}}
-                    {{> product-list-item product = this}}
-                {{/each}}
-
-            </div>
         </div>
-
-        <div class="text-center mt-5 ms-5">
-
-        {{#loop totalPages}}
-            <a href="/shop/phones/p/{{this}}">
-                <span class="fs-6 mx-1 {{#if (isActive ../page this)}}bg-off-white p-2 rounded fw-bold{{/if}}">
-                    {{this}}
-                </span>
-            </a>
-        {{/loop}}
-
-        </div>
-
     </div>
 </div>
 
@@ -50,10 +54,10 @@
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const wrapper = document.querySelectorAll(".wrapper")
-        wrapper.forEach(item =>{
-            item.addEventListener("click", (event)=>{
+        wrapper.forEach(item => {
+            item.addEventListener("click", (event) => {
                 const idDiv = item.querySelector('#_id');
-                window.location.href = `/shop/${idDiv.innerHTML}`
+                window.location.href = `/shop/p/${idDiv.innerHTML}`
             })
         })
     })

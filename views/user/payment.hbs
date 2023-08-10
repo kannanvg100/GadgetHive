@@ -1,8 +1,8 @@
-<div class="position-absolute d-flex flex-column justify-content-center align-items-center gap-3"
-    style="inset: 0;">
+<div class="position-absolute d-flex flex-column justify-content-center align-items-center gap-3" style="inset: 0;">
     <div id="lottie-container" style="width: 200px; height: 200px;"></div>
-    <p class="pt-2 fw-bold" id="payment-status">Processing your payment...</p>
-    <span id="retry-btn" class="btn-2 mt-2" hidden>Retry Payment</span>
+    <p class="pt-2 fw-bold" id="payment-status">Connecting with payment provider...</p>
+    <span id="payment-status-sub">Please wait</span>
+    <span id="retry-btn" class="btn-2 mt-2 max-z-index" hidden>Retry Payment</span>
 </div>
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -14,7 +14,9 @@
     document.addEventListener('DOMContentLoaded', function () {
         const container = document.querySelector('#lottie-container');
         const status = document.querySelector('#payment-status');
+        const statusSub = document.querySelector('#payment-status-sub');
         const retryBtn = document.querySelector('#retry-btn');
+        const razorpayContainer = document.querySelector('.razorpay-container');
 
         let inProgress = true
 
@@ -27,7 +29,7 @@
         });
 
         animation.setSpeed(1000);
-        
+
 
         function startAnimation() {
             animation.playSegments([1, 118], false)
@@ -59,39 +61,9 @@
             "handler": function (response) {
 
                 status.textContent = "Waiting for payment confirmation"
-                fetch("/orders/check-payment", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({
-                        razorpayOrderId: response.razorpay_order_id,
-                        razorpayPaymentId: response.razorpay_payment_id,
-                        secret: response.razorpay_signature
-                    }),
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            retryBtn.hidden = true
-                            showSuccess()
-                            animation.addEventListener('complete', () => {
-                                status.textContent = "Your order has been placed successfully"
-                                setTimeout(() => {
-                                    window.location.href = "/orders/{{order._id}}"
-                                    }, 1000)
-                            })
-                        }else{
-                            showFailure()
-                            status.textContent = "Oops! Looks like there is a problem with your payment"
-                        }
-                    })
-                    .catch(error => {
-                        console.log("Error:", error)
-                        showFailure()
-                        status.textContent = "Oops! Looks like there is a problem with your payment"
-                    })
+                statusSub.textContent = "Please wait"
+                retryBtn.hidden = true
+                checkPayementStatus(response)
             },
             "prefill": {
                 "name": '{{order.address.name}}',
@@ -105,26 +77,77 @@
         const rzp1 = new Razorpay(options);
         rzp1.on('payment.failed', function (response) {
             rzp1.close()
+            retryBtn.hidden = true
+            status.textContent = "Oops! Your payment did not go through"
+            statusSub.textContent = "Please try placing your order again"
             showFailure()
             animation.addEventListener('complete', () => {
-                status.textContent = response.error.description
-                retryBtn.hidden = false
+                checkPayementStatus(response)
             })
         });
         setTimeout(() => {
             rzp1.open();
             retryBtn.hidden = false
+            status.textContent = "Please complete your payment"
+            statusSub.textContent = ""
         }, 1000)
 
         retryBtn.addEventListener('click', () => {
             startAnimation()
             status.textContent = "Retrying your payment..."
+            statusSub.textContent = ""
             setTimeout(() => {
                 rzp1.open();
+                status.textContent = "Please complete your payment"
+                statusSub.textContent = ""
             }, 1000)
 
         })
 
+        function checkPayementStatus(response) {
+            fetch("/orders/check-payment", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    razorpayOrderId: response.razorpay_order_id,
+                    razorpayPaymentId: response.razorpay_payment_id,
+                    secret: response.razorpay_signature
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        retryBtn.hidden = true
+                        showSuccess()
+                        animation.addEventListener('complete', () => {
+                            status.textContent = "Your order has been placed successfully"
+                            statusSub.textContent = "Redirecting to order page..."
+                            setTimeout(() => {
+                                window.location.href = "/orders/{{order._id}}"
+                            }, 1000)
+                        })
+                    } else {
+                        showFailure()
+                        razorpayContainer.style.zIndex = 10
+                        status.textContent = "Oops! Your payment did not go through"
+                        statusSub.textContent = "Please try placing your order again"
+                        setTimeout(() => {
+                            window.location.href = "/cart"
+                        }, 1000)
+                    }
+                })
+                .catch(error => {
+                    console.log(error)
+                    status.textContent = "Oops! Something went wrong"
+                    statusSub.textContent = "Please try placing your order again"
+                    setTimeout(() => {
+                        window.location.href = "/cart"
+                    }, 200)
+                })
+        }
     })
 
 

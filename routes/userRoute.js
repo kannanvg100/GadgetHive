@@ -32,7 +32,6 @@ router.get('/admin/logout',preventCache, userController.logoutAdmin)
 
 // Routes accessible to authenticated users only
 router.get('/account', preventCache, auth.isAuthenticatedUser, userController.account)
-router.get('/addresses', preventCache, auth.isAuthenticatedUser, userController.address)
 router.post('/addresses/add', preventCache, auth.isAuthenticatedUser, userController.addAddress)
 router.post('/addresses/edit', preventCache, auth.isAuthenticatedUser, userController.editAddress)
 router.post('/addresses/delete', preventCache, auth.isAuthenticatedUser, userController.deleteAddress)

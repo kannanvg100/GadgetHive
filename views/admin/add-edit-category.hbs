@@ -86,7 +86,7 @@
                     if (data.success) {
                         window.location.href = "/categories"
                     } else {
-                        showToast(data.message)
+                        Toastify({ text: data.message }).showToast();
                     }
                 })
                 .catch(error => {
@@ -116,7 +116,7 @@
                     if (data.success) {
                         window.location.href = "/categories"
                     } else {
-                        showToast(data.message)
+                        Toastify({ text: data.message }).showToast();
                     }
                 })
                 .catch(error => {
@@ -146,7 +146,7 @@
                     if (data.success) {
                         window.location.href = "/categories"
                     } else {
-                        showToast(data.message)
+                        Toastify({ text: data.message }).showToast();
                     }
                 })
                 .catch(error => {

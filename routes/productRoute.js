@@ -7,8 +7,9 @@ const { preventCache } = require('../middlewares/preventCache')
 const router = express.Router()
 
 // Routes accessible to all users
-router.get('/shop/:id', productController.getProductByID)
-router.get('/shop/:category/p/:page', productController.getAllListedProducts)
+router.get('/shop/p/:slug/:id', productController.getProductBySlug)
+router.get('/shop/p/:id', productController.getProductByID)
+router.get('/shop/:category', productController.getAllListedProducts)
 router.get('/search/p/:page',productController.getAllfilteredProducts)
 // End of public routes
 
@@ -22,5 +23,6 @@ router.post('/products/edit', preventCache, auth.isAdminAuthorized, upload.array
 router.delete('/products/delete', preventCache, auth.isAdminAuthorized, productController.deleteProduct)                       
 router.delete('/products/delete-image', preventCache, auth.isAdminAuthorized, productController.deleteImage)                   
 // End of admin routes
+
 
 module.exports = router

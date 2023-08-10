@@ -35,8 +35,8 @@
                                 <th scope="col">Status</th>
                                 <th scope="col">Email</th>
                                 <th scope="col">Mobile number</th>
-                                <th scope="col">Last order date</th>
-                                <th scope="col" style="border-top-right-radius: 0.375rem !important;">Total orders</th>
+                                <th scope="col">Total Orders</th>
+                                <th scope="col" style="border-top-right-radius: 0.375rem !important;">Wallet Balance</th>
                             </tr>
                         </thead>
                             <tbody>
@@ -50,8 +50,8 @@
                                     <td>{{activeOrBlocked this.isActive}}</td>
                                     <td>{{this.email}}</td>
                                     <td>{{this.phone}}</td>
-                                    <td>{{this.last_order}}</td>
-                                    <td>{{this.total_orders}}</td>
+                                    <td>{{this.orderCount}}</td>
+                                    <td>{{this.balance}}</td>
                                 </tr>
 
                                 {{/each}}

@@ -69,18 +69,4 @@ module.exports = {
 			next(error)
 		}
 	},
-
-	removeDuplateBrands: async (req, res, next) => {
-		try {
-			const brands = await Brand.find({})
-			const counts = await Product.aggregate([{ $group: { _id: '$brand', count: { $sum: 1 } } }])
-			const brandNames = counts.map((item) => item._id)
-			const brandIds = brands.map((item) => item._id)
-			const removeIds = brandIds.filter((item) => !brandNames.includes(item.toString()))
-			await Brand.deleteMany({ _id: { $in: removeIds } })
-		} catch (error) {
-			console.error(error.message)
-			next(error)
-		}
-	},
 }

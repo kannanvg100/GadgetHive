@@ -8,9 +8,9 @@ module.exports = {
 		try {
 			const cart = await Cart.findOne({ user: userId }).populate({ path: 'items.productId' })
 			const items = cart.items
-			const address = req.session.user.address[0]
-            const coupons = await Coupon.find({}).sort({ createdAt: -1 })
-			res.render('user/cart', { items, address, coupons, hideCartIcon: true , title: 'Shopping Bag'})
+			const address = req.session.user.address
+			const coupons = await Coupon.find({}).sort({ createdAt: -1 })
+			res.render('user/cart', { items, address, coupons, hideCartIcon: true, title: 'Shopping Bag' })
 		} catch (err) {
 			next(err)
 		}
@@ -76,16 +76,15 @@ module.exports = {
 			const { productId, quantity } = req.body
 			const { _id: userId } = req.session.user
 			const cart = await Cart.findOne({ user: userId })
-			let i
-			for (i = 0; i < cart.items.length; i++) {
-				if (cart.items[i].productId == productId) {
-					cart.items[i].quantity = quantity
-					res.status(200).json({ success: true })
-					break
-				}
+
+			const item = cart.items.id(productId)
+			if (item) {
+				item.quantity = quantity
+				cart.save()
+				res.status(200).json({ success: true })
+			} else {
+				throw { statusCode: 404, message: 'Item not found' }
 			}
-			if (i === cart.items.length) res.status(500).json({ success: false, message: 'Something went wrong' })
-			else cart.save()
 		} catch (error) {
 			next(error)
 		}

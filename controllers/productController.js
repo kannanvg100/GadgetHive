@@ -7,82 +7,42 @@ const RESULTS_PER_PAGE = 6
 
 module.exports = {
 	getAllListedProducts: async (req, res, next) => {
-        
 		try {
 			const { category } = req.params
-			const { page } = req.query || 1
+			const page  = req.query.page || 1
 			const categoryID = await Category.findOne({ name: category })
 
-			const filter = { status: 'listed' }
 			const decodedURL = decodeURIComponent(req.query.f)
 
-            const sortStatus = req.query.sort
-            const sort = {}
-            if(sortStatus === 'price-asc') sort.price = 1
-            else if(sortStatus === 'price-des') sort.price = -1
-            else if(sortStatus === 'new') sort.createdAt = -1
-            
+			const sortStatus = req.query.sort
+			const sort = {}
+			if (sortStatus === 'price-asc') sort.price = 1
+			else if (sortStatus === 'price-dec') sort.price = -1
+			else if (sortStatus === 'new') sort.createdAt = -1
+
+			let filter = {}
+			const query = req.query.q || ''
+			const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+			if (escapedQuery !== 'undefined') {
+				;(filter = {
+					$and: [
+						{
+							$or: [{ $text: { $search: query } }, { title: { $regex: new RegExp(escapedQuery, 'i') } }],
+						},
+						{ status: 'listed' },
+					],
+				}),
+					{ title: 1 }
+			} else {
+				filter.status = 'listed'
+			}
+
 			if (decodedURL !== 'undefined') {
 				decodedURL.split('&').forEach((item) => {
 					const [key, value] = item.split('=')
 					filter[key] = { $in: value.split(',') }
 				})
 			}
-
-			// const facetStages = {}
-			// const facetFields = ['brand', 'memory', 'storage']
-
-			// facetFields.forEach((field) => {
-			// 	facetStages[field] = [
-			// 		{ $match: { status: 'listed', category: categoryID._id } },
-			// 		{ $group: { _id: `$${field}`, count: { $sum: 1 } } },
-			// 		{ $sort: { count: -1 } },
-			// 	]
-			// })
-
-			// const filterOptionsCounts = await Product.aggregate([{ $facet: facetStages }])
-
-			// const facetStages = {}
-			// const facetFields = ['brand', 'memory', 'storage']
-
-			// facetFields.forEach((field) => {
-			// 	if (field === 'brand') {
-			// 		facetStages[field].unshift({
-			// 			$lookup: {
-			// 				from: 'brands', // Change this to the actual name of the 'brands' collection
-			// 				localField: '_id',
-			// 				foreignField: '_id',
-			// 				as: 'brandData',
-			// 			},
-			// 		})
-
-			// 		// Add a $unwind stage to flatten the 'brandData' array
-			// 		facetStages[field].push({
-			// 			$unwind: '$brandData',
-			// 		})
-
-			// 		// Optionally, you can project only the fields you need from the 'brandData'
-			// 		facetStages[field].push({
-			// 			$project: {
-			// 				_id: 1,
-			// 				count: 1,
-			// 				brandData: {
-			// 					_id: 1,
-			// 					name: 1, // Change this to the actual field names you want from the 'brands' collection
-			// 					// Add more fields as needed
-			// 				},
-			// 			},
-			// 		})
-			// 	} else {
-			// 		facetStages[field] = [
-			// 			{ $match: { status: 'listed', category: categoryID._id } },
-			// 			{ $group: { _id: `$${field}`, count: { $sum: 1 } } },
-			// 			{ $sort: { count: -1 } },
-			// 		]
-			// 	}
-			// })
-
-			// const filterOptionsCounts = await Product.aggregate([{ $facet: facetStages }])
 
 			const categories = await Category.aggregate([
 				{ $match: { isDeleted: false } },
@@ -93,71 +53,25 @@ module.exports = {
 			if (category !== 'all') filter.category = categoryID._id
 			const documentCount = await Product.countDocuments(filter)
 			let products = await Product.find(filter)
-                .sort(sort)
+				.sort(sort)
 				.skip((page - 1) * RESULTS_PER_PAGE)
 				.limit(RESULTS_PER_PAGE)
 			const totalPages = Math.ceil(documentCount / RESULTS_PER_PAGE)
 
 			const filterOptionsCounts = await Product.aggregate([
-				{
-					$match: filter,
-				},
+				{ $match: filter },
 				{
 					$facet: {
 						brand: [
-							{
-								$group: {
-									_id: '$brand',
-									count: { $sum: 1 },
-								},
-							},
-							{
-								$sort: { count: -1 },
-							},
-							{
-								$lookup: {
-									from: 'brands',
-									localField: '_id',
-									foreignField: '_id',
-									as: 'brandData',
-								},
-							},
-							{
-								$unwind: '$brandData',
-							},
-							{
-								$project: {
-									_id: 1,
-									count: 1,
-									brandData: {
-										_id: 1,
-										name: 1,
-									},
-								},
-							},
+							{ $group: { _id: '$brand', count: { $sum: 1 } } },
+							{ $sort: { count: -1 } },
+							{ $lookup: { from: 'brands', localField: '_id', foreignField: '_id', as: 'brandData' } },
+							{ $unwind: '$brandData' },
+							{ $project: { _id: 1, count: 1, brandData: { _id: 1, name: 1 } } },
 						],
-						color: [
-							{
-								$group: {
-									_id: '$color',
-									count: { $sum: 1 },
-								},
-							},
-							{
-								$sort: { count: -1 },
-							},
-						],
-						memory: [
-							{
-								$group: {
-									_id: '$memory',
-									count: { $sum: 1 },
-								},
-							},
-							{
-								$sort: { count: -1 },
-							},
-						],
+						color: [{ $group: { _id: '$color', count: { $sum: 1 } } }, { $sort: { count: -1 } }],
+						memory: [{ $group: { _id: '$memory', count: { $sum: 1 } } }, { $sort: { count: -1 } }],
+						os: [{ $group: { _id: '$os', count: { $sum: 1 } } }, { $sort: { count: -1 } }],
 					},
 				},
 			])
@@ -169,6 +83,7 @@ module.exports = {
 				decodedURL,
 				page,
 				totalPages,
+				searchQuery: query,
 				path: [
 					{ name: 'Home', url: '/' },
 					{ name: category, url: '' },
@@ -222,6 +137,7 @@ module.exports = {
 					path: 'category',
 					select: 'name',
 				})
+				.sort({ createdAt: -1 })
 				.skip((page - 1) * RESULTS_PER_PAGE)
 				.limit(RESULTS_PER_PAGE)
 			const totalPages = Math.ceil(documentCount / RESULTS_PER_PAGE)
@@ -235,8 +151,18 @@ module.exports = {
 			next(error)
 		}
 	},
-
+    
 	getProductByID: async (req, res, next) => {
+		const { id } = req.params
+		try {
+			const product = await Product.findById(id).select('slug')
+			res.redirect(`/shop/p/${product.slug}/${id}`)
+		} catch (error) {
+			next(error)
+		}
+	},
+
+	getProductBySlug: async (req, res, next) => {
 		const { id } = req.params
 		try {
 			const categories = await Category.aggregate([
@@ -244,19 +170,19 @@ module.exports = {
 				{ $sort: { displayOrder: -1 } },
 				{ $group: { _id: null, values: { $push: '$name' } } },
 			])
-			let product = await Product.findById(id).populate('category')
-            let isWishlisted = false
-            if(req.session.user)
-            isWishlisted = await Wishlist.countDocuments({ user: req.session.user._id, 'items.product': id})
+			let product = await Product.findById(id).populate('category brand')
+			let isWishlisted = false
+			if (req.session.user)
+				isWishlisted = await Wishlist.countDocuments({ user: req.session.user._id, 'items.product': id })
 			res.render('user/product-details', {
 				product,
 				categories: categories[0].values,
 				path: [
 					{ name: 'Home', url: '/home' },
-					{ name: product.category.name, url: `/shop/${product.category.name}/p/1` },
+					{ name: product.category.name, url: `/shop/${product.category.name}/` },
 					{ name: product.title, url: '' },
 				],
-                isWishlisted,
+				isWishlisted,
 			})
 		} catch (error) {
 			console.error(error.message)
@@ -312,7 +238,6 @@ module.exports = {
 		try {
 			const productData = JSON.parse(req.body.productData)
 			const id = productData.id
-
 			const product = await Product.findById(id)
 			if (req.files.length > 0) {
 				req.files.forEach((item) => product.images.push(item.filename))
@@ -345,7 +270,6 @@ module.exports = {
 			await Product.findByIdAndUpdate(id, { $pull: { images: file } })
 			res.status(200).json({ success: true })
 		} catch (error) {
-			console.error(error.message)
 			next(error)
 		}
 	},
