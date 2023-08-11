@@ -11,32 +11,13 @@ const verificationHelpers = require('../config/twilio')
 const RESULTS_PER_PAGE = 6
 
 module.exports = {
-	test: async (req, res, next) => {
-		try {
-			const { page } = req.params
-			const filter = { status: 'listed' }
-			const decodedURL = decodeURIComponent(req.query.f)
-			if (decodedURL !== 'undefined') {
-				decodedURL.split('&').forEach((item) => {
-					const [key, value] = item.split('=')
-					filter[key] = value.split(',')
-				})
-			}
-			const products = await Product.find(filter)
-				.skip((page - 1) * RESULTS_PER_PAGE)
-				.limit(RESULTS_PER_PAGE)
-			res.render('user/test', { products, filter })
-		} catch (error) {
-			next(error)
-		}
-	},
 
 	getLoginForm: (req, res) => {
 		try {
-			if (req.session.user) res.redirect('/home')
+			if (req.session.user) res.redirect('/')
 			else {
 				const email = req.query.email ?? 'kannanvg007@gmail.com'
-				res.render('user/login', { email })
+				res.render('user/login', { email, title: 'Login' })
 			}
 		} catch (error) {
 			next(error)
@@ -46,10 +27,10 @@ module.exports = {
 	getSignupForm: (req, res) => {
 		const refId = req.query.ref
 		try {
-			if (req.session.user) res.redirect('/home')
+			if (req.session.user) res.redirect('/')
 			else {
 				const { email } = req.query
-				res.render('user/signup', { email, refId })
+				res.render('user/signup', { email, refId, title: 'Signup' })
 			}
 		} catch (error) {
 			next(error)
@@ -92,22 +73,23 @@ module.exports = {
 		if (!email) result.emailError = 'Email required'
 		if (!phone) result.phoneError = 'Mobile number required'
 		if (!password) result.passwordError = 'Password required'
-		if (!email || !phone || !password) return res.render('user/signup', result)
+		if (!email || !phone || !password) return res.render('user/signup', result, { title: 'Signup' })
 
 		try {
 			const user = await User.findOne({ email })
-			if (user) return res.render('user/signup', { phone, emailError: 'Email already registered' })
-			const mobile = await User.findOne({ phone: `91${phone}` }).ex
-			if (mobile) return res.render('user/signup', { email, phoneError: 'Mobile number already registered' })
+			if (user) return res.render('user/signup', { phone, emailError: 'Email already registered', title: 'Signup' })
+			const mobile = await User.findOne({ phone: `91${phone}` })
+			if (mobile) return res.render('user/signup', { email, phoneError: 'Mobile number already registered', title: 'Signup' })
 
 			req.session.guest = { email, phone, password, refId }
 
 			await verificationHelpers.sendOtp(`+91${phone}`)
-			res.render('user/verify-otp', { phone })
+			res.render('user/verify-otp', { phone, title: 'Verify OTP' })
 		} catch (error) {
 			console.error(error.message)
 			res.render('user/signup', {
 				mobileNumberError: 'Something went wrong. Try again later',
+                title: 'Signup',
 			})
 		}
 	},
@@ -258,7 +240,7 @@ module.exports = {
 	getAdminLoginForm: async (req, res, next) => {
 		try {
 			if (req.session.admin) res.redirect('/admin/dashboard')
-			else res.render('admin/login')
+			else res.render('admin/login', { title: 'Admin Login' })
 		} catch (error) {
 			next(error)
 		}
@@ -317,7 +299,7 @@ module.exports = {
 			const orderCounts = await Order.aggregate([{ $group: { _id: '$orderStatus', count: { $sum: 1 } } }])
 
 			const data = orders.map(({ _id, total, count }) => ({ date: _id, amount: total, count }))
-			res.render('admin/dashboard', { data, orderCounts })
+			res.render('admin/dashboard', { data, orderCounts , title: 'Dashboard'})
 		} catch (error) {
 			next(error)
 		}
@@ -325,7 +307,7 @@ module.exports = {
 
 	getAddUserForm: async (req, res, next) => {
 		try {
-			res.render('admin/add-edit-user', { user: null })
+			res.render('admin/add-edit-user', { user: null, editMode: false, title: 'Add User' })
 		} catch (error) {
 			next(error)
 		}
@@ -351,7 +333,7 @@ module.exports = {
 		try {
 			const user = await User.findById(id)
 			user.password = ''
-			res.render('admin/add-edit-user', { user: JSON.stringify(user), editMode: true })
+			res.render('admin/add-edit-user', { user: JSON.stringify(user), editMode: true, title: 'Edit User' })
 		} catch (error) {
 			next(error)
 		}
@@ -395,6 +377,7 @@ module.exports = {
 				users,
 				page,
 				totalPages,
+                title: 'Users',
 			})
 		} catch (error) {
 			next(error)
@@ -431,7 +414,7 @@ module.exports = {
 		const userId = req.session.user._id
 		const user = await User.findById(userId).select('address')
 		try {
-			res.render('user/account', { address: user.address })
+			res.render('user/account', { address: user.address, title: 'Account' })
 		} catch (error) {
 			next(error)
 		}
@@ -480,7 +463,7 @@ module.exports = {
 		const user = req.session.user
 		const wishlist = await Wishlist.findOne({ user: user._id }).populate('items.product')
 		try {
-			res.render('user/wishlist', { wishlist: wishlist.items })
+			res.render('user/wishlist', { wishlist: wishlist.items, title: 'Wishlist' })
 		} catch (error) {
 			next(error)
 		}
@@ -512,7 +495,7 @@ module.exports = {
 			let wallet
 			wallet = await Wallet.findOne({ user: userId })
 			if (wallet == null) wallet = await Wallet.create({ user: userId, balance: 0 })
-			res.render('user/wallet', { balance: wallet.balance, transactions: wallet.transactions.reverse() })
+			res.render('user/wallet', { balance: wallet.balance, transactions: wallet.transactions.reverse(), title: 'Wallet' })
 		} catch (error) {
 			next(error)
 		}
@@ -521,7 +504,7 @@ module.exports = {
 	resetPasswordForm: async (req, res, next) => {
 		const { email } = req.query
 		try {
-			res.render('user/reset-password', { email })
+			res.render('user/reset-password', { email, title: 'Reset Password' })
 		} catch (error) {
 			next(error)
 		}
@@ -545,7 +528,7 @@ module.exports = {
 				await user.save()
 				res.redirect(`/login/?email=${email}`)
 			} else {
-				res.render('user/reset-password', { email, otpError: 'OTP didnt match. Pls try again' })
+				res.render('user/reset-password', { email, otpError: 'OTP didnt match. Pls try again', title: 'Reset Password' })
 			}
 		} catch (error) {
 			next(error)

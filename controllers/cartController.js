@@ -1,4 +1,5 @@
 const Cart = require('../models/Cart')
+const Product = require('../models/Product')
 const Coupon = require('../models/Coupon')
 const mongoose = require('mongoose')
 
@@ -21,7 +22,13 @@ module.exports = {
 		const quantity = Number(req.body.quantity)
 		const userId = req.session.user._id
 
+
 		try {
+            const product = await Product.findById(productId).select('stock')
+            if (product.stock < quantity) {
+                res.status(400).json({ success: false, message: 'Not enough stock' })
+                return
+            }
 			const cart = await Cart.findOne({ user: userId })
 			if (!cart) {
 				await Cart.create({ user: userId, items: [{ productId, quantity }] })

@@ -8,7 +8,7 @@
         {{#each banners}}
         <a href="{{this.link}}">
             <div class="slide">
-                <img src="/assets/{{this.image}}" alt="" class="banner-image" />
+                <img src="/assets/{{this.image}}" alt="banner-image" />
             </div>
         </a>
         {{/each}}
@@ -20,17 +20,17 @@
     <div class="d-flex mt-5">
         <p class="h6 fw-bold flex-grow-1">Shop by Brands</p>
         <div class="d-flex gap-3">
-            <img id="brand-scroll-left" onclick="scrollDiv(this)" 
-                src="/images/Expand_left.svg" width="20px" height="20px" alt="">
-            <img id="brand-scroll-right" onclick="scrollDiv(this)"
-                src="/images/Expand_right.svg" width="20px" height="20px" alt="">
+            <img id="brand-scroll-left" onclick="scrollDiv(this)" src="/images/Expand_left.svg" width="20px"
+                height="20px" alt="">
+            <img id="brand-scroll-right" onclick="scrollDiv(this)" src="/images/Expand_right.svg" width="20px"
+                height="20px" alt="">
         </div>
     </div>
     <div class="horizontal-scroll-container mt-3">
         <div class="horizontal-scroll-item">
             {{#each brands}}
-            <a href="/shop/all/?f=brand%3D{{this._id}}" class="me-3"><img class="brand-logo" src="/assets/{{this.image}}"
-                    alt=""></a>
+            <a href="/shop/all/?f=brand%3D{{this._id}}" class="me-3"><img class="brand-logo"
+                    src="/assets/{{this.image}}" alt=""></a>
             {{/each}}
         </div>
     </div>
@@ -73,6 +73,7 @@
         display: inline-block;
         width: 300px;
     }
+
 </style>
 
 <style>
@@ -90,11 +91,13 @@
         height: 220px;
         position: absolute;
         transition: all 0.5s;
+        border-radius: 8px;
     }
 
     .slide img {
         height: 220px;
         width: 1000px;
+        border-radius: 8px;
     }
 
     .btn {

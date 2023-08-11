@@ -5,9 +5,6 @@ const { preventCache } = require('../middlewares/preventCache')
 
 const router = express.Router()
 
-//test route
-router.get('/test/p/:page', userController.test)
-
 // Routes accessible to all users
 router.post('/instant-search', userController.instantSearch)
 router.get('/', preventCache, userController.getHomePage)

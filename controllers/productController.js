@@ -51,7 +51,6 @@ module.exports = {
 			])
 
 			if (category !== 'all') filter.category = categoryID._id
-			console.log("📄 > file: productController.js:54 > getAllListedProducts: > filter:", filter)
 			const documentCount = await Product.countDocuments(filter)
 			let products = await Product.find(filter)
 				.sort(sort)
@@ -77,6 +76,12 @@ module.exports = {
 				},
 			])
 
+            let title = ""
+            if(category === 'all') title = 'Search'
+            else if(category === 'phones') title = 'Mobile Phones'
+            else if(category === 'watches') title = 'Watches'
+            else if(category === 'tablets') title = 'Tablets'
+
 			res.render('user/products-list', {
 				products,
 				categories: categories[0].values,
@@ -89,6 +94,7 @@ module.exports = {
 					{ name: 'Home', url: '/' },
 					{ name: category, url: '' },
 				],
+                title
 			})
 		} catch (error) {
 			next(error)
@@ -146,6 +152,7 @@ module.exports = {
 				products,
 				page,
 				totalPages,
+                title: "Products"
 			})
 		} catch (error) {
 			console.error(error)
@@ -181,11 +188,12 @@ module.exports = {
 				product,
 				categories: categories[0].values,
 				path: [
-					{ name: 'Home', url: '/home' },
+					{ name: 'Home', url: '/' },
 					{ name: product.category.name, url: `/shop/${product.category.name}/` },
 					{ name: product.title, url: '' },
 				],
 				isWishlisted,
+                title: product.title
 			})
 		} catch (error) {
 			console.error(error.message)
@@ -197,7 +205,7 @@ module.exports = {
 		try {
 			const categories = await Category.find({})
 			const brands = await Brand.find({})
-			res.render('admin/add-edit-product', { product: null, categories, brands })
+			res.render('admin/add-edit-product', { product: null, categories, brands, editMode: false, title: "Add Product" })
 		} catch (error) {
 			console.error(error)
 			next(error)
@@ -215,6 +223,7 @@ module.exports = {
 				categories,
 				brands,
 				editMode: true,
+                title: "Edit Product"
 			})
 		} catch (error) {
 			console.error(error)
