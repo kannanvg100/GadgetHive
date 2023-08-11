@@ -51,6 +51,7 @@ module.exports = {
 			])
 
 			if (category !== 'all') filter.category = categoryID._id
+			console.log("📄 > file: productController.js:54 > getAllListedProducts: > filter:", filter)
 			const documentCount = await Product.countDocuments(filter)
 			let products = await Product.find(filter)
 				.sort(sort)
@@ -156,6 +157,7 @@ module.exports = {
 		const { id } = req.params
 		try {
 			const product = await Product.findById(id).select('slug')
+            if (!product) throw { statusCode: 404, message: 'Product not found' }
 			res.redirect(`/shop/p/${product.slug}/${id}`)
 		} catch (error) {
 			next(error)
@@ -171,6 +173,7 @@ module.exports = {
 				{ $group: { _id: null, values: { $push: '$name' } } },
 			])
 			let product = await Product.findById(id).populate('category brand')
+            if (!product) throw { statusCode: 404, message: 'Product not found' }
 			let isWishlisted = false
 			if (req.session.user)
 				isWishlisted = await Wishlist.countDocuments({ user: req.session.user._id, 'items.product': id })

@@ -23,6 +23,8 @@ router.post('/send-otp', preventCache, userController.sendOtp)
 router.get('/logout', preventCache, userController.logoutUser)
 router.post('/verify-otp', preventCache, userController.verifyUserOtp)
 router.get('/get-user', preventCache, userController.getUser)
+router.get('/reset', preventCache, userController.resetPasswordForm)
+router.post('/reset', preventCache, userController.checkOtpAndResetPassword)
 
 router.get('/admin',preventCache, userController.getAdminLoginForm)
 router.get('/admin/login',preventCache, userController.getAdminLoginForm)

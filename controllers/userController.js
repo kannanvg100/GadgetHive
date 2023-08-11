@@ -299,7 +299,6 @@ module.exports = {
 		}
 	},
 
-    
 	//Admin Dashboard
 	adminHome: async (req, res, next) => {
 		try {
@@ -514,6 +513,40 @@ module.exports = {
 			wallet = await Wallet.findOne({ user: userId })
 			if (wallet == null) wallet = await Wallet.create({ user: userId, balance: 0 })
 			res.render('user/wallet', { balance: wallet.balance, transactions: wallet.transactions.reverse() })
+		} catch (error) {
+			next(error)
+		}
+	},
+
+	resetPasswordForm: async (req, res, next) => {
+		const { email } = req.query
+		try {
+			res.render('user/reset-password', { email })
+		} catch (error) {
+			next(error)
+		}
+	},
+
+	// Check OTP and Reset Password
+	checkOtpAndResetPassword: async (req, res, next) => {
+		let { email, otp, password } = req.body
+
+		try {
+			let result = {}
+			if (!email) result.emailError = 'Email required'
+			if (!otp) result.otpError = 'Mobile number required'
+			if (!password) result.passwordError = 'Password required'
+			if (!email || !otp || !password) return res.render('user/reset-password', result)
+
+			const user = await User.findOne({ email }).select('phone')
+			const status = await verificationHelpers.verifyOtp(`+${user.phone}`, otp)
+			if (status === 'approved') {
+				user.password = password
+				await user.save()
+				res.redirect(`/login/?email=${email}`)
+			} else {
+				res.render('user/reset-password', { email, otpError: 'OTP didnt match. Pls try again' })
+			}
 		} catch (error) {
 			next(error)
 		}
