@@ -12,6 +12,9 @@
                     <span class="fs-6 fw-bold">Wishlist</span>
                 </div>
                 <div class="d-flex flex-column gap-3 mt-2">
+                    {{#unless wishlist.length}}
+                        <span class="mt-2">No items in wishlist</span>
+                    {{/unless}}
                     {{#each wishlist}}
                         <div class="d-flex p-2 rounded gap-2 wishlist-item bg-off-white" data-id="{{this.product._id}}">
                             <img src="{{getFirstImageUrl this.product.images}}" alt="" width="50px">

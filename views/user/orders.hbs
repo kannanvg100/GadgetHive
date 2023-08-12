@@ -21,6 +21,9 @@
                 </div>
                 {{else}}
                 <div class="row">
+                    {{#unless orders.length}}
+                        <span class="mt-2">No items in orders</span>
+                    {{/unless}}
                     {{#each orders}}
                     <div class="d-flex bg-off-white rounded p-3 mt-3 gap-3 orders-item cursor-pointer" data-id="{{this._id}}">
                         <img class="" src="/assets/{{this.items.[0].productId.images.[0]}}" alt="" width="100px">
