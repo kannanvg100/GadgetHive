@@ -10,9 +10,8 @@ const crypto = require('crypto')
 const excel = require('exceljs')
 const moment = require('moment')
 const puppeteer = require('puppeteer')
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3')
-
-const RESULTS_PER_PAGE = 12
+const { client, PutObjectCommand } = require('../config/aws')
+const RESULTS_PER_PAGE = 8
 
 module.exports = {
 	getAllOrders: async (req, res, next) => {
@@ -26,6 +25,7 @@ module.exports = {
 				.limit(RESULTS_PER_PAGE)
 				.sort({ createdAt: -1 })
 			const totalPages = Math.ceil(documentCount / RESULTS_PER_PAGE)
+            if (orders.length === 0) return res.render('user/orders', { orders: {}, page, totalPages, title: 'My Orders' })
 			res.render('user/orders', {
 				orders,
 				page,
@@ -120,7 +120,7 @@ module.exports = {
 				orders,
 				page,
 				totalPages,
-                title: 'Orders',
+				title: 'Orders',
 			})
 		} catch (error) {
 			next(error)
@@ -334,7 +334,16 @@ module.exports = {
 				{ text: 'Last 30 days', from: last30days, to: today },
 				{ text: 'Last year', from: lastYear, to: today },
 			]
-			res.render('admin/reports', { orders, from, to, dateRanges, netTotalAmount, netFinalAmount, netDiscount, title: 'Reports' })
+			res.render('admin/reports', {
+				orders,
+				from,
+				to,
+				dateRanges,
+				netTotalAmount,
+				netFinalAmount,
+				netDiscount,
+				title: 'Reports',
+			})
 		} catch (error) {
 			next(error)
 		}
@@ -407,9 +416,20 @@ module.exports = {
 					cell.font = { bold: true }
 				})
 
-				await workbook.xlsx.writeFile('sales_report.xlsx')
-				const file = `${__dirname}/../sales_report.xlsx`
-				res.download(file)
+                const xlBuffer = await workbook.xlsx.writeBuffer()
+
+                const s3Params = {
+					Bucket: 'gadgethive-s3',
+					Key: `pdfs/${Date.now()}.xlsx`,
+					Body: xlBuffer,
+				}
+
+				await client.send(new PutObjectCommand(s3Params))
+
+				const fileUrl = `https://gadgethive-s3.s3.amazonaws.com/${s3Params.Key}`
+				res.setHeader('Content-Disposition', `attachment; filename=${s3Params.Key}`)
+				res.redirect(fileUrl)
+
 			} else {
 				const browser = await puppeteer.launch()
 				const page = await browser.newPage()
@@ -569,31 +589,20 @@ module.exports = {
                 </html>`
 
 				await page.setContent(content)
-				const pdfBuffer = await page.pdf({ path: 'sales_report.pdf', format: 'A4' })
+				const pdfBuffer = await page.pdf({ format: 'A4' })
 
-				const s3Client = new S3Client({
-                    region: 'ap-south-1',
-					credentials: {
-                        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-						secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-					},
-				})
-                
 				const s3Params = {
-                    Bucket: 'gadgethive-s3',
+					Bucket: 'gadgethive-s3',
 					Key: `pdfs/${Date.now()}.pdf`,
 					Body: pdfBuffer,
 				}
-                
-				const uploadResult = await s3Client.send(new PutObjectCommand(s3Params))
-                await browser.close()
 
-				const fileUrl = `https://your-s3-bucket-name.s3.amazonaws.com/${s3Params.Key}`
-				console.log(fileUrl)
-				res.send(fileUrl)
+				await client.send(new PutObjectCommand(s3Params))
+				await browser.close()
 
-				// const file = `${__dirname}/../sales_report.pdf`
-				// res.download(file)
+				const fileUrl = `https://gadgethive-s3.s3.amazonaws.com/${s3Params.Key}`
+				res.setHeader('Content-Disposition', `attachment; filename=${s3Params.Key}`)
+				res.redirect(fileUrl)
 			}
 		} catch (error) {
 			next(error)

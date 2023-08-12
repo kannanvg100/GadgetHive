@@ -4,3 +4,5 @@ public/assets
 package-lock.json
 .eslintrc.json
 views/user/test.html
+sales_report.pdf
+sales_report.xlsx

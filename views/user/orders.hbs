@@ -34,6 +34,17 @@
                     {{/each}}
                 </div>
                 {{/if}}
+
+                <div class="text-center my-4 ms-5">
+
+                    {{#loop totalPages}}
+                        <a href="/orders/p/{{this}}">
+                            <span class="mx-1 {{#if (isActive ../page this)}}bg-off-white p-2 rounded fw-bold{{/if}}">{{this}}</span>
+                        </a>
+                    {{/loop}}
+
+                </div>
+
             </div>
         </div>
     </div>
@@ -95,15 +106,3 @@
         box-shadow: 0px 0px 5px 0px #cccccc;
     }
 </style>
-
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const ordersItem = document.querySelectorAll(".orders-item");
-        ordersItem.forEach(item => {
-            item.addEventListener("click", (event) => {
-                const id = item.getAttribute("data-id");
-                window.location.href = `/orders/${id}`
-            })
-        })
-    })
-</script>

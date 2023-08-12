@@ -463,7 +463,8 @@ module.exports = {
 		const user = req.session.user
 		const wishlist = await Wishlist.findOne({ user: user._id }).populate('items.product')
 		try {
-			res.render('user/wishlist', { wishlist: wishlist.items, title: 'Wishlist' })
+            if(wishlist == null) res.render('user/wishlist', { wishlist: [], title: 'Wishlist' })
+			else res.render('user/wishlist', { wishlist: wishlist.items, title: 'Wishlist' })
 		} catch (error) {
 			next(error)
 		}

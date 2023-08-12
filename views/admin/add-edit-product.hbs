@@ -27,7 +27,9 @@
                                 <span class="text-muted float-end">ID: #{{product._id}}</span>
                                 {{/if}}
                                 <input class="input-1 mt-1 w-100" type="text" name="title" value="{{product.title}}">
+                                {{#if editMode}}
                                 <span>Slug: {{product.slug}}</span>
+                                {{/if}}
                             </div>
 
                             <div class="d-flex gap-3 mt-3">

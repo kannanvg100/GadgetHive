@@ -100,7 +100,7 @@
         }
     }
 
-    { { #if editMode } }
+    {{#if editMode }}
 
     const deleteBtn = document.querySelector("#delete-btn")
     deleteBtn.addEventListener("click", (e) => {
@@ -156,7 +156,8 @@
             })
     })
 
-    { {else } }
+    {{else}}
+
     const data = {
         name: form.name.value,
         email: form.email.value,
@@ -185,6 +186,7 @@
                 console.error("Error:", error)
             })
     })
-
+    
+    {{/if}}
 
 </script>
