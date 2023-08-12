@@ -25,7 +25,8 @@ module.exports = {
 				.limit(RESULTS_PER_PAGE)
 				.sort({ createdAt: -1 })
 			const totalPages = Math.ceil(documentCount / RESULTS_PER_PAGE)
-            if (orders.length === 0) return res.render('user/orders', { orders: {}, page, totalPages, title: 'My Orders' })
+			if (orders.length === 0)
+				return res.render('user/orders', { orders: {}, page, totalPages, title: 'My Orders' })
 			res.render('user/orders', {
 				orders,
 				page,
@@ -416,9 +417,9 @@ module.exports = {
 					cell.font = { bold: true }
 				})
 
-                const xlBuffer = await workbook.xlsx.writeBuffer()
+				const xlBuffer = await workbook.xlsx.writeBuffer()
 
-                const s3Params = {
+				const s3Params = {
 					Bucket: 'gadgethive-s3',
 					Key: `pdfs/${Date.now()}.xlsx`,
 					Body: xlBuffer,
@@ -429,9 +430,8 @@ module.exports = {
 				const fileUrl = `https://gadgethive-s3.s3.amazonaws.com/${s3Params.Key}`
 				res.setHeader('Content-Disposition', `attachment; filename=${s3Params.Key}`)
 				res.redirect(fileUrl)
-
 			} else {
-				const browser = await puppeteer.launch()
+				const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser' })
 				const page = await browser.newPage()
 
 				// Set content and styles for the PDF
