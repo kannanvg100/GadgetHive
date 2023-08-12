@@ -1,6 +1,6 @@
 {{> admin/navbar}}
 <div class="container-fluid">
-    <div class="row vh-100">
+    <div class="row" style="min-height: 100vh;">
         <div class="d-flex">
 
             {{> admin/sidebar currTab = "reports"}}
@@ -24,11 +24,13 @@
                         <button type="submit" class="btn-2 d-inline-block p-2 px-4 align-self-end" style="font-size: 11px;">Generate</button>
                     </div>
                     </form>
+                    {{#unless (isNull orders)}}
                     <div class="d-flex gap-2 align-items-center align-self-end">
                         <img src="/images/download.svg" alt="">
                         <a href="/reports/sales/download/excel?from={{from}}&to={{to}}"><span class="fw-semibold">Excel</span></a>
                         <a href="/reports/sales/download/pdf?from={{from}}&to={{to}}"><span class="fw-semibold">PDF</span></a>
                     </div>
+                    {{/unless}}
                 </div>
 
                 <div class="d-flex gap-3 mt-3 ms-2">

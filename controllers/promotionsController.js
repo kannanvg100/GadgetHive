@@ -2,6 +2,7 @@ const Banner = require('../models/Banner')
 const Coupon = require('../models/Coupon')
 
 module.exports = {
+    //Get all banners
 	getBanners: async (req, res, next) => {
 		try {
 			const banners = await Banner.find({})
@@ -11,6 +12,7 @@ module.exports = {
 		}
 	},
 
+    //Get add banner form
 	getAddBannerForm: async (req, res, next) => {
 		try {
             res.render('admin/add-edit-banner', { banner: null, editMode: false })
@@ -19,6 +21,7 @@ module.exports = {
         }
 	},
 
+    //Add banner to database
 	addBanner: async (req, res, next) => {
 		try {
 			const bannerData = JSON.parse(req.body.bannerData)
@@ -33,6 +36,7 @@ module.exports = {
 		}
 	},
 
+    //Get edit banner form
 	getEditBannerForm: async (req, res, next) => {
 		const bannerId = req.query.id
 		try {
@@ -43,6 +47,7 @@ module.exports = {
 		}
 	},
 
+    //Delete banner from database
 	deleteBanner: async (req, res, next) => {
 		try {
 			const id = req.body.id
@@ -53,6 +58,7 @@ module.exports = {
 		}
 	},
 
+    //Edit banner in database
 	editBanner: async (req, res, next) => {
 		const data = JSON.parse(req.body.bannerData)
 		try {
@@ -70,6 +76,7 @@ module.exports = {
 		}
 	},
 
+    // Get all coupons
 	getCoupons: async (req, res, next) => {
 		try {
 			const coupons = await Coupon.find({})
@@ -79,6 +86,7 @@ module.exports = {
 		}
 	},
 
+    // Get add coupon form
 	getAddCouponForm: async (req, res, next) => {
 		try {
 			res.render('admin/add-edit-coupon', { banner: null, editMode: false })
@@ -87,6 +95,7 @@ module.exports = {
 		}
 	},
 
+    // Add coupon to database
 	addCoupon: async (req, res, next) => {
 		try {
 			const couponData = req.body
@@ -97,6 +106,7 @@ module.exports = {
 		}
 	},
 
+    // Get edit coupon form
 	getEditCouponForm: async (req, res, next) => {
 		const couponId = req.query.id
 		try {
@@ -106,7 +116,8 @@ module.exports = {
 			next(error)
 		}
 	},
-
+    
+    // Delete coupon from database
 	deleteCoupon: async (req, res, next) => {
 		try {
 			const id = req.body.id
@@ -117,6 +128,7 @@ module.exports = {
 		}
 	},
 
+    // Edit coupon in database
 	editCoupon: async (req, res, next) => {
 		try {
 			const data = req.body

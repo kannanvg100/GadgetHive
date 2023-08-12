@@ -11,7 +11,7 @@ const verificationHelpers = require('../config/twilio')
 const RESULTS_PER_PAGE = 6
 
 module.exports = {
-
+    // Get Login Form
 	getLoginForm: (req, res) => {
 		try {
 			if (req.session.user) res.redirect('/')
@@ -24,6 +24,7 @@ module.exports = {
 		}
 	},
 
+    // Get Signup Form
 	getSignupForm: (req, res) => {
 		const refId = req.query.ref
 		try {
@@ -37,6 +38,7 @@ module.exports = {
 		}
 	},
 
+    // Get Homepage
 	getHomePage: async (req, res, next) => {
 		try {
 			const categories = await Category.aggregate([
@@ -61,11 +63,12 @@ module.exports = {
 		}
 	},
 
+    // Redirect to Homepage
 	goToHomePage: async (req, res, next) => {
 		res.redirect('/')
 	},
 
-	// Register User
+	// Verify User form
 	registerUser: async (req, res, next) => {
 		let { email, phone, password, refId } = req.body
 
@@ -162,6 +165,7 @@ module.exports = {
 		}
 	},
 
+    // Check if email is already registered
 	checkEmail: async (req, res, next) => {
 		let { email } = req.body
 		email = email.trim().toLowerCase()
@@ -305,6 +309,7 @@ module.exports = {
 		}
 	},
 
+    // Get Add User Form
 	getAddUserForm: async (req, res, next) => {
 		try {
 			res.render('admin/add-edit-user', { user: null, editMode: false, title: 'Add User' })
@@ -313,6 +318,7 @@ module.exports = {
 		}
 	},
 
+    // Add User to Database
 	addUser: async (req, res, next) => {
 		let user = req.body
 		try {
@@ -328,6 +334,7 @@ module.exports = {
 		}
 	},
 
+    // Get Edit User Form
 	getEditUserForm: async (req, res, next) => {
 		const id = req.query.id
 		try {
@@ -339,7 +346,7 @@ module.exports = {
 		}
 	},
 
-	// Update User Profile -- Admin
+	// Update User
 	editUser: async (req, res, next) => {
 		const id = req.body.id
 		let user = req.body
@@ -358,6 +365,7 @@ module.exports = {
 		}
 	},
 
+    // Get All Users
 	getAllUsers: async (req, res, next) => {
 		try {
 			const { page } = req.params
@@ -384,6 +392,7 @@ module.exports = {
 		}
 	},
 
+    // Delete User
 	deleteUser: async (req, res, next) => {
 		const { id } = req.body
 		try {
@@ -394,6 +403,7 @@ module.exports = {
 		}
 	},
 
+    // Instant Search
 	instantSearch: async (req, res, next) => {
 		const query = req.body.query
 		const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -410,6 +420,7 @@ module.exports = {
 		}
 	},
 
+    // Get Account Page
 	account: async (req, res, next) => {
 		const userId = req.session.user._id
 		const user = await User.findById(userId).select('address')
@@ -420,6 +431,7 @@ module.exports = {
 		}
 	},
 
+    // Get address to database
 	addAddress: async (req, res, next) => {
 		try {
 			const userId = req.session.user._id
@@ -432,6 +444,7 @@ module.exports = {
 		}
 	},
 
+    // Edit Address
 	editAddress: async (req, res, next) => {
 		try {
 			const userId = req.session.user._id
@@ -446,6 +459,7 @@ module.exports = {
 		}
 	},
 
+    // Delete Address
 	deleteAddress: async (req, res, next) => {
 		try {
 			const userId = req.session.user._id
@@ -459,6 +473,7 @@ module.exports = {
 		}
 	},
 
+    // Get Wishlist 
 	wishlist: async (req, res, next) => {
 		const user = req.session.user
 		const wishlist = await Wishlist.findOne({ user: user._id }).populate('items.product')
@@ -470,6 +485,7 @@ module.exports = {
 		}
 	},
 
+    // Update Wishlist
 	updateWishlist: async (req, res, next) => {
 		try {
 			const user = req.session.user
@@ -490,6 +506,7 @@ module.exports = {
 		}
 	},
 
+    // Get Wallet
 	wallet: async (req, res, next) => {
 		const userId = req.session.user._id
 		try {
@@ -502,6 +519,7 @@ module.exports = {
 		}
 	},
 
+    // Get reset password form 
 	resetPasswordForm: async (req, res, next) => {
 		const { email } = req.query
 		try {

@@ -13,7 +13,6 @@ router.get('/shop/:category', productController.getAllListedProducts)
 router.get('/search/p/:page',productController.getAllfilteredProducts)
 // End of public routes
 
-
 // Routes accessible to admin users only
 router.get('/products/:category/p/:page/',preventCache, auth.isAdminAuthorized, productController.getAllProducts)              
 router.get('/products/add', preventCache, auth.isAdminAuthorized, productController.getAddProductForm)                         

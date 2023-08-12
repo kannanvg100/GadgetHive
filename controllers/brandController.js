@@ -2,6 +2,7 @@ const Brand = require('../models/Brand')
 const Product = require('../models/Product')
 
 module.exports = {
+    //  Get list of brands
 	getBrands: async (req, res, next) => {
 		try {
 			const brands = await Brand.find({}).sort({ displayOrder: -1 })
@@ -12,6 +13,7 @@ module.exports = {
 		}
 	},
 
+    //  Get add brand form
 	getAddBrandForm: async (req, res, next) => {
 		try {
 			res.render('admin/add-edit-brand', { brand: null, editMode: false })
@@ -20,6 +22,7 @@ module.exports = {
 		}
 	},
 
+    // Add brand to database
 	addBrand: async (req, res, next) => {
 		try {
 			const { name, displayName, description, displayOrder } = JSON.parse(req.body.data)
@@ -32,6 +35,7 @@ module.exports = {
 		}
 	},
 
+    // Get edit brand form with data
 	getEditBrandForm: async (req, res, next) => {
 		const id = req.query.id
 		try {
@@ -43,6 +47,7 @@ module.exports = {
 		}
 	},
 
+    // Delete brand from database
 	deleteBrand: async (req, res, next) => {
 		try {
 			const id = req.body.id
@@ -53,6 +58,7 @@ module.exports = {
 		}
 	},
 
+    // Upadte brand details in database
 	editBrand: async (req, res, next) => {
 		try {
 			const data = JSON.parse(req.body.data)

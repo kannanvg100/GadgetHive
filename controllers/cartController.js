@@ -4,6 +4,7 @@ const Coupon = require('../models/Coupon')
 const mongoose = require('mongoose')
 
 module.exports = {
+	// get cart items
 	getCart: async (req, res, next) => {
 		const userId = new mongoose.Types.ObjectId(req.session.user._id)
 		try {
@@ -17,18 +18,18 @@ module.exports = {
 		}
 	},
 
+	// add item to cart
 	addToCart: async (req, res, next) => {
 		const { productId } = req.body
 		const quantity = Number(req.body.quantity)
 		const userId = req.session.user._id
 
-
 		try {
-            const product = await Product.findById(productId).select('stock')
-            if (product.stock < quantity) {
-                res.status(400).json({ success: false, message: 'Not enough stock' })
-                return
-            }
+			const product = await Product.findById(productId).select('stock')
+			if (product.stock < quantity) {
+				res.status(400).json({ success: false, message: 'Not enough stock' })
+				return
+			}
 			const cart = await Cart.findOne({ user: userId })
 			if (!cart) {
 				await Cart.create({ user: userId, items: [{ productId, quantity }] })
@@ -66,6 +67,7 @@ module.exports = {
 		}
 	},
 
+	// delete item from cart
 	deleteCartItem: async (req, res, next) => {
 		const itemId = req.body.id
 		const userId = req.session.user._id
@@ -78,6 +80,7 @@ module.exports = {
 		}
 	},
 
+	// update cart item quantity
 	updateCartQuantity: async (req, res, next) => {
 		try {
 			const { productId, quantity } = req.body

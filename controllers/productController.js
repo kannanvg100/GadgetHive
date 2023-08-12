@@ -6,6 +6,8 @@ const Wishlist = require('../models/Wishlist')
 const RESULTS_PER_PAGE = 6
 
 module.exports = {
+
+    // get products by category
 	getAllListedProducts: async (req, res, next) => {
 		try {
 			const { category } = req.params
@@ -101,6 +103,7 @@ module.exports = {
 		}
 	},
 
+    // Products search
 	getAllfilteredProducts: async (req, res, next) => {
 		try {
 			const filter = req.query
@@ -133,6 +136,7 @@ module.exports = {
 		}
 	},
 
+    // get all products for admin
 	getAllProducts: async (req, res, next) => {
 		const { category, page } = req.params
 		let filter = {}
@@ -160,6 +164,7 @@ module.exports = {
 		}
 	},
     
+    // get product by id
 	getProductByID: async (req, res, next) => {
 		const { id } = req.params
 		try {
@@ -171,6 +176,7 @@ module.exports = {
 		}
 	},
 
+    // get product by slug
 	getProductBySlug: async (req, res, next) => {
 		const { id } = req.params
 		try {
@@ -201,6 +207,7 @@ module.exports = {
 		}
 	},
 
+    // Get add product form
 	getAddProductForm: async (req, res, next) => {
 		try {
 			const categories = await Category.find({})
@@ -212,6 +219,7 @@ module.exports = {
 		}
 	},
 
+    // Get edit product form
 	getEditProductForm: async (req, res, next) => {
 		const id = req.query.id
 		const product = await Product.findById(id)
@@ -231,6 +239,7 @@ module.exports = {
 		}
 	},
 
+    // Add product to database
 	addProduct: async (req, res, next) => {
 		try {
 			const productData = JSON.parse(req.body.productData)
@@ -246,6 +255,7 @@ module.exports = {
 		}
 	},
 
+    // Edit product in database
 	editProduct: async (req, res, next) => {
 		try {
 			const productData = JSON.parse(req.body.productData)
@@ -266,6 +276,7 @@ module.exports = {
 		}
 	},
 
+    // Delete product from database
 	deleteProduct: async (req, res, next) => {
 		const { id } = req.body
 		try {
@@ -276,6 +287,7 @@ module.exports = {
 		}
 	},
 
+    // Delete product image from database
 	deleteImage: async (req, res, next) => {
 		const { id, file } = req.body
 		try {

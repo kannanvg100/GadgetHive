@@ -6,3 +6,4 @@ package-lock.json
 views/user/test.html
 sales_report.pdf
 sales_report.xlsx
+ecosystem.config.js

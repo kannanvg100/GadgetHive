@@ -14,6 +14,7 @@ const { client, PutObjectCommand } = require('../config/aws')
 const RESULTS_PER_PAGE = 8
 
 module.exports = {
+    // Get all orders admin
 	getAllOrders: async (req, res, next) => {
 		try {
 			const { page } = req.params
@@ -38,6 +39,7 @@ module.exports = {
 		}
 	},
 
+    // Get order by id user
 	getOrderById: async (req, res, next) => {
 		const id = req.session.user._id
 		const orderId = req.params.id
@@ -55,6 +57,7 @@ module.exports = {
 		}
 	},
 
+    // Cancel order user
 	cancelOrder: async (req, res, next) => {
 		const userId = req.session.user._id
 		const orderId = req.query.id
@@ -73,6 +76,7 @@ module.exports = {
 		}
 	},
 
+    // Return order user
 	returnOrder: async (req, res, next) => {
 		const userId = req.session.user._id
 		const orderId = req.query.id
@@ -90,6 +94,7 @@ module.exports = {
 		}
 	},
 
+    // Cancel order admin
 	cancelOrderAdmin: async (req, res, next) => {
 		const orderId = req.query.id
 		try {
@@ -106,6 +111,7 @@ module.exports = {
 		}
 	},
 
+    // Get all orders admin
 	getAllOrdersAdmin: async (req, res, next) => {
 		const { page } = req.params
 
@@ -128,6 +134,7 @@ module.exports = {
 		}
 	},
 
+    // Get order by id admin
 	getOrderByIdAdmin: async (req, res, next) => {
 		const orderId = req.query.id
 		const order = await Order.findById(orderId).populate({
@@ -137,6 +144,7 @@ module.exports = {
 		res.render('admin/order-details', { order, title: 'Orders' })
 	},
 
+    // order checkout
 	checkOut: async (req, res, next) => {
 		const userId = req.session.user._id
 		const { addressId, paymentType, couponId } = req.body
@@ -187,7 +195,6 @@ module.exports = {
 				}
 			}
 
-			// TODO
 			const user = await User.findById(userId)
 			const address = user.address.id(addressId)
 
@@ -240,6 +247,7 @@ module.exports = {
 		}
 	},
 
+    // order payment page
 	payment: async (req, res, next) => {
 		try {
 			const { oid: orderId } = req.query
@@ -252,6 +260,7 @@ module.exports = {
 		}
 	},
 
+    // order payment verify
 	checkPayment: async (req, res, next) => {
 		try {
 			const userId = req.session.user._id
@@ -283,6 +292,7 @@ module.exports = {
 		}
 	},
 
+    // order status update admin
 	updateStatusAdmin: async (req, res, next) => {
 		const { id: orderId, status } = req.query
 		try {
@@ -301,6 +311,7 @@ module.exports = {
 		}
 	},
 
+    // get sales reports
 	getReports: async (req, res, next) => {
 		try {
 			let { from, to } = req.query
@@ -312,7 +323,7 @@ module.exports = {
 			const lastYear = moment().subtract(1, 'years').format('YYYY-MM-DD')
 
 			if (!from || !to) {
-				from = last30days
+				from = today
 				to = today
 			}
 
@@ -350,6 +361,7 @@ module.exports = {
 		}
 	},
 
+    // download sales reports
 	downloadReports: async (req, res, next) => {
 		try {
 			const { type } = req.params

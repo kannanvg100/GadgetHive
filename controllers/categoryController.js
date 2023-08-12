@@ -2,6 +2,7 @@ const Category = require('../models/Category')
 const Product = require('../models/Product')
 
 module.exports = {
+    // Get all categories
 	getCategories: async (req, res, next) => {
 		try {
 			const categories = await Category.find({}).sort({ displayOrder: -1 })
@@ -12,10 +13,12 @@ module.exports = {
 		}
 	},
 
+    // get add category form
 	getAddCategoryForm: async (req, res) => {
 		res.render('admin/add-edit-category', { editMode: false })
 	},
 
+    // add category to database
 	addCategory: async (req, res, next) => {
 		try {
 			const { name, description, displayOrder } = req.body
@@ -27,6 +30,7 @@ module.exports = {
 		}
 	},
 
+    // get edit category form
 	getEditCategoryForm: async (req, res, next) => {
 		const id = req.query.id
 		try {
@@ -37,6 +41,7 @@ module.exports = {
 		}
 	},
 
+    // delete category from database
 	deleteCategory: async (req, res, next) => {
 		try {
 			const id = req.body.id
@@ -47,6 +52,7 @@ module.exports = {
 		}
 	},
 
+    // edit category in database
 	editCategory: async (req, res, next) => {
 		try {
 			const data = req.body
