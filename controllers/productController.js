@@ -291,8 +291,11 @@ module.exports = {
 	deleteImage: async (req, res, next) => {
 		const { id, file } = req.body
 		try {
-			await Product.findByIdAndUpdate(id, { $pull: { images: file } })
-			res.status(200).json({ success: true })
+			const product = await Product.findById(id)
+            const index = product.images.indexOf(file)
+            if(index === -1) throw { statusCode: 404, message: 'Image not found' }
+            product.images.splice(index, 1)
+            await product.save()
 		} catch (error) {
 			next(error)
 		}

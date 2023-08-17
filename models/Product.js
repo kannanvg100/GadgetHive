@@ -90,8 +90,14 @@ const productSchema = new mongoose.Schema({
 	},
 })
 
+productSchema.pre('save', function (next) {
+	if (this.images.length === 0) {
+		throw { statusCode: 400, message: 'Product should have atleast one image' }
+	}
+	next()
+})
+
 productSchema.pre('save', async function (next) {
-	console.log('date', new Date())
 	this.updatedAt = new Date()
 	next()
 })

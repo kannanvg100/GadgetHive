@@ -338,14 +338,15 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        if (!data.success) {
-                            //passwordError.innerHTML = data.message
+                        if (data.success)
+                            imageContainer.removeChild(imageItem);
+                        else {
+                            Toastify({ text: data.message }).showToast();
                         }
                     })
                     .catch(error => {
                         console.error("Error:", error)
                     })
-                imageContainer.removeChild(imageItem);
             })
 
             imageContainer.appendChild(imageItem);
@@ -367,7 +368,7 @@
                 .then(data => {
                     if (data.success) {
                         window.location.href = "/products/all/p/1"
-                    }else Toastify({ text: data.message }).showToast();
+                    } else Toastify({ text: data.message }).showToast();
                 })
                 .catch(error => {
                     console.error("Error:", error)
