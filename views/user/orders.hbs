@@ -25,15 +25,17 @@
                         <span class="mt-2">No items in orders</span>
                     {{/unless}}
                     {{#each orders}}
-                    <div class="d-flex bg-off-white rounded p-3 mt-3 gap-3 orders-item cursor-pointer" data-id="{{this._id}}">
-                        <img class="" src="/assets/{{this.items.[0].productId.images.[0]}}" alt="" width="100px">
-                        <div class="d-flex flex-column gap-2">
-                            <span class="p fw-bold">{{getFirstProductTitle this}}<span class="p fw-normal">{{getFirstProductTitleExt this}}</span></span>
-                            <span class="fw-bold">{{getDate this.createdAt}}</span>
-                            <span class="fw-semibold">{{capitalize (replaceUnderscore (formatOrderStatus this.orderStatus))}}</span>
-                            <span class="">{{formatPrice this.finalAmount}}</span>
+                    <a href="/orders/{{this._id}}">
+                        <div class="d-flex bg-off-white rounded p-3 mt-3 gap-3 orders-item cursor-pointer" data-id="{{this._id}}">
+                            <img class="" src="/assets/{{this.items.[0].productId.images.[0]}}" alt="" width="100px">
+                            <div class="d-flex flex-column gap-2">
+                                <span class="p fw-bold">{{getFirstProductTitle this}}<span class="p fw-normal">{{getFirstProductTitleExt this}}</span></span>
+                                <span class="fw-bold">{{getDate this.createdAt}}</span>
+                                <span class="fw-semibold">{{capitalize (replaceUnderscore (formatOrderStatus this.orderStatus))}}</span>
+                                <span class="">{{formatPrice this.finalAmount}}</span>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                     {{/each}}
                 </div>
                 {{/if}}

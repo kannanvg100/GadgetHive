@@ -12,11 +12,11 @@ const RESULTS_PER_PAGE = 6
 
 module.exports = {
     // Get Login Form
-	getLoginForm: (req, res) => {
+	getLoginForm: (req, res, next) => {
 		try {
 			if (req.session.user) res.redirect('/')
 			else {
-				const email = req.query.email ?? 'kannanvg007@gmail.com'
+				const email = req.query.email
 				res.render('user/login', { email, title: 'Login' })
 			}
 		} catch (error) {
@@ -25,7 +25,7 @@ module.exports = {
 	},
 
     // Get Signup Form
-	getSignupForm: (req, res) => {
+	getSignupForm: (req, res, next) => {
 		const refId = req.query.ref
 		try {
 			if (req.session.user) res.redirect('/')

@@ -2,6 +2,8 @@ const Product = require('../models/Product')
 const Category = require('../models/Category')
 const Brand = require('../models/Brand')
 const Wishlist = require('../models/Wishlist')
+const fs = require('fs')    
+const path = require('path')
 
 const RESULTS_PER_PAGE = 6
 
@@ -296,6 +298,10 @@ module.exports = {
             if(index === -1) throw { statusCode: 404, message: 'Image not found' }
             product.images.splice(index, 1)
             await product.save()
+            res.status(200).json({ success: true })
+            // Delete image from uploads folder
+            const imagePath = path.join(__dirname, `../public/assets/${file}`)
+            fs.unlink(imagePath)
 		} catch (error) {
 			next(error)
 		}
