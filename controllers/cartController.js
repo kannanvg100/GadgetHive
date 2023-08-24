@@ -2,6 +2,7 @@ const Cart = require('../models/Cart')
 const Product = require('../models/Product')
 const Coupon = require('../models/Coupon')
 const mongoose = require('mongoose')
+const User = require('../models/User')
 
 module.exports = {
 	// get cart items
@@ -10,9 +11,9 @@ module.exports = {
 		try {
 			const cart = await Cart.findOne({ user: userId }).populate({ path: 'items.productId' })
 			const items = cart.items
-			const address = req.session.user.address
+			const user = await User.findById(userId).select('address')
 			const coupons = await Coupon.find({}).sort({ createdAt: -1 })
-			res.render('user/cart', { items, address, coupons, hideCartIcon: true, title: 'Shopping Bag' })
+			res.render('user/cart', { items, address:user.address , coupons, hideCartIcon: true, title: 'Shopping Bag' })
 		} catch (err) {
 			next(err)
 		}

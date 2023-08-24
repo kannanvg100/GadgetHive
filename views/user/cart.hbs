@@ -25,6 +25,7 @@
         <div class="col-12 col-lg-4 mt-3">
             <div class="bg-off-white rounded p-3" id="address-id" data-id="{{address.[0]._id}}">
                 <p class="fw-bold">Deliver to</p>
+                {{#if address.length}}
                 <p class="span mt-1">{{address.[0].name}}</p>
                 <p class="span">{{address.[0].streetName}}</p>
                 <p class="span">{{address.[0].town}}</p>
@@ -33,6 +34,11 @@
                 <a class="span text-blue float-end fw-bold cursor-pointer" data-toggle="modal"
                     data-target="#addressModal">CHANGE</a>
                 <div class="clearfix"></div>
+                {{else}}
+                <p class="span mt-1">No addresses</p>
+                <a class="span text-blue float-end fw-bold cursor-pointer" href="/account?add=1">ADD</a>
+                <div class="clearfix"></div>
+                {{/if}}
             </div>
             <div class="bg-off-white rounded mt-3 p-3">
                 <p class="fw-bold">Coupons</p>

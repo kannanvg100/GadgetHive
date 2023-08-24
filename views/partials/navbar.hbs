@@ -39,13 +39,17 @@
                                 <li><a href="/wallet"><span>Wallet</span></a></li>
                                 <li><a href="/orders/p/1"><span>Orders</span></a></li>
                                 <li><a href="/wishlist"><span>Wishlist</span></a></li>
-                                <li id="refer-span" data-toggle="modal" data-target="#referModal" hidden class="cursor-pointer"><span>Refer a friend</span></li>
+                                <li id="refer-span" data-toggle="modal" data-target="#referModal" hidden
+                                    class="cursor-pointer"><span>Refer a friend</span></li>
                                 <li id="logout-span" hidden><a href="/logout"><span>Logout</span></a></li>
                             </ul>
                         </div>
                     </div>
-                    <a class="{{hideDiv hideCartIcon}}" href="/cart"><img
-                            src="/images/Basket_alt_3.svg" alt="" width="20px" height="20px"></a>
+                    <a class="position-relative {{hideDiv hideCartIcon}}" href="/cart">
+                        <img src="/images/Basket_alt_3.svg" alt="" width="20px" height="20px">
+                        <span class="position-absolute badge bg-danger rounded text-white" id="cart-items-count"
+                            style="font-size: 8px;" hidden>0</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -127,30 +131,41 @@
 </style>
 
 <script>
-    loginBtn = document.querySelector('#login-span')
-    logoutBtn = document.querySelector('#logout-span')
-    referText = document.querySelector('#refer-span')
-    referLink = document.querySelector('#refer-link')
-    welcomeText = document.querySelector('#welcome-text')
-    fetch('/get-user', {
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
+    const loginBtn = document.querySelector('#login-span')
+    const logoutBtn = document.querySelector('#logout-span')
+    const referText = document.querySelector('#refer-span')
+    const referLink = document.querySelector('#refer-link')
+    const welcomeText = document.querySelector('#welcome-text')
+    const cartItemsCount = document.querySelector('#cart-items-count')
+
+    function updateHeader(){
+        console.log('update header')    
+        fetch('/get-user', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
         .then((response) => response.json())
         .then((data) => {
             if (data.success) {
+                console.log(data)
                 welcomeText.textContent = `Welcome, ${data.name}`
                 loginBtn.hidden = true
                 logoutBtn.hidden = false
                 referText.hidden = false
                 referLink.value = `https://gadgethive.in/signup/?ref=${data.id}`
+                if (data.cartItemsCount > 0) {
+                    cartItemsCount.textContent = data.cartItemsCount
+                    cartItemsCount.hidden = false
+                }
             }
         })
         .catch((error) => {
             console.error('Error:', error);
         });
+    }
+    updateHeader()
 
     const input = document.querySelector('#navbar-search-input');
     const searchResultsDiv = document.querySelector('#results-container');

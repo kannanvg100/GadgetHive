@@ -25,210 +25,217 @@
                     {{/each}}
 
                     <div>
-                        <div class="border dotted rounded p-2 address-item" style="width: 220px; height: 100%;" onclick="openNewAddressModal(this)">
+                        <div class="border dotted rounded p-2 address-item" style="width: 220px; height: 100%;"
+                            onclick="openNewAddressModal(this)">
                             <div class="h-100 d-flex justify-content-center align-items-center">
                                 <span class="fw-bold">+ Add New Address</span>
                             </div>
-                    </div>
-                    
-                </div>
+                        </div>
 
-            </div>
-        </div>
-    </div>
-</div>
+                    </div>
 
-{{> footer}}
-
-
-<!-- Address Modal -->
-<div class="modal fade" id="addressModal" tabindex="-1" role="dialog" aria-labelledby="addressModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header border-0">
-                <h6 class="modal-title" id="addAddressLabel">Add a new Address</h6>
-                <h6 class="modal-title" id="editAddressLabel">Edit Address</h6>
-                <button type="button" class="border-0 bg-transparent" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true" id="closeCouponsModal" class="h4"
-                        onclick="closeAddressModal()">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body pt-0">
-                <div>
-                    <div class="flex-grow-1 mt-3">
-                        <span class="d-block">Name<span class="text-danger">*</span></span>
-                        <input class="input-1 mt-1 w-100" type="text" id="name">
-                    </div>
-                    <div class="flex-grow-1 mt-3">
-                        <span class="d-block">Street Name<span class="text-danger">*</span></span>
-                        <input class="input-1 mt-1 w-100" type="text" id="streetName">
-                    </div>
-                    <div class="flex-grow-1 mt-3">
-                        <span class="d-block">Town<span class="text-danger">*</span></span>
-                        <input class="input-1 mt-1 w-100" type="text" id="town">
-                    </div>
-                    <div class="flex-grow-1 mt-3">
-                        <span class="d-block">Pincode<span class="text-danger">*</span></span>
-                        <input class="input-1 mt-1 w-100" type="number" id="pincode">
-                    </div>
-                    <div class="flex-grow-1 mt-3">
-                        <span class="d-block">Phone<span class="text-danger">*</span></span>
-                        <input class="input-1 mt-1 w-100" type="number" id="phone">
-                    </div>
-                    <div class="flex-grow-1 mt-3" hidden>
-                        <span class="d-block">ID<span class="text-danger">*</span></span>
-                        <input class="input-1 mt-1 w-100" type="text" id="_id">
-                    </div>
-                </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn-1" id="save-address">Save</button>
-                    <button type="button" class="btn-4" id="delete-address">Delete</button>
-                    <button type="button" class="btn-1" id="update-address">Update</button>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-{{> footer}}
+    {{> footer}}
 
-<style>
-    .address-item {
-        cursor: pointer;
-    }
 
-    .address-item:hover {
-        background-color: #f4f4f4;
-    }
-</style>
+    <!-- Address Modal -->
+    <div class="modal fade" id="addressModal" tabindex="-1" role="dialog" aria-labelledby="addressModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h6 class="modal-title" id="addAddressLabel">Add a new Address</h6>
+                    <h6 class="modal-title" id="editAddressLabel">Edit Address</h6>
+                    <button type="button" class="border-0 bg-transparent" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true" id="closeCouponsModal" class="h4"
+                            onclick="closeAddressModal()">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body pt-0">
+                    <div>
+                        <div class="flex-grow-1 mt-3">
+                            <span class="d-block">Name<span class="text-danger">*</span></span>
+                            <input class="input-1 mt-1 w-100" type="text" id="name">
+                        </div>
+                        <div class="flex-grow-1 mt-3">
+                            <span class="d-block">Street Name<span class="text-danger">*</span></span>
+                            <input class="input-1 mt-1 w-100" type="text" id="streetName">
+                        </div>
+                        <div class="flex-grow-1 mt-3">
+                            <span class="d-block">Town<span class="text-danger">*</span></span>
+                            <input class="input-1 mt-1 w-100" type="text" id="town">
+                        </div>
+                        <div class="flex-grow-1 mt-3">
+                            <span class="d-block">Pincode<span class="text-danger">*</span></span>
+                            <input class="input-1 mt-1 w-100" type="number" id="pincode">
+                        </div>
+                        <div class="flex-grow-1 mt-3">
+                            <span class="d-block">Phone<span class="text-danger">*</span></span>
+                            <input class="input-1 mt-1 w-100" type="number" id="phone">
+                        </div>
+                        <div class="flex-grow-1 mt-3" hidden>
+                            <span class="d-block">ID<span class="text-danger">*</span></span>
+                            <input class="input-1 mt-1 w-100" type="text" id="_id">
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn-1" id="save-address">Save</button>
+                        <button type="button" class="btn-4" id="delete-address">Delete</button>
+                        <button type="button" class="btn-1" id="update-address">Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<script>
-    const saveBtn = document.getElementById('save-address');
-    const updateBtn = document.getElementById('update-address');
-    const deleteBtn = document.getElementById('delete-address');
-    const addAddress = document.getElementById('addAddressLabel');
-    const editAddress = document.getElementById('editAddressLabel');
+    {{> footer}}
 
-    const name = document.getElementById('name');
-    const streetName = document.getElementById('streetName');
-    const town = document.getElementById('town');
-    const pincode = document.getElementById('pincode');
-    const phone = document.getElementById('phone');
-    const id = document.getElementById('_id');
-
-    const openAddressModal = (e) => {
-        updateBtn.style.display = 'block';
-        saveBtn.style.display = 'none';
-        deleteBtn.style.display = 'block';
-        addAddress.style.display = 'none';
-        editAddress.style.display = 'block';
-
-        name.value = e.children[0].textContent;
-        streetName.value = e.children[1].textContent;
-        town.value = e.children[2].textContent;
-        pincode.value = e.children[3].textContent;
-        phone.value = e.children[4].textContent;
-        id.value = e.children[5].textContent;
-
-        $('#addressModal').modal('show');
-    }
-    const closeAddressModal = () => {
-        $('#addressModal').modal('hide');
-    }
-    const openNewAddressModal = () => {
-
-        name.value = '';
-        streetName.value = '';
-        town.value = '';
-        pincode.value = '';
-        phone.value = '';
-        id.value = '';
-
-        updateBtn.style.display = 'none';
-        saveBtn.style.display = 'block';
-        deleteBtn.style.display = 'none';
-        addAddress.style.display = 'block';
-        editAddress.style.display = 'none';
-
-        $('#addressModal').modal('show');
-    }
-    saveBtn.addEventListener('click', () => {
-
-        const data = {
-            name: name.value,
-            streetName: streetName.value,
-            town: town.value,
-            pincode: pincode.value,
-            phone: phone.value
+    <style>
+        .address-item {
+            cursor: pointer;
         }
-        fetch('/addresses/add', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify(data),
-        }).then(res => res.json())
-            .then(data => {
-                if (data.success) window.location.reload();
-                else Toastify({ text: data.message }).showToast();
-            })
-            .catch(err => console.log(err))
 
-        //closeAddressModal();
-    })
-
-    updateBtn.addEventListener('click', () => {
-
-        const data = {
-            name: name.value,
-            streetName: streetName.value,
-            town: town.value,
-            pincode: pincode.value,
-            phone: phone.value,
-            id: id.value
+        .address-item:hover {
+            background-color: #f4f4f4;
         }
+    </style>
+
+    <script>
+        const saveBtn = document.getElementById('save-address');
+        const updateBtn = document.getElementById('update-address');
+        const deleteBtn = document.getElementById('delete-address');
+        const addAddress = document.getElementById('addAddressLabel');
+        const editAddress = document.getElementById('editAddressLabel');
+
+        const name = document.getElementById('name');
+        const streetName = document.getElementById('streetName');
+        const town = document.getElementById('town');
+        const pincode = document.getElementById('pincode');
+        const phone = document.getElementById('phone');
+        const id = document.getElementById('_id');
+
+        const openAddressModal = (e) => {
+            updateBtn.style.display = 'block';
+            saveBtn.style.display = 'none';
+            deleteBtn.style.display = 'block';
+            addAddress.style.display = 'none';
+            editAddress.style.display = 'block';
+
+            name.value = e.children[0].textContent;
+            streetName.value = e.children[1].textContent;
+            town.value = e.children[2].textContent;
+            pincode.value = e.children[3].textContent;
+            phone.value = e.children[4].textContent;
+            id.value = e.children[5].textContent;
+
+            $('#addressModal').modal('show');
+        }
+        const closeAddressModal = () => {
+            $('#addressModal').modal('hide');
+        }
+        const openNewAddressModal = () => {
+
+            name.value = '';
+            streetName.value = '';
+            town.value = '';
+            pincode.value = '';
+            phone.value = '';
+            id.value = '';
+
+            updateBtn.style.display = 'none';
+            saveBtn.style.display = 'block';
+            deleteBtn.style.display = 'none';
+            addAddress.style.display = 'block';
+            editAddress.style.display = 'none';
+
+            $('#addressModal').modal('show');
+        }
+        saveBtn.addEventListener('click', () => {
+
+            const data = {
+                name: name.value,
+                streetName: streetName.value,
+                town: town.value,
+                pincode: pincode.value,
+                phone: phone.value
+            }
+            fetch('/addresses/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(data),
+            }).then(res => res.json())
+                .then(data => {
+                    if (data.success) window.location.reload();
+                    else Toastify({ text: data.message }).showToast();
+                })
+                .catch(err => console.log(err))
+
+            //closeAddressModal();
+        })
+
+        updateBtn.addEventListener('click', () => {
+
+            const data = {
+                name: name.value,
+                streetName: streetName.value,
+                town: town.value,
+                pincode: pincode.value,
+                phone: phone.value,
+                id: id.value
+            }
+
+            fetch('/addresses/edit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(data),
+            }).then(res => res.json())
+                .then(data => {
+                    if (data.success) window.location.reload();
+                    else Toastify({ text: data.message }).showToast();
+                })
+                .catch(err => console.log(err))
+
+            //closeAddressModal();
+        })
+
+        deleteBtn.addEventListener('click', () => {
+
+            const data = {
+                id: id.value
+            }
+
+            fetch('/addresses/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(data),
+            }).then(res => res.json())
+                .then(data => {
+                    if (data.success)
+                        window.location.reload();
+                    else Toastify({ text: data.message }).showToast();
+                })
+                .catch(err => console.log(err))
+
+            closeAddressModal();
+        })
         
-        fetch('/addresses/edit', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify(data),
-        }).then(res => res.json())
-            .then(data => {
-                if (data.success) window.location.reload();
-                else Toastify({ text: data.message }).showToast();
-            })
-            .catch(err => console.log(err))
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.location.search.includes('add=1')) {
+                openNewAddressModal();
+            }
+        })
 
-        //closeAddressModal();
-    })
-
-    deleteBtn.addEventListener('click', () => {
-
-        const data = {
-            id: id.value
-        }
-
-        fetch('/addresses/delete', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify(data),
-        }).then(res => res.json())
-            .then(data => {
-                if (data.success)
-                    window.location.reload();
-                else Toastify({ text: data.message }).showToast();
-            })
-            .catch(err => console.log(err))
-
-        closeAddressModal();
-    })
-
-</script>
+    </script>

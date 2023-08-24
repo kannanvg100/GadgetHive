@@ -6,6 +6,7 @@ const Order = require('../models/Order')
 const Banner = require('../models/Banner')
 const Wallet = require('../models/Wallet')
 const Wishlist = require('../models/Wishlist')
+const Cart = require('../models/Cart')
 const verificationHelpers = require('../config/twilio')
 
 const RESULTS_PER_PAGE = 6
@@ -16,7 +17,7 @@ module.exports = {
 		try {
 			if (req.session.user) res.redirect('/')
 			else {
-				const email = req.query.email
+				const email = req.query.email 
 				res.render('user/login', { email, title: 'Login' })
 			}
 		} catch (error) {
@@ -233,7 +234,8 @@ module.exports = {
 	getUser: async (req, res, next) => {
 		try {
 			const user = req.session.user
-			if (user) res.status(200).json({ success: true, name: user.name, id: user._id })
+            const cartItemsCount = await Cart.findOne({ user: user._id }).select('items').lean()
+			if (user) res.status(200).json({ success: true, name: user.name, id: user._id, cartItemsCount: cartItemsCount.items.length })
 			else res.status(401).json({ success: false })
 		} catch (error) {
 			next(error)

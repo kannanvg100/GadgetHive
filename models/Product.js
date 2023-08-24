@@ -13,7 +13,6 @@ const productSchema = new mongoose.Schema({
 	highlight: {
 		type: String,
 		default: function () {
-			console.log('this.released', this.released)
 			if (this.released) {
 				return Date.now()
 			}
