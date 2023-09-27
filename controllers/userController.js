@@ -12,12 +12,12 @@ const verificationHelpers = require('../config/twilio')
 const RESULTS_PER_PAGE = 6
 
 module.exports = {
-    // Get Login Form
+	// Get Login Form
 	getLoginForm: (req, res, next) => {
 		try {
 			if (req.session.user) res.redirect('/')
 			else {
-				const email = req.query.email 
+				const email = req.query.email
 				res.render('user/login', { email, title: 'Login' })
 			}
 		} catch (error) {
@@ -25,7 +25,7 @@ module.exports = {
 		}
 	},
 
-    // Get Signup Form
+	// Get Signup Form
 	getSignupForm: (req, res, next) => {
 		const refId = req.query.ref
 		try {
@@ -39,7 +39,7 @@ module.exports = {
 		}
 	},
 
-    // Get Homepage
+	// Get Homepage
 	getHomePage: async (req, res, next) => {
 		try {
 			const categories = await Category.aggregate([
@@ -64,7 +64,7 @@ module.exports = {
 		}
 	},
 
-    // Redirect to Homepage
+	// Redirect to Homepage
 	goToHomePage: async (req, res, next) => {
 		res.redirect('/')
 	},
@@ -81,9 +81,15 @@ module.exports = {
 
 		try {
 			const user = await User.findOne({ email })
-			if (user) return res.render('user/signup', { phone, emailError: 'Email already registered', title: 'Signup' })
+			if (user)
+				return res.render('user/signup', { phone, emailError: 'Email already registered', title: 'Signup' })
 			const mobile = await User.findOne({ phone: `91${phone}` })
-			if (mobile) return res.render('user/signup', { email, phoneError: 'Mobile number already registered', title: 'Signup' })
+			if (mobile)
+				return res.render('user/signup', {
+					email,
+					phoneError: 'Mobile number already registered',
+					title: 'Signup',
+				})
 
 			req.session.guest = { email, phone, password, refId }
 
@@ -93,7 +99,7 @@ module.exports = {
 			console.error(error.message)
 			res.render('user/signup', {
 				mobileNumberError: 'Something went wrong. Try again later',
-                title: 'Signup',
+				title: 'Signup',
 			})
 		}
 	},
@@ -166,7 +172,7 @@ module.exports = {
 		}
 	},
 
-    // Check if email is already registered
+	// Check if email is already registered
 	checkEmail: async (req, res, next) => {
 		let { email } = req.body
 		email = email.trim().toLowerCase()
@@ -234,9 +240,16 @@ module.exports = {
 	getUser: async (req, res, next) => {
 		try {
 			const user = req.session.user
-            const cartItemsCount = await Cart.findOne({ user: user._id }).select('items').lean()
-			if (user) res.status(200).json({ success: true, name: user.name, id: user._id, cartItemsCount: cartItemsCount.items.length })
-			else res.status(401).json({ success: false })
+			if (user) {
+				const cartItemsCount = await Cart.findOne({ user: user._id }).select('items').lean()
+				if (user)
+					res.status(200).json({
+						success: true,
+						name: user.name,
+						id: user._id,
+						cartItemsCount: cartItemsCount.items.length,
+					})
+			} else res.status(401).json({ success: false })
 		} catch (error) {
 			next(error)
 		}
@@ -305,13 +318,13 @@ module.exports = {
 			const orderCounts = await Order.aggregate([{ $group: { _id: '$orderStatus', count: { $sum: 1 } } }])
 
 			const data = orders.map(({ _id, total, count }) => ({ date: _id, amount: total, count }))
-			res.render('admin/dashboard', { data, orderCounts , title: 'Dashboard'})
+			res.render('admin/dashboard', { data, orderCounts, title: 'Dashboard' })
 		} catch (error) {
 			next(error)
 		}
 	},
 
-    // Get Add User Form
+	// Get Add User Form
 	getAddUserForm: async (req, res, next) => {
 		try {
 			res.render('admin/add-edit-user', { user: null, editMode: false, title: 'Add User' })
@@ -320,7 +333,7 @@ module.exports = {
 		}
 	},
 
-    // Add User to Database
+	// Add User to Database
 	addUser: async (req, res, next) => {
 		let user = req.body
 		try {
@@ -336,7 +349,7 @@ module.exports = {
 		}
 	},
 
-    // Get Edit User Form
+	// Get Edit User Form
 	getEditUserForm: async (req, res, next) => {
 		const id = req.query.id
 		try {
@@ -367,7 +380,7 @@ module.exports = {
 		}
 	},
 
-    // Get All Users
+	// Get All Users
 	getAllUsers: async (req, res, next) => {
 		try {
 			const { page } = req.params
@@ -387,14 +400,14 @@ module.exports = {
 				users,
 				page,
 				totalPages,
-                title: 'Users',
+				title: 'Users',
 			})
 		} catch (error) {
 			next(error)
 		}
 	},
 
-    // Delete User
+	// Delete User
 	deleteUser: async (req, res, next) => {
 		const { id } = req.body
 		try {
@@ -405,7 +418,7 @@ module.exports = {
 		}
 	},
 
-    // Instant Search
+	// Instant Search
 	instantSearch: async (req, res, next) => {
 		const query = req.body.query
 		const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -422,7 +435,7 @@ module.exports = {
 		}
 	},
 
-    // Get Account Page
+	// Get Account Page
 	account: async (req, res, next) => {
 		const userId = req.session.user._id
 		const user = await User.findById(userId).select('address')
@@ -433,7 +446,7 @@ module.exports = {
 		}
 	},
 
-    // Get address to database
+	// Get address to database
 	addAddress: async (req, res, next) => {
 		try {
 			const userId = req.session.user._id
@@ -446,7 +459,7 @@ module.exports = {
 		}
 	},
 
-    // Edit Address
+	// Edit Address
 	editAddress: async (req, res, next) => {
 		try {
 			const userId = req.session.user._id
@@ -461,7 +474,7 @@ module.exports = {
 		}
 	},
 
-    // Delete Address
+	// Delete Address
 	deleteAddress: async (req, res, next) => {
 		try {
 			const userId = req.session.user._id
@@ -475,19 +488,19 @@ module.exports = {
 		}
 	},
 
-    // Get Wishlist 
+	// Get Wishlist
 	wishlist: async (req, res, next) => {
 		const user = req.session.user
 		const wishlist = await Wishlist.findOne({ user: user._id }).populate('items.product')
 		try {
-            if(wishlist == null) res.render('user/wishlist', { wishlist: [], title: 'Wishlist' })
+			if (wishlist == null) res.render('user/wishlist', { wishlist: [], title: 'Wishlist' })
 			else res.render('user/wishlist', { wishlist: wishlist.items, title: 'Wishlist' })
 		} catch (error) {
 			next(error)
 		}
 	},
 
-    // Update Wishlist
+	// Update Wishlist
 	updateWishlist: async (req, res, next) => {
 		try {
 			const user = req.session.user
@@ -508,20 +521,24 @@ module.exports = {
 		}
 	},
 
-    // Get Wallet
+	// Get Wallet
 	wallet: async (req, res, next) => {
 		const userId = req.session.user._id
 		try {
 			let wallet
 			wallet = await Wallet.findOne({ user: userId })
 			if (wallet == null) wallet = await Wallet.create({ user: userId, balance: 0 })
-			res.render('user/wallet', { balance: wallet.balance, transactions: wallet.transactions.reverse(), title: 'Wallet' })
+			res.render('user/wallet', {
+				balance: wallet.balance,
+				transactions: wallet.transactions.reverse(),
+				title: 'Wallet',
+			})
 		} catch (error) {
 			next(error)
 		}
 	},
 
-    // Get reset password form 
+	// Get reset password form
 	resetPasswordForm: async (req, res, next) => {
 		const { email } = req.query
 		try {
@@ -549,7 +566,11 @@ module.exports = {
 				await user.save()
 				res.redirect(`/login/?email=${email}`)
 			} else {
-				res.render('user/reset-password', { email, otpError: 'OTP didnt match. Pls try again', title: 'Reset Password' })
+				res.render('user/reset-password', {
+					email,
+					otpError: 'OTP didnt match. Pls try again',
+					title: 'Reset Password',
+				})
 			}
 		} catch (error) {
 			next(error)
