@@ -241,14 +241,14 @@ module.exports = {
 		try {
 			const user = req.session.user
 			if (user) {
-				const cartItemsCount = await Cart.findOne({ user: user._id }).select('items').lean()
-				if (cartItemsCount)
-					res.status(200).json({
-						success: true,
-						name: user.name,
-						id: user._id,
-						cartItemsCount: cartItemsCount?.items?.length || 0,
-					})
+				let cart = await Cart.findOne({ user: user._id }).select('items').lean()
+				if (!cart) cart = await Cart.create({ user: user._id })
+				res.status(200).json({
+					success: true,
+					name: user.name,
+					id: user._id,
+					cartItemsCount: cart?.items?.length || 0,
+				})
 			} else res.status(401).json({ success: false })
 		} catch (error) {
 			next(error)
