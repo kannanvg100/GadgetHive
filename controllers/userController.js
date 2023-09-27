@@ -242,12 +242,12 @@ module.exports = {
 			const user = req.session.user
 			if (user) {
 				const cartItemsCount = await Cart.findOne({ user: user._id }).select('items').lean()
-				if (user)
+				if (cartItemsCount)
 					res.status(200).json({
 						success: true,
 						name: user.name,
 						id: user._id,
-						cartItemsCount: cartItemsCount.items.length,
+						cartItemsCount: cartItemsCount?.items?.length || 0,
 					})
 			} else res.status(401).json({ success: false })
 		} catch (error) {
