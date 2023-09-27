@@ -61,7 +61,11 @@
                         <path d="M9 6L15 12L9 18" stroke="#33363F" stroke-width="2" />
                     </svg>
                 </div>
+                {{#if product.stock}}
                 <span class="btn-1 ms-2" id="add-to-cart">ADD TO BAG</span>
+                {{else}}
+                <span class="btn-5 fw-semibold ms-2">NOT IN STOCK</span>
+                {{/if}}
             </div>
 
             <div class="d-flex align-items-center gap-2 mt-5">
@@ -113,6 +117,9 @@
     const addToCart = document.querySelector("#add-to-cart")
 
     incBtn.addEventListener("click", () => {
+        if({{product.stock}} == 0) return Toastify({ text: "Product not in stock, Pls check again later" }).showToast();
+        if (displayCount.innerText >= {{product.stock}})
+            return Toastify({ text: "Only limited quanities are available" }).showToast();
         if (displayCount.innerText < 10) displayCount.innerText++
         else Toastify({ text: "Maximum 10 quantities are allowed" }).showToast();
     })

@@ -75,7 +75,7 @@ form.addEventListener("submit", e => {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    const retUrl = data.ret || "/admin/dashboard"
+                    const retUrl = new URLSearchParams(window.location.search).get('ret') || "/admin/dashboard"
                     location.href = `${retUrl}`
                 }
                 else passwordError.innerHTML = data.message

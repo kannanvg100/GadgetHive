@@ -1,6 +1,9 @@
 <div class="wrapper cursor-pointer product-list-item pb-1">
-    <div class="bg-off-white item-img-wrapper">
+    <div class="bg-off-white item-img-wrapper position-relative">
         <img class="blend-multiply" src="{{getFirstImageUrl product.images}}" alt="" height="180" width="180px" style="object-fit: contain;">
+        {{#unless product.stock}}
+            <p class="not-in-stock">Not in stock</p>
+        {{/unless}}
     </div>
     <div class="mt-2 item-details-wrapper">
         <span class="d-none" id="_id">{{product._id}}</span>
@@ -14,5 +17,16 @@
     .product-list-item:hover {
         transform: scale(1.06);
         transition: 0.3s ease-in-out;
+    }
+
+    .not-in-stock{
+        position: absolute;
+        bottom: 15px;
+        left: 1px;
+        right: 1px;
+        padding: 5px;
+        text-align: center;
+        background: #fff;
+        font-weight: 500;
     }
 </style>
