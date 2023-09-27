@@ -431,17 +431,10 @@ module.exports = {
 
 				const xlBuffer = await workbook.xlsx.writeBuffer()
 
-				const s3Params = {
-					Bucket: 'gadgethive-s3',
-					Key: `pdfs/${Date.now()}.xlsx`,
-					Body: xlBuffer,
-				}
+                res.setHeader('Content-Disposition', 'attachment; filename=report.xls');
+                res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                res.send(xlBuffer);
 
-				await client.send(new PutObjectCommand(s3Params))
-
-				const fileUrl = `https://gadgethive-s3.s3.amazonaws.com/${s3Params.Key}`
-				res.setHeader('Content-Disposition', `attachment; filename=${s3Params.Key}`)
-				res.redirect(fileUrl)
 			} else {
 				const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser' })
 				const page = await browser.newPage()
@@ -603,18 +596,9 @@ module.exports = {
 				await page.setContent(content)
 				const pdfBuffer = await page.pdf({ format: 'A4' })
 
-				const s3Params = {
-					Bucket: 'gadgethive-s3',
-					Key: `pdfs/${Date.now()}.pdf`,
-					Body: pdfBuffer,
-				}
-
-				await client.send(new PutObjectCommand(s3Params))
-				await browser.close()
-
-				const fileUrl = `https://gadgethive-s3.s3.amazonaws.com/${s3Params.Key}`
-				res.setHeader('Content-Disposition', `attachment; filename=${s3Params.Key}`)
-				res.redirect(fileUrl)
+				res.setHeader('Content-Disposition', 'attachment; filename=report.pdf');
+                res.setHeader('Content-Type', 'application/pdf');
+                res.send(pdfBuffer);
 			}
 		} catch (error) {
 			next(error)
