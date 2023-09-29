@@ -1,7 +1,7 @@
 <div class="d-flex gap-1">
     <div class="thumbnails">
         {{#each images}}
-        <img src="/assets/{{this}}" alt="thumbnail{{@index}}" class="thumbnail" />
+        <img src="https://gadgethive-s3.s3.amazonaws.com/images/{{this}}" alt="thumbnail{{@index}}" class="thumbnail" />
         {{/each}}
     </div>
     <div class="image-container position-relative">
@@ -53,7 +53,7 @@
         height: 340px;
         border-radius: 3x;
         background-position: center center;
-        background-image: url('/assets/{{images.[0]}}');
+        background-image: url('https://gadgethive-s3.s3.amazonaws.com/images/{{images.[0]}}');
         background-repeat: no-repeat;
         background-size: contain;
         transition: background-image 0.05s linear;

@@ -2,18 +2,16 @@ const Product = require('../models/Product')
 const Category = require('../models/Category')
 const Brand = require('../models/Brand')
 const Wishlist = require('../models/Wishlist')
-const fs = require('fs')    
-const path = require('path')
+const { uploadToS3, deleteFromS3 } = require('../helpers/awsHelpers')
 
 const RESULTS_PER_PAGE = 6
 
 module.exports = {
-
-    // get products by category
+	// get products by category
 	getAllListedProducts: async (req, res, next) => {
 		try {
 			const { category } = req.params
-			const page  = req.query.page || 1
+			const page = req.query.page || 1
 			const categoryID = await Category.findOne({ name: category })
 
 			const decodedURL = decodeURIComponent(req.query.f)
@@ -80,11 +78,11 @@ module.exports = {
 				},
 			])
 
-            let title = ""
-            if(category === 'all') title = 'Search'
-            else if(category === 'phones') title = 'Mobile Phones'
-            else if(category === 'watches') title = 'Watches'
-            else if(category === 'tablets') title = 'Tablets'
+			let title = ''
+			if (category === 'all') title = 'Search'
+			else if (category === 'phones') title = 'Mobile Phones'
+			else if (category === 'watches') title = 'Watches'
+			else if (category === 'tablets') title = 'Tablets'
 
 			res.render('user/products-list', {
 				products,
@@ -98,14 +96,14 @@ module.exports = {
 					{ name: 'Home', url: '/' },
 					{ name: category, url: '' },
 				],
-                title
+				title,
 			})
 		} catch (error) {
 			next(error)
 		}
 	},
 
-    // Products search
+	// Products search
 	getAllfilteredProducts: async (req, res, next) => {
 		try {
 			const filter = req.query
@@ -138,7 +136,7 @@ module.exports = {
 		}
 	},
 
-    // get all products for admin
+	// get all products for admin
 	getAllProducts: async (req, res, next) => {
 		const { category, page } = req.params
 		let filter = {}
@@ -158,27 +156,27 @@ module.exports = {
 				products,
 				page,
 				totalPages,
-                title: "Products"
+				title: 'Products',
 			})
 		} catch (error) {
 			console.error(error)
 			next(error)
 		}
 	},
-    
-    // get product by id
+
+	// get product by id
 	getProductByID: async (req, res, next) => {
 		const { id } = req.params
 		try {
 			const product = await Product.findById(id).select('slug')
-            if (!product) throw { statusCode: 404, message: 'Product not found' }
+			if (!product) throw { statusCode: 404, message: 'Product not found' }
 			res.redirect(`/shop/p/${product.slug}/${id}`)
 		} catch (error) {
 			next(error)
 		}
 	},
 
-    // get product by slug
+	// get product by slug
 	getProductBySlug: async (req, res, next) => {
 		const { id } = req.params
 		try {
@@ -188,7 +186,7 @@ module.exports = {
 				{ $group: { _id: null, values: { $push: '$name' } } },
 			])
 			let product = await Product.findById(id).populate('category brand')
-            if (!product) throw { statusCode: 404, message: 'Product not found' }
+			if (!product) throw { statusCode: 404, message: 'Product not found' }
 			let isWishlisted = false
 			if (req.session.user)
 				isWishlisted = await Wishlist.countDocuments({ user: req.session.user._id, 'items.product': id })
@@ -201,7 +199,7 @@ module.exports = {
 					{ name: product.title, url: '' },
 				],
 				isWishlisted,
-                title: product.title
+				title: product.title,
 			})
 		} catch (error) {
 			console.error(error.message)
@@ -209,19 +207,25 @@ module.exports = {
 		}
 	},
 
-    // Get add product form
+	// Get add product form
 	getAddProductForm: async (req, res, next) => {
 		try {
 			const categories = await Category.find({})
 			const brands = await Brand.find({})
-			res.render('admin/add-edit-product', { product: null, categories, brands, editMode: false, title: "Add Product" })
+			res.render('admin/add-edit-product', {
+				product: null,
+				categories,
+				brands,
+				editMode: false,
+				title: 'Add Product',
+			})
 		} catch (error) {
 			console.error(error)
 			next(error)
 		}
 	},
 
-    // Get edit product form
+	// Get edit product form
 	getEditProductForm: async (req, res, next) => {
 		const id = req.query.id
 		const product = await Product.findById(id)
@@ -233,7 +237,7 @@ module.exports = {
 				categories,
 				brands,
 				editMode: true,
-                title: "Edit Product"
+				title: 'Edit Product',
 			})
 		} catch (error) {
 			console.error(error)
@@ -241,14 +245,12 @@ module.exports = {
 		}
 	},
 
-    // Add product to database
+	// Add product to database
 	addProduct: async (req, res, next) => {
 		try {
 			const productData = JSON.parse(req.body.productData)
-			productData.images = []
-
 			if (req.files.length > 0) {
-				req.files.forEach((item) => productData.images.push(item.filename))
+				productData.images = await uploadToS3('images', req.files)
 				await Product.create(productData)
 				return res.status(200).json({ success: true })
 			} else res.status(400).json({ success: false, message: 'Please select some Product images' })
@@ -257,51 +259,49 @@ module.exports = {
 		}
 	},
 
-    // Edit product in database
+	// Edit product in database
 	editProduct: async (req, res, next) => {
 		try {
 			const productData = JSON.parse(req.body.productData)
 			const id = productData.id
 			const product = await Product.findById(id)
-			if (req.files.length > 0) {
-				req.files.forEach((item) => product.images.push(item.filename))
-			}
-
 			for (const [key, value] of Object.entries(productData)) {
 				product[key] = value
 			}
+			if (req.files.length > 0) {
+				const imageUrls = (productData.images = await uploadToS3('images', req.files))
+				product.images.push(...imageUrls)
+			}
 			await product.save()
-
 			return res.status(200).json({ success: true })
 		} catch (error) {
 			next(error)
 		}
 	},
 
-    // Delete product from database
+	// Delete product from database
 	deleteProduct: async (req, res, next) => {
 		const { id } = req.body
 		try {
-			await Product.findByIdAndDelete(id)
+			const product = await Product.findByIdAndDelete(id)
 			res.status(200).json({ success: true })
+            await deleteFromS3('images', ...product.images)
 		} catch (error) {
 			next(error)
 		}
 	},
 
-    // Delete product image from database
+	// Delete product image from database
 	deleteImage: async (req, res, next) => {
 		const { id, file } = req.body
 		try {
 			const product = await Product.findById(id)
-            const index = product.images.indexOf(file)
-            if(index === -1) throw { statusCode: 404, message: 'Image not found' }
-            product.images.splice(index, 1)
-            await product.save()
-            res.status(200).json({ success: true })
-            // Delete image from uploads folder
-            const imagePath = path.join(__dirname, `../public/assets/${file}`)
-            fs.unlink(imagePath)
+			const index = product.images.indexOf(file)
+			if (index === -1) throw { statusCode: 404, message: 'Image not found' }
+			product.images.splice(index, 1)
+			await product.save()
+			res.status(200).json({ success: true })
+			await deleteFromS3('images', file)
 		} catch (error) {
 			next(error)
 		}

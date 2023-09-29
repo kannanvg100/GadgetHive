@@ -1,6 +1,5 @@
 .env
 node_modules
-public/assets
 package-lock.json
 .eslintrc.json
 views/user/test.html

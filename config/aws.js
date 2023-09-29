@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-const { S3Client, PutObjectCommand} = require('@aws-sdk/client-s3')
+const { S3Client, PutObjectCommand, DeleteObjectsCommand } = require('@aws-sdk/client-s3')
 
 module.exports = {
 	client: new S3Client({
@@ -9,5 +9,6 @@ module.exports = {
 			secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 		},
 	}),
-    PutObjectCommand: PutObjectCommand,
+	PutObjectCommand,
+	DeleteObjectsCommand,
 }

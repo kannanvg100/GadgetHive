@@ -1,6 +1,6 @@
 <div class="wrapper cursor-pointer product-list-item pb-1">
     <div class="bg-off-white item-img-wrapper position-relative">
-        <img class="blend-multiply" src="{{getFirstImageUrl product.images}}" alt="" height="180" width="180px" style="object-fit: contain;">
+        <img class="blend-multiply" src="https://gadgethive-s3.s3.amazonaws.com/images/{{product.images.[0]}}" alt="" height="180" width="180px" style="object-fit: contain;">
         {{#unless product.stock}}
             <p class="not-in-stock">Not in stock</p>
         {{/unless}}
@@ -15,18 +15,19 @@
 
 <style>
     .product-list-item:hover {
-        transform: scale(1.06);
-        transition: 0.3s ease-in-out;
+        transform: scale(1.05);
+        transition: 0.2s ease-in-out;
     }
 
     .not-in-stock{
         position: absolute;
         bottom: 15px;
-        left: 1px;
-        right: 1px;
+        left: 0px;
+        right: 0px;
         padding: 5px;
         text-align: center;
         background: #fff;
         font-weight: 500;
+        box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
     }
 </style>

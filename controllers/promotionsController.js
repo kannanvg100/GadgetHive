@@ -1,3 +1,4 @@
+const { uploadToS3, deleteFromS3 } = require('../helpers/awsHelpers')
 const Banner = require('../models/Banner')
 const Coupon = require('../models/Coupon')
 
@@ -5,7 +6,7 @@ module.exports = {
     //Get all banners
 	getBanners: async (req, res, next) => {
 		try {
-			const banners = await Banner.find({})
+			const banners = await Banner.find({}).sort({ createdAt: -1 })
 			res.render('admin/banner-list', { banners })
 		} catch (error) {
 			next(error)
@@ -25,10 +26,10 @@ module.exports = {
 	addBanner: async (req, res, next) => {
 		try {
 			const bannerData = JSON.parse(req.body.bannerData)
-			const image = req.files[0].filename
-			if (image == '') res.status(400).json({ success: false, message: 'Please select a Banner image' })
-			bannerData.image = image
-
+			const image = req.file
+			if (!image) return res.status(400).json({ success: false, message: 'Please select a Banner image' })
+            const imgUrl = await uploadToS3('banners', image)
+            bannerData.image = imgUrl[0]
 			await Banner.create(bannerData)
 			return res.status(200).json({ success: true })
 		} catch (error) {
@@ -51,8 +52,9 @@ module.exports = {
 	deleteBanner: async (req, res, next) => {
 		try {
 			const id = req.body.id
-			await Banner.findByIdAndDelete(id)
+			const banner = await Banner.findByIdAndDelete(id)
 			res.status(200).json({ success: true })
+            await deleteFromS3('banners', banner.image)
 		} catch (error) {
 			next(error)
 		}
@@ -63,8 +65,14 @@ module.exports = {
 		const data = JSON.parse(req.body.bannerData)
 		try {
 			const banner = await Banner.findById(data.id)
-			if (req.files.length > 0) {
-				banner.image = req.files[0].filename
+            const image = req.file
+            if (image) {
+                await deleteFromS3('banners', banner.image)
+                const imgUrl = await uploadToS3('banners', image)
+				banner.image = imgUrl[0]
+			}
+			if (req.files) {
+				banner.image = req.files[0]
 			}
 			banner.title = data.title
 			banner.link = data.link

@@ -17,7 +17,7 @@
                     {{/unless}}
                     {{#each wishlist}}
                         <div class="d-flex p-2 rounded gap-2 wishlist-item bg-off-white" data-id="{{this.product._id}}">
-                            <img src="{{getFirstImageUrl this.product.images}}" alt="" width="50px">
+                            <img src="https://gadgethive-s3.s3.amazonaws.com/images/{{this.product.images.[0]}}" alt="" width="50px">
                             <div class="flex-grow-1 pe-2">
                                 <h6 class="fw-semibold span">{{this.product.title}}</h6>
                                 <span>{{formatPrice this.product.price}}</span>

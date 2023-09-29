@@ -51,7 +51,7 @@ module.exports = {
 			const brands = await Brand.find().sort({ displayOrder: -1 }).select('name image')
 			const latestProducts = await Product.find().sort({ createdAt: -1 }).limit(5)
 			const premiumProducts = await Product.find().sort({ price: -1 }).limit(5)
-			const banners = await Banner.find({ isActive: true }).limit(5)
+			const banners = await Banner.find({ isActive: true }).sort({ createdAt: -1 }).limit(5)
 			res.render('user/home', {
 				categories: categories[0].values,
 				brands,
@@ -65,21 +65,20 @@ module.exports = {
 	},
 
 	// Redirect to Homepage
-	goToHomePage: async (req, res, next) => {
+	goToHomePage: async (req, res) => {
 		res.redirect('/')
 	},
 
 	// Verify User form
-	registerUser: async (req, res, next) => {
-		let { email, phone, password, refId } = req.body
-
-		let result = {}
-		if (!email) result.emailError = 'Email required'
-		if (!phone) result.phoneError = 'Mobile number required'
-		if (!password) result.passwordError = 'Password required'
-		if (!email || !phone || !password) return res.render('user/signup', result, { title: 'Signup' })
-
+	registerUser: async (req, res) => {
 		try {
+			let { email, phone, password, refId } = req.body
+			let result = {}
+			if (!email) result.emailError = 'Email required'
+			if (!phone) result.phoneError = 'Mobile number required'
+			if (!password) result.passwordError = 'Password required'
+			if (!email || !phone || !password) return res.render('user/signup', result, { title: 'Signup' })
+
 			const user = await User.findOne({ email })
 			if (user)
 				return res.render('user/signup', { phone, emailError: 'Email already registered', title: 'Signup' })
@@ -96,7 +95,7 @@ module.exports = {
 			await verificationHelpers.sendOtp(`+91${phone}`)
 			res.render('user/verify-otp', { phone, title: 'Verify OTP' })
 		} catch (error) {
-			console.error(error.message)
+			console.error(error)
 			res.render('user/signup', {
 				mobileNumberError: 'Something went wrong. Try again later',
 				title: 'Signup',
@@ -231,7 +230,7 @@ module.exports = {
 	},
 
 	// Logout User
-	logoutUser: async (req, res, next) => {
+	logoutUser: async (req, res) => {
 		delete req.session.user
 		res.redirect('/')
 	},

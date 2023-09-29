@@ -8,7 +8,7 @@
         {{#each banners}}
         <a href="{{this.link}}">
             <div class="slide">
-                <img src="/assets/{{this.image}}" alt="banner-image" />
+                <img src="https://gadgethive-s3.s3.amazonaws.com/banners/{{this.image}}" alt="banner-image" />
             </div>
         </a>
         {{/each}}
@@ -30,7 +30,7 @@
         <div class="horizontal-scroll-item">
             {{#each brands}}
             <a href="/shop/all/?f=brand%3D{{this._id}}" class="me-3"><img class="brand-logo"
-                    src="/assets/{{this.image}}" alt=""></a>
+                    src="https://gadgethive-s3.s3.amazonaws.com/brands/{{this.image}}" alt=""></a>
             {{/each}}
         </div>
     </div>

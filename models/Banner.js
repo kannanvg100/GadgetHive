@@ -17,6 +17,11 @@ const bannerSchema = new mongoose.Schema({
 		type: Boolean,
         default: [true, 'Status is required']
 	},
+    createdAt: {
+		type: Date,
+        immutable: true,
+		default: Date.now,
+	},
 })
 
 module.exports = mongoose.model('Banner', bannerSchema, 'banners')

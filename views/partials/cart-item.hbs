@@ -5,7 +5,7 @@
     <div class="cart-item d-flex gap-4 p-3" data-id="{{item._id}}"
         data-price="{{item.productId.price}}" data-qty="{{item.quantity}}" data-mrp={{item.productId.mrp}}>
         <div class="align-self-center">
-            <img src="assets/{{item.productId.images.[0]}}" alt="product_image" width="75px">
+            <img src="https://gadgethive-s3.s3.amazonaws.com/images/{{item.productId.images.[0]}}" alt="product_image" width="75px">
         </div>
         <div class="align-self-center flex-grow-1">
             <p class="fw-semibold">{{item.productId.title}}</p>

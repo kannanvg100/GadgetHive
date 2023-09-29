@@ -9,9 +9,9 @@ const router = express.Router()
 // Routes accessible to admin users only
 router.get('/banners', preventCache, auth.isAdminAuthorized, promotionsController.getBanners)        
 router.get('/banners/add', preventCache, auth.isAdminAuthorized, promotionsController.getAddBannerForm)        
-router.post('/banners/add', preventCache, auth.isAdminAuthorized, upload.array('images', 1), promotionsController.addBanner)
+router.post('/banners/add', preventCache, auth.isAdminAuthorized, upload.single('images'), promotionsController.addBanner)
 router.get('/banners/edit', preventCache, auth.isAdminAuthorized, promotionsController.getEditBannerForm)        
-router.post('/banners/edit', preventCache, auth.isAdminAuthorized, upload.array('images', 1), promotionsController.editBanner)        
+router.post('/banners/edit', preventCache, auth.isAdminAuthorized, upload.single('images'), promotionsController.editBanner)        
 router.delete('/banners/delete', preventCache, auth.isAdminAuthorized, promotionsController.deleteBanner)        
 
 
@@ -21,10 +21,6 @@ router.post('/coupons/add', preventCache, auth.isAdminAuthorized, promotionsCont
 router.get('/coupons/edit', preventCache, auth.isAdminAuthorized, promotionsController.getEditCouponForm)        
 router.post('/coupons/edit', preventCache, auth.isAdminAuthorized, promotionsController.editCoupon)        
 router.delete('/coupons/delete', preventCache, auth.isAdminAuthorized, promotionsController.deleteCoupon)    
-
-
-
-
 
 // End of admin routes
 

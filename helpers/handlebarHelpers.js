@@ -45,12 +45,6 @@ module.exports = {
 	getRandomNumber: function (n) {
 		return Math.floor(Math.random(n) * 100)
 	},
-	getImageUrl: function (name) {
-		return `/assets/${name}`
-	},
-	getFirstImageUrl: function (name) {
-		return `/assets/${name[0]}`
-	},
 	isNull: function (data) {
 		return data.length < 1
 	},
