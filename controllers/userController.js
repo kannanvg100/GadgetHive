@@ -17,8 +17,9 @@ module.exports = {
 		try {
 			if (req.session.user) res.redirect('/')
 			else {
-				const email = req.query.email
-				res.render('user/login', { email, title: 'Login' })
+				const email = req.query.email || 'test@gmail.com'
+				const password = email === 'test@gmail.com' ? '1111' : ''
+				res.render('user/login', { email, password, title: 'Login' })
 			}
 		} catch (error) {
 			next(error)

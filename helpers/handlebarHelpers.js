@@ -125,11 +125,8 @@ module.exports = {
 	getFirstProductImgUrl: function (data) {
 		return data.items[0].productId.images[0]
 	},
-	getFirstProductTitle: function (data) {
-		let str = data.items[0].productId.title
-		return str
-	},
 	getFirstProductTitleExt: function (data) {
+        console.log(data)
 		let str = ' '
 		if (data.items.length == 2) str += 'and 1 other item'
 		else if (data.items.length > 2) str += `and ${data.items.length - 1} other items`

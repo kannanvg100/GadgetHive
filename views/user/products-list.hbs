@@ -19,15 +19,19 @@
 
                 <br>
 
-                <div class="d-inline-flex gap-5 flex-wrap mt-3">
+                <div class="d-inline-flex justify-content-between gap-3 flex-wrap mt-3">
 
                     {{#if products.length}}
                         {{#each products}}
                             {{> product-list-item product = this}}
                         {{/each}}
+                        <div style="width: 180px;"></div>
+                        <div style="width: 180px;"></div>
+                        <div style="width: 180px;"></div>
                     {{else}}
                         <h5>No products were found</h5>
                     {{/if}}
+
 
                 </div>
 

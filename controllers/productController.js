@@ -4,7 +4,7 @@ const Brand = require('../models/Brand')
 const Wishlist = require('../models/Wishlist')
 const { uploadToS3, deleteFromS3 } = require('../helpers/awsHelpers')
 
-const RESULTS_PER_PAGE = 6
+const RESULTS_PER_PAGE = 8
 
 module.exports = {
 	// get products by category
