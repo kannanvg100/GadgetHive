@@ -34,7 +34,7 @@
                                 <div class="clearfix"></div>
                             </div>
 
-                            <input type="password" name="password" id="password" class="input-1 mt-1" value="{{password}}"/>
+                            <input type="password" name="password" id="password" class="input-1 mt-1"/>
 
                             <div>
                                 <span class="password-error float-start text-danger">
@@ -227,7 +227,7 @@
                     otpCounter.hidden = false
                     startCountdown()
                     Toastify({
-                        text: `OTP sent to your Mobile number ending ${data.phoneDigits}`,
+                        text: `OTP sent to your Email address ${form.email.value}`,
                         style: {
                             background: "#468B97",
                         },

@@ -7,7 +7,7 @@ const Banner = require('../models/Banner')
 const Wallet = require('../models/Wallet')
 const Wishlist = require('../models/Wishlist')
 const Cart = require('../models/Cart')
-const verificationHelpers = require('../config/twilio')
+const verificationHelpers = require('../config/nodemailer')
 
 const RESULTS_PER_PAGE = 6
 
@@ -17,9 +17,8 @@ module.exports = {
 		try {
 			if (req.session.user) res.redirect('/')
 			else {
-				const email = req.query.email || 'test@gmail.com'
-				const password = email === 'test@gmail.com' ? '1111' : ''
-				res.render('user/login', { email, password, title: 'Login' })
+				const email = req.query?.email || ''
+				res.render('user/login', { email, title: 'Login' })
 			}
 		} catch (error) {
 			next(error)
@@ -91,10 +90,11 @@ module.exports = {
 					title: 'Signup',
 				})
 
-			req.session.guest = { email, phone, password, refId }
+			const otp = await verificationHelpers.sendOtp(email)
 
-			await verificationHelpers.sendOtp(`+91${phone}`)
-			res.render('user/verify-otp', { phone, title: 'Verify OTP' })
+			req.session.guest = { email, phone, password, refId, otp }
+
+			res.render('user/verify-otp', { email, title: 'Verify OTP' })
 		} catch (error) {
 			console.error(error)
 			res.render('user/signup', {
@@ -106,13 +106,12 @@ module.exports = {
 
 	// Register User
 	verifyUserOtp: async (req, res, next) => {
-		const { otp } = req.body
+		const { otp: enteredOtp } = req.body
 		if (req.session.guest == null)
 			return res.status(500).json({ success: false, message: 'Something went wrong. Try again later' })
-		const { email, phone, password } = req.session.guest
+		const { email, phone, password, otp } = req.session.guest
 		try {
-			const status = await verificationHelpers.verifyOtp(`+91${phone}`, otp)
-			if (status === 'approved') {
+			if (otp === enteredOtp) {
 				const user = await User.create({ email, phone: `91${phone}`, password })
 				const refId = req.session.guest.refId
 				if (refId) {
@@ -193,10 +192,10 @@ module.exports = {
 			if (!user) {
 				return res.status(404).json({ success: false, message: 'User not found' })
 			}
-			req.session.guest = { email, phone: user.phone }
-			const status = await verificationHelpers.sendOtp(`+${user.phone}`)
-			if (status === 'pending') {
-				return res.status(200).json({ success: true, phoneDigits: user.phone.toString().slice(-4) })
+			const otp = await verificationHelpers.sendOtp(email)
+			req.session.guest = { email, phone: user.phone, otp }
+			if (otp) {
+				return res.status(200).json({ success: true, email, phoneDigits: user.phone.toString().slice(-4) })
 			} else {
 				return res.status(500).json({ success: false, message: 'Failed to send OTP' })
 			}
@@ -205,15 +204,35 @@ module.exports = {
 		}
 	},
 
+	// Send OTP to assosiated account with the mail
+	resendOtp: async (req, res, next) => {
+		try {
+			let { email, phone, password, refId } = req.session.guest
+			if (!email || !phone || !password) return res.json({ success: false, message: 'try signup again.' })
+
+			const user = await User.findOne({ email })
+			if (user) return res.json({ success: false, message: 'try signup again.' })
+			const mobile = await User.findOne({ phone: `91${phone}` })
+			if (mobile) return res.json({ success: false, message: 'try signup again.' })
+
+			const otp = await verificationHelpers.sendOtp(email)
+
+			req.session.guest = { email, phone, password, refId, otp }
+
+			return res.json({ success: true })
+		} catch (error) {
+			next(error)
+		}
+	},
+
 	//Login to the account with OTP
-	OtpLoginUser: async (req, res, next) => {
+	otpLoginUser: async (req, res, next) => {
 		if (req.session.guest == null)
 			return res.status(500).json({ success: false, message: 'Something went wrong. Try again later' })
-		const { phone, email } = req.session.guest
-		const { password: otp } = req.body
+		const { phone, email, otp } = req.session.guest
+		const { password: enteredOtp } = req.body
 		try {
-			const status = await verificationHelpers.verifyOtp(`+${phone}`, otp)
-			if (status === 'approved') {
+			if (otp === enteredOtp) {
 				const user = await User.findOne({ email, phone })
 				if (user.isActive) {
 					req.session.user = user
@@ -550,18 +569,19 @@ module.exports = {
 
 	// Check OTP and Reset Password
 	checkOtpAndResetPassword: async (req, res, next) => {
-		let { email, otp, password } = req.body
+		let { email, otp: enteredOtp, password } = req.body
 
 		try {
 			let result = {}
 			if (!email) result.emailError = 'Email required'
-			if (!otp) result.otpError = 'Mobile number required'
+			if (!enteredOtp) result.otpError = 'Mobile number required'
 			if (!password) result.passwordError = 'Password required'
-			if (!email || !otp || !password) return res.render('user/reset-password', result)
+			if (!email || !enteredOtp || !password) return res.render('user/reset-password', result)
 
 			const user = await User.findOne({ email }).select('phone')
-			const status = await verificationHelpers.verifyOtp(`+${user.phone}`, otp)
-			if (status === 'approved') {
+			const { otp } = req.session.guest
+
+			if (otp === enteredOtp) {
 				user.password = password
 				await user.save()
 				res.redirect(`/login/?email=${email}`)
