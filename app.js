@@ -2,9 +2,8 @@ const express = require('express')
 const cookieParser = require('cookie-parser')
 const path = require('path')
 const morgan = require('morgan')
-const session = require('express-session')
+const session = require('cookie-session')
 const exphbs = require('express-handlebars')
-// const errorMiddleware = require('./middlewares/error')
 const errorHandler = require('./middlewares/errorHandler');
 const cron = require('node-cron')
 const orderServices = require('./services/orderServices')
@@ -56,7 +55,7 @@ const brand = require('./routes/brandRoute')
 
 app.use(
 	session({
-		secret: 'NCDIDMDICMSC',
+		secret: process.env.SESSION_KEY,
 		resave: true,
 		saveUninitialized: true,
 	})
@@ -73,7 +72,7 @@ app.use('/', brand)
 // Middleware For Error Handling
 app.use(errorHandler)
 
-//Schedule the job to run every 5 minutes
+// Schedule to run every 5 minutes to reset stock
 cron.schedule('*/5 * * * *', () => {
 	orderServices.processPendingOrders()
 })

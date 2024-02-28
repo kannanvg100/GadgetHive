@@ -297,11 +297,12 @@
     // Checkout
     const buyBtn = document.querySelector("#checkout-now")
     buyBtn.addEventListener("click", () => {
-        buyBtn.textContent = "Processing..."
-        buyBtn.disabled = true
         const addressId = document.querySelector("#address-id").getAttribute('data-id');
         const paymentType = document.querySelector('input[name="payment-options"]:checked').value
         const couponId = document.querySelector('#coupon-discount').getAttribute('data-id')
+        if(!addressId) return Toastify({ text: "Please select/add an address" }).showToast();
+        buyBtn.textContent = "Processing..."
+        buyBtn.disabled = true
         fetch(`/orders/checkout`, {
             method: "POST",
             headers: {
